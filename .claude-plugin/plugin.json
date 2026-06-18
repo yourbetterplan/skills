@@ -1,0 +1,10 @@
+{
+  "name": "betterplan",
+  "version": "0.1.0",
+  "description": "Create well-formed Betterplan building blocks — Initiatives, Epics, User/Project/Devteam Stories, and Workitems — and classify work into the right type using the Betterplan method.",
+  "author": {
+    "name": "Betterplan"
+  },
+  "homepage": "https://www.yourbetterplan.com",
+  "keywords": ["betterplan", "agile", "planning", "story-map", "user-story", "backlog"]
+}
