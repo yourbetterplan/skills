@@ -39,11 +39,11 @@ There are two groups. **Structure** blocks are never implemented directly — th
 
 | Block | Group | One-line purpose |
 |---|---|---|
-| Initiative | Structure | A large goal that sets direction. Not worked on directly. |
-| Epic | Structure | A sub-goal under an initiative: a step the user takes toward the goal. |
-| User Story | Implementation | An option for *how* a user takes a step. Concrete user value. |
-| Project Story | Implementation | Cross-cutting work with no direct user value (organizational, hardware, docs, decisions/events). |
-| Devteam Story | Implementation | Cross-cutting technical work (refactoring, build pipeline, technical debt). |
+| Initiative | Structure | A **business goal** — the outcome we want to achieve. Not worked on directly. |
+| Epic | Structure | A **step in the business process** that fulfils the goal. Structure, not worked on directly. |
+| User Story | Implementation | A **tool or option that fulfils a process step**, with concrete user value. A tool can be a person, a service, or a system. |
+| Project Story | Implementation | A tool that fulfils a step but has no direct user value: organizational, hardware, docs, decisions/events. |
+| Devteam Story | Implementation | A technical tool internal to the dev team (refactoring, build pipeline, technical debt). |
 | Workitem | Implementation detail | Smallest unit. Belongs to a Story, used only on the Iteration Board to coordinate delivery. No story points. |
 
 ## Starting from a rough idea

@@ -4,9 +4,9 @@ Terms used across the Betterplan skills.
 
 - **Endeavor** — the whole project/undertaking being planned in Betterplan.
 - **Story Map** — visual structure of the endeavor (Jeff Patton). Left→right = major steps; top→bottom = importance/options. Holds Initiatives and Epics; Stories hang under Epics.
-- **Initiative** — a large goal that sets direction. Not implemented directly.
-- **Epic** — a sub-goal under an Initiative; a step the user takes toward the goal. Structure, not implemented directly.
-- **User Story** — a concrete, buildable option for how a user takes a step. Delivers user value.
+- **Initiative** — a **business goal**: the outcome we want to achieve. Structure, not implemented directly.
+- **Epic** — a **step in the business process** that fulfils the goal. Structure, not implemented directly.
+- **User Story** — a **tool or option that fulfils a process step**, with concrete user value. A tool can be a person, a service, or a system. Implementation block.
 - **Project Story** — cross-cutting work with no direct user value (organizational, hardware, docs, recording decisions/events).
 - **Devteam Story** — cross-cutting technical work internal to the dev team (refactoring, build pipeline, tech debt).
 - **Workitem** — smallest unit, belongs to a Story, used only on the Iteration Board to coordinate delivery. No story points.

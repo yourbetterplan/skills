@@ -13,7 +13,7 @@ metadata:
 
 # Create a Betterplan Epic
 
-An Epic is a **step the user takes toward a goal**. It is structure on the Story Map between Initiatives (goals) and Stories (options/work). Epics are not implemented directly — the User Stories underneath them are. Data model: `type: epic`.
+An Epic is a **step in the business process** that fulfils an Initiative's goal. It is structure on the Story Map between Initiatives (the goal) and Stories (the tools or options that fulfil the step). Epics are not implemented directly — the User Stories underneath them are the tools that get built. Data model: `type: epic`.
 
 For shared rules, follow the `betterplan-workflow` skill — in particular *Discovery is a dialogue* (proportional scale: Epic = one or two clarifying questions, no full Why/What/How loop), *Resuming refinement of an existing item*, *Creating an item: MCP first, Markdown fallback* (including the pre-create confirmation rule), and *Content separation* (be specific, no tag-mirroring). Epics are structure, so they have **no maturity level, no story points, and no acceptance criteria**.
 

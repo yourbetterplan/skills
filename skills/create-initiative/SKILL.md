@@ -13,7 +13,7 @@ metadata:
 
 # Create a Betterplan Initiative
 
-An Initiative is a **large goal that sets direction**. It is structure on the Story Map and is never implemented directly — Epics underneath it carry the steps. Data model: `type: initiative`.
+An Initiative is a **business goal** — the outcome we want to achieve. It is structure on the Story Map and is never implemented directly; the Epics underneath it are the steps of the business process that fulfil the goal. Data model: `type: initiative`.
 
 For shared rules, follow the `betterplan-workflow` skill — in particular *Discovery is a dialogue* (proportional scale: Initiative = one or two Why-questions, no full Why/What/How loop), *Resuming refinement of an existing item*, *Creating an item: MCP first, Markdown fallback* (including the pre-create confirmation rule), and *Content separation* (be specific, no tag-mirroring). Initiatives are structure, so they have **no maturity level, no story points, and no acceptance criteria**.
 

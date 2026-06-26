@@ -14,11 +14,13 @@ metadata:
 
 # Create a Betterplan Story
 
-Stories are the **implementation** blocks that live in the Backlog. There are three types. They share the same mechanics and differ in purpose and how they are written. Each maps to a `type` value in the Betterplan data model (used when creating via the MCP):
+Stories are the **implementation** blocks that live in the Backlog. A Story is a **tool or option that fulfils a step of the business process** described by its parent Epic. The tool can be a person, a service, or a system — not every Story has to be software.
 
-- **User Story** (`type: story`) — concrete user/customer value. → see `references/user-story.md`
-- **Project Story** (`type: project`) — needed but no direct user value: organizational, hardware, docs, recording decisions/events. → see `references/project-story.md`
-- **Devteam Story** (`type: dev`) — cross-cutting technical work internal to the team: refactoring, build pipeline, tech debt. → see `references/devteam-story.md`
+There are three types. They share the same mechanics and differ in purpose and how they are written. Each maps to a `type` value in the Betterplan data model (used when creating via the MCP):
+
+- **User Story** (`type: story`) — a tool / option with concrete user value (a feature, an automation, a service the user touches). → see `references/user-story.md`
+- **Project Story** (`type: project`) — a tool needed for the process but with no direct user value: organizational (a contract, a role, a process), hardware, docs, recording decisions/events. → see `references/project-story.md`
+- **Devteam Story** (`type: dev`) — a technical tool internal to the team: refactoring, build pipeline, tech debt. → see `references/devteam-story.md`
 
 ## Step 1 — confirm the type
 
