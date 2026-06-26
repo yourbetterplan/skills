@@ -189,7 +189,7 @@ The description may grow longer than a one-liner — that is fine. Keep it reada
 
 ### Quality bar (INVEST)
 
-This quality bar is the target for a **Ready** Story. An Idea or early Draft need not meet it yet — fill in detail as the Story matures (see "Match depth to maturity").
+This quality bar is the target for a **Ready** Story. An Idea or early Draft need not meet it yet — fill in detail as the Story matures (see Step 3b "Minimum information per maturity").
 
 - **Independent** enough to build on its own.
 - **Negotiable** — describes intent, not a rigid spec.
@@ -198,17 +198,69 @@ This quality bar is the target for a **Ready** Story. An Idea or early Draft nee
 - **Small** — fits within an iteration; if not, split it (see method-deep-dive in betterplan-workflow).
 - **Testable** — has acceptance criteria you could check.
 
-Read the matching `references/<type>.md` for the type-specific template, voice, and examples, then create the Story.
+Read the matching `references/<type>.md` for the type-specific template, voice, and examples.
+
+### 4.1 The user-story line
+
+Open the description with the user-story line that matches the Story type:
+
+- **User Story** (`type: story`): `Als <konkrete Persona aus dem Canvas Why>, will ich <Fähigkeit>, damit <Wert>.`
+- **Project Story** (`type: project`): one-line statement of who in the team or organization needs what and why, taken from the Canvas Why-line.
+- **Devteam Story** (`type: dev`): one-line statement of the technical motivation, also from the Canvas Why-line.
+
+Rules:
+
+- Carry the **real persona and trigger** from the Canvas — not a generic role label. "Produktmanagerin von Rosengarten, in Reviews/Retros" is content; "Produktmanagerin" alone is a label.
+- Stay short: one or two sentences. Detail belongs in `## Context`, not in a fat opening paragraph.
+- **Do not mirror tag content into the description.** Tags (e.g. "Persistenz", "UI") are metadata; the description is content. Spiegeln eines Tag-Namens ist kein Inhalt.
+
+### 4.2 Acceptance criteria — behavior, not pixels
+
+Derive one acceptance criterion per **Rule** from the canvas — not per How-detail. Acceptance criteria capture *observable behavior at the end of implementation*, not the implementation itself.
+
+- Use Markdown checkboxes (`- [ ]`).
+- Phrase each one as a **state that can be checked true or false**, not a task to do.
+  - Good: `- [ ] Suggestions appear after the user types at least 2 characters.`
+  - Good: `- [ ] Audit-Einträge können vom Nutzer ein- und ausgeblendet werden.`
+  - Avoid: `- [ ] Implement autocomplete.` (work, not a verifiable state)
+  - Avoid: `- [ ] Audit-Einträge nutzen ein graues Icon.` (design detail, belongs in `## Context` as a decision note)
+- One condition per box. Cover the happy path plus the important empty / error states.
+- Aim for **2–4 AC at Story level**. If you end up with more than 4, you are likely encoding How-detail or implementation tasks. Move that into `## Context` as a named decision or split the Story.
+- Given/When/Then is fine when it helps express a behavioral state.
+
+How-decisions that are **not behavior** (e.g. "pro Browser-Session statt persistent", "Icon plus graue Schrift", "in der bestehenden Activity-Sektion verortet") go into `## Context` as named decisions with one line of rationale, so the later implementation concept can pick them up without re-deciding.
+
+### 4.3 The optional activity comment
+
+Posting a comment after the description was updated is **optional, not mandatory**. Post one only when the refinement made a **substantial** change worth signalling — e.g. maturity moved up, a major scope decision was settled, a known open question was closed. Skip the comment for typo fixes, formatting passes, or minor AC tweaks. The activity log already records field changes; an extra comment for those is noise.
+
+When you do post one, write **content reflections**, not session minutes:
+
+- Good: "Persona ist enger gefasst als zuerst gedacht: nur Stakeholder-PM. Persistenz pro Session entschieden, Alternative User-Setting im Context verglichen. Offen: <X>."
+- Avoid: "Wir haben 4 Fragen gestellt, du hast Y geantwortet, ich habe Z geschrieben." (everything visible in the activity log already)
+
+The comment should let a future reader pick the Story up: name the decisions, name the open edges, name the maturity reached.
 
 ## Step 5 — create it (MCP or Markdown)
 
-Follow the "Creating an item: MCP first, Markdown fallback" rule in the `betterplan-workflow` skill. In short: if the Betterplan MCP is available, create the Story via its tool (content → `title` + `description`; set `type` = `story`/`project`/`dev`, plus `parentId`, `estimation`, maturity dates as arguments). Otherwise output the Markdown shape below for the user to paste in.
+Before any tool call: **show the full proposed description in chat**, plus the maturity you intend to set, and ask explicitly:
+
+> "Soll ich jetzt anlegen / updaten und auf <Idea | Draft | Ready> setzen?"
+
+Never call the MCP create/update tool, post the comment, or change the maturity tag in the same turn you first show the proposed text. The user must see what is going in.
+
+If the user replies with a change request (rewording, scope tweak, AC adjustment), **do not patch it in silently**. Update the canvas (Step 3a) instead, re-derive the description in Step 4, and post the new proposal. The canvas is the source of truth — direct text edits would drift the two apart.
+
+Once the user confirms, follow the "Creating an item: MCP first, Markdown fallback" rule in the `betterplan-workflow` skill. In short:
+
+- If the Betterplan MCP is available, create / update the Story via its tools (content → `title` + `description`; set `type` = `story` / `project` / `dev`, plus `parentId`, `estimation`, maturity dates as arguments). Post the comment from Step 4.3 only if it applies. Set the maturity date for the *achieved* level (which may be lower than the original target if the loop was paused, see Step 3b).
+- Otherwise output the Markdown shape below for the user to paste in.
 
 ## Output shape (Markdown fallback)
 
 Output **content only** — what goes into the Story's title and description. Do **not** include type, parent epic, maturity, story points, or dependency lines in the pasteable block; those are fields (set as MCP arguments, or mentioned in your chat reply when pasting Markdown).
 
-A Story description **may** use these sections (in this order). Everything is optional — see "Match depth to maturity" below. Read the matching `references/<type>.md` for the type-specific voice and a worked example.
+A Story description **may** use these sections (in this order). Which sections are filled depends on the target maturity — see Step 3b "Minimum information per maturity". Read the matching `references/<type>.md` for the type-specific voice and a worked example.
 
 ```
 # <Title>
@@ -231,23 +283,6 @@ decisions, links, constraints. Keep it to what helps someone pick the story up.>
 - <unresolved questions that still need an answer>
 ```
 
-### Match depth to maturity
-
-All information is optional. How much a Story is filled in depends on its maturity — do not force the full template onto an early Story, and never pad with placeholder text. Fill in only what is actually known.
-
-- **Idea**: usually just a title and maybe a one-line summary. Often the only other content is a few `Open questions`. That is fine and expected.
-- **Draft**: the Story is being explored, so it fills up — add `Context`, sketch `Acceptance criteria`, capture `Out of scope` and `Open questions` as they surface.
-- **Ready**: fully thought through — `Acceptance criteria` are complete and checkable, `Out of scope` is clear, open questions are resolved (or moved elsewhere).
-
-If you do not know the Story's maturity, ask, or default to a light Idea-level draft and offer to flesh it out.
-
-### Acceptance criteria rules
-
-- Use Markdown checkboxes (`- [ ]`).
-- Phrase each one as a **state that can be checked true or false**, not a task to do.
-  - Good: `- [ ] Suggestions appear after the user types at least 2 characters.`
-  - Avoid: `- [ ] Implement autocomplete.` (that is work, not a verifiable state)
-- One condition per box. Cover the happy path plus the important empty/error states.
-- Given/When/Then is fine when it helps express a behavioral state.
+Depth per maturity and AC rules are defined upstream — see **Step 3b "Minimum information per maturity"** for what the description must contain at Idea, Draft, and Ready, and **Step 4.2** for how acceptance criteria are phrased. Do not pad with placeholder text; fill in only what is actually on the canvas.
 
 After producing a Story, offer to break it into Workitems with the `create-workitem` skill once it is Ready for an iteration.
