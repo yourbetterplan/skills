@@ -51,20 +51,18 @@ The loop has three gates. Walk them **in order**; do not jump ahead, even if you
 
 ### Question discipline
 
-- **One open question per beat**, not a multi-choice salvo. Multi-choice is allowed only when the user explicitly asks for options, or when the choice is genuinely categorical (e.g. type selection in Step 1).
-- After every user answer: mirror what you heard in one sentence, update the canvas (Step 3a), then ask the next single question.
-- If you notice yourself wanting to write the Story now — stop. Ask one more clarifying question instead.
+Apply the *Discovery is a dialogue* rules from `betterplan-workflow` > Shared conventions: one open question per beat, mirror what you heard in one sentence, update the canvas (Step 3a), then ask the next single question. If you notice yourself wanting to write the Story now — stop. Ask one more clarifying question instead.
 
 ### Maturity-aware refinement
 
-Before starting the loop, check the Story's current maturity (Idea / Draft / Ready) and what the user wants to achieve in this session. **The default target is the next maturity step** (Idea → Draft, Draft → Ready). State this default explicitly and confirm before starting. The user may override with:
+Before starting the loop, check the Story's current maturity (Idea / Draft / Ready) and what the user wants to achieve this session. The generic defaults — *next maturity step* as target, no silent jumps, user may override with multi-step or stay-at-current — are defined in `betterplan-workflow` > *Discovery is a dialogue*. State the chosen target explicitly and confirm before starting.
 
-- **Multiple steps in one session** (e.g. Idea → Ready), when the Story is small and obviously clear. Run all relevant gates back-to-back, no silent shortcuts.
-- **Stay at the current maturity** (e.g. "I just want to add one detail to this Draft"). Run only the gate the detail belongs to (Why / What / How), not the whole loop.
+Story-specific:
 
-Only the questions needed for the chosen jump are asked. Do not re-open gates that were already settled in a previous session — read the existing Story content and activity log first.
+- The maturity steps are **Idea → Draft → Ready**; the minimum information for each is in Step 3b.
+- For an existing Story, follow *Resuming refinement of an existing item* in `betterplan-workflow`: read content + activity log first, then resume from the unfinished gate (see also Step 3b *Resume an existing Story*).
 
-The loop ends only when the Ready-Gate checklist in Step 3b is satisfied for the chosen target maturity **and the user explicitly confirms** that the canvas reflects the Story. Until then, no description text, no AC list, no concept attachment, no maturity tag change.
+The loop ends only when the Ready-Gate checklist in Step 3b is satisfied for the chosen target maturity **and the user explicitly confirms** that the canvas reflects the Story. Until then, no description text, no AC list, no maturity tag change.
 
 ## Step 3a — the Story canvas (shared working surface)
 
@@ -210,51 +208,40 @@ Open the description with the user-story line that matches the Story type:
 
 Rules:
 
-- Carry the **real persona and trigger** from the Canvas — not a generic role label. "Produktmanagerin von Rosengarten, in Reviews/Retros" is content; "Produktmanagerin" alone is a label.
+- Carry the **real persona and trigger** from the Canvas — not a generic role label. "Produktmanagerin von Rosengarten, in Reviews/Retros" is content; "Produktmanagerin" alone is a label. This is the Story-level application of the *Be specific, not generic* and *Tag content does not belong in the description* hard rules in `betterplan-workflow` > *Content separation*.
 - Stay short: one or two sentences. Detail belongs in `## Context`, not in a fat opening paragraph.
-- **Do not mirror tag content into the description.** Tags (e.g. "Persistenz", "UI") are metadata; the description is content. Spiegeln eines Tag-Namens ist kein Inhalt.
 
 ### 4.2 Acceptance criteria — behavior, not pixels
 
-Derive one acceptance criterion per **Rule** from the canvas — not per How-detail. Acceptance criteria capture *observable behavior at the end of implementation*, not the implementation itself.
+Derive one acceptance criterion per **Rule** from the canvas — not per How-detail. Acceptance criteria capture *observable behavior at the end of implementation*, not the implementation itself. Apply the AC hard rules in `betterplan-workflow` > *Content separation* (behavior not pixels, AC are not implementation tasks, design decisions belong in `## Context`).
 
-- Use Markdown checkboxes (`- [ ]`).
+Story-specific phrasing:
+
+- Use Markdown checkboxes (`- [ ]`), one condition per box.
 - Phrase each one as a **state that can be checked true or false**, not a task to do.
   - Good: `- [ ] Suggestions appear after the user types at least 2 characters.`
   - Good: `- [ ] Audit-Einträge können vom Nutzer ein- und ausgeblendet werden.`
   - Avoid: `- [ ] Implement autocomplete.` (work, not a verifiable state)
   - Avoid: `- [ ] Audit-Einträge nutzen ein graues Icon.` (design detail, belongs in `## Context` as a decision note)
-- One condition per box. Cover the happy path plus the important empty / error states.
-- Aim for **2–4 AC at Story level**. If you end up with more than 4, you are likely encoding How-detail or implementation tasks. Move that into `## Context` as a named decision or split the Story.
+- Aim for **2–4 AC at Story level**. More than 4 usually means How-detail or implementation tasks have leaked in — move them into `## Context` as named decisions or split the Story.
 - Given/When/Then is fine when it helps express a behavioral state.
 
 How-decisions that are **not behavior** (e.g. "pro Browser-Session statt persistent", "Icon plus graue Schrift", "in der bestehenden Activity-Sektion verortet") go into `## Context` as named decisions with one line of rationale, so the later implementation concept can pick them up without re-deciding.
 
 ### 4.3 The optional activity comment
 
-Posting a comment after the description was updated is **optional, not mandatory**. Post one only when the refinement made a **substantial** change worth signalling — e.g. maturity moved up, a major scope decision was settled, a known open question was closed. Skip the comment for typo fixes, formatting passes, or minor AC tweaks. The activity log already records field changes; an extra comment for those is noise.
-
-When you do post one, write **content reflections**, not session minutes:
-
-- Good: "Persona ist enger gefasst als zuerst gedacht: nur Stakeholder-PM. Persistenz pro Session entschieden, Alternative User-Setting im Context verglichen. Offen: <X>."
-- Avoid: "Wir haben 4 Fragen gestellt, du hast Y geantwortet, ich habe Z geschrieben." (everything visible in the activity log already)
-
-The comment should let a future reader pick the Story up: name the decisions, name the open edges, name the maturity reached.
+Posting a comment after the description was updated is **optional**. Follow the *Activity comments* rule in `betterplan-workflow` > Shared conventions for when and how. Story-specific triggers worth a comment: maturity moved up (Idea → Draft, Draft → Ready), a major scope decision was settled, a known open question was closed, or assumptions were accepted. Skip it for typo fixes or minor AC tweaks.
 
 ## Step 5 — create it (MCP or Markdown)
 
-Before any tool call: **show the full proposed description in chat**, plus the maturity you intend to set, and ask explicitly:
+Follow the *Creating an item: MCP first, Markdown fallback* rule in `betterplan-workflow` > Shared conventions. In particular: **always show the full proposed description plus the intended maturity in chat first and ask explicitly for confirmation** before any create / update / comment / maturity-tag call. Never act in the same turn you first show the proposal.
 
-> "Soll ich jetzt anlegen / updaten und auf <Idea | Draft | Ready> setzen?"
+Story-specific:
 
-Never call the MCP create/update tool, post the comment, or change the maturity tag in the same turn you first show the proposed text. The user must see what is going in.
-
-If the user replies with a change request (rewording, scope tweak, AC adjustment), **do not patch it in silently**. Update the canvas (Step 3a) instead, re-derive the description in Step 4, and post the new proposal. The canvas is the source of truth — direct text edits would drift the two apart.
-
-Once the user confirms, follow the "Creating an item: MCP first, Markdown fallback" rule in the `betterplan-workflow` skill. In short:
-
-- If the Betterplan MCP is available, create / update the Story via its tools (content → `title` + `description`; set `type` = `story` / `project` / `dev`, plus `parentId`, `estimation`, maturity dates as arguments). Post the comment from Step 4.3 only if it applies. Set the maturity date for the *achieved* level (which may be lower than the original target if the loop was paused, see Step 3b).
-- Otherwise output the Markdown shape below for the user to paste in.
+- If the user replies with a change request (rewording, scope tweak, AC adjustment), **do not patch it in silently**. Update the canvas (Step 3a) instead, re-derive the description in Step 4, and post the new proposal. The canvas is the source of truth — direct text edits would drift the two apart.
+- When creating / updating via the MCP, set `type` = `story` / `project` / `dev`, plus `parentId`, `estimation`, maturity dates as arguments. Set the maturity date for the *achieved* level (which may be lower than the original target if the loop was paused, see Step 3b).
+- Post the comment from Step 4.3 only if it applies.
+- If the MCP is not available, output the Markdown shape below for the user to paste in.
 
 ## Output shape (Markdown fallback)
 

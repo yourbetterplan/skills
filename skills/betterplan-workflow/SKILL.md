@@ -110,7 +110,31 @@ The Discovery track (Idea → Draft → Ready) is not just three labels — it i
 - **Prefer one open question per beat over a multi-choice salvo.** Multi-choice freezes the user into the assistant's option set; an open question invites the user's own framing. Multi-choice is fine when the user asks for options, or when the choice is genuinely categorical (e.g. selecting a type in Step 1 of `create-story`).
 - **Refinement is pauseable and resumable.** The user can stop the dialogue at any time; the assistant lands the Story at the highest maturity whose minimum is actually satisfied, writes the current state into the description (open questions stay explicit), and on the next invocation reconstructs the canvas from the description plus activity log to resume from the unfinished gate.
 
-These rules are operationalized in `create-story` Steps 3, 3a, and 3b. Other `create-*` skills follow the same spirit at their proportional scale.
+These rules are operationalized in `create-story` Steps 3, 3a, and 3b. Other `create-*` skills follow the same spirit at their **proportional scale** — Initiatives and Epics are structure (no maturity levels), Workitems are coordination (no maturity, no discovery), so the dialogue shrinks accordingly:
+
+| Concept | Story | Epic | Initiative | Workitem |
+|---|---|---|---|---|
+| Why-gate (persona + trigger + outcome) | full | one question: who takes this step, in what situation | one question: who benefits, why now | — |
+| What-gate (rules + examples) | full, drives AC | name 1–2 variants / use cases the step must cover | scope boundaries (in / out) | — |
+| How-gate (shape, options, trade-offs) | full | — (lives in child Stories) | — | — |
+| Working surface | full canvas (Step 3a) | 3–4 line notes (Step-Shape) | 2–3 line notes (Goal + Why-it-matters) | none |
+| One open question per beat | yes | yes | yes | yes (for the single bug clarification, if any) |
+| Default refinement target | next maturity step | tighten the step description | tighten the goal statement | n/a — created ready or not at all |
+| Pause / resume | maturity-aware (Step 3b) | save notes into description, resume from there | save notes into description, resume from there | n/a |
+
+When a `create-*` skill is invoked on an item that already exists, it must read the current content first and resume from there (see *Resuming refinement of an existing item* below) — never start from a blank page.
+
+### Resuming refinement of an existing item
+
+When a `create-*` skill is invoked on an item that already exists, do **not** start from scratch:
+
+1. **Read** the item's current state: `title`, `description`, tags / maturity (Stories only), and recent activity comments.
+2. **Reconstruct** the working surface (full canvas for Stories, short notes for Epics / Initiatives) from what is already written.
+3. **Show** the user a one-sentence summary of what you found: e.g. *"Aktueller Stand: Draft, 2 offene Fragen, fehlt für Ready: <X>."* — or for an Epic / Initiative *"Aktueller Stand: Step-Beschreibung steht, 1 Use-Case offen."*
+4. **Ask** what the goal of *this* session is — one question. For Stories, the default target is the next maturity step (see *Discovery is a dialogue*). For Epics / Initiatives, the default is "tighten what is already there" unless the user names something else.
+5. **Re-enter** the dialogue only on the parts that are still incomplete. Do not re-litigate points that were already settled.
+
+For Stories this is operationalised in `create-story` Step 3b with maturity gates. For Epics and Initiatives the same spirit applies without maturity tags. For Workitems it does not apply — Workitems are mechanical break-downs and are not refined in dialogue.
 
 ### Open vs Closed
 
@@ -130,9 +154,14 @@ Three layers, three jobs. Do not mix them.
 | **Acceptance criteria** | Observable states that must be true at the end. Live as a section inside the description. | Markdown checkboxes, behavior not pixels. 2–4 at Story level; finer detail belongs in Workitems. |
 | **Tags** | Metadata labels for filtering and reporting. | Single words or short phrases ("Persistenz", "UI", "Audit"). |
 
-Hard rules:
+Hard rules — generic (every `create-*` skill):
 
-- **Tag content does not belong in the description.** Mirroring a tag (e.g. writing "Persistenz" into the description because there is a Persistenz tag) is not real content.
+- **Tag content does not belong in the description.** Mirroring a tag (e.g. writing "Persistenz" into the description because there is a Persistenz tag) is not real content. Tags are labels for filtering; the description is content.
+- **Be specific, not generic.** Avoid role labels that could be anyone ("Product Manager", "Developer", "the user"). Name the actual person, team, or situation — for Stories, carry the real persona from the Canvas Why-line; for Epics and Initiatives, name the concrete audience ("Customer Service team", "Stakeholder PMs in Reviews/Retros").
+- **Context, not ceremony.** Every section of the description should teach or frame something the implementer needs. Cut anything that only restates what is already obvious from structure or tags.
+
+Hard rules — Story-only:
+
 - **AC do not encode UI / design decisions.** Grey font, specific icon, session vs persistent storage — those are decisions that live in the description's `## Context` section as named decisions with one line of rationale. AC say what behavior must hold.
 - **AC are not implementation tasks.** "Implement X" is work, not a verifiable state. Phrase as the state that exists once the work is done.
 
@@ -141,6 +170,12 @@ A separate, longer implementation concept is **out of scope for this skill versi
 ### Creating an item: MCP first, Markdown fallback
 
 Before creating anything, check whether **Betterplan MCP tools are available** in the current session (tool names contain `betterplan`).
+
+**Always confirm before creating.** In the turn *before* any create or update call (MCP or Markdown), show the full proposed artifact in chat — title, description / content, the intended `type`, the intended `parentId` (if any), and any maturity tag or `isBug` flag you plan to set. Ask explicitly, e.g.:
+
+> *"Soll ich das jetzt so anlegen — als <type>, unter <parent>, mit Maturity <Idea | Draft | Ready>?"*
+
+Never call the create / update tool, post a comment, or change a maturity tag in the **same turn** you first show the proposed content. The user must see what is going in and approve it. If the user replies with a change request, do not patch the proposed text silently — update the working surface (canvas for Stories, notes for Epics / Initiatives), re-derive the proposal, and show it again.
 
 **If the Betterplan MCP is available**, create the item by calling its create tool — do not just print Markdown. Map:
 
@@ -161,6 +196,21 @@ The MCP describes its own tools and field names at runtime — follow those for 
 ```
 
 Either way, the content is identical — only the delivery (MCP call vs Markdown) differs.
+
+### Activity comments (optional, when substantial)
+
+After creating or refining an item, posting an activity comment is **optional**. Post one only when the change was substantial — a maturity moved (Stories), a major scope decision was settled, a known open question was closed, or the parent placement changed. Skip the comment for typo fixes, formatting passes, or minor edits; the activity log already records field changes and an extra comment for those is noise.
+
+When you do post one, write **content reflections**, not session minutes:
+
+- Name the decisions reached ("Persistence per session, alternative user-setting compared in Context.").
+- Name the open edges ("Still open: which data source for X.").
+- Name the assumptions accepted ("User confirmed: only US customers in scope.").
+- For Stories, mention the maturity reached ("Moved Idea → Draft; one more conversation on X to reach Ready.").
+
+Avoid: *"We asked 4 questions, you answered Y, I wrote Z."* — everything visible in the activity log already.
+
+This rule applies to every `create-*` skill at its scale: Stories get maturity-level reflections, Epics / Initiatives get scope-level reflections, Workitems normally get no comment (the checklist item itself is the signal).
 
 See `references/glossary.md` for term definitions, `references/method-deep-dive.md` for the full method, prioritization, and the Story Map layout, and `references/data-model.md` for the conceptual mapping the MCP does not spell out (the `type` values, how maturity maps to date fields, content vs metadata, the bug rule).
 

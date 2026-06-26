@@ -20,7 +20,8 @@ A Workitem is the **smallest unit** of work. It belongs to one Story and exists 
 Key rules (from `betterplan-workflow`):
 
 - A Workitem always has a **parent Story**. If there is no parent Story yet, create the Story first with `create-story`.
-- Workitems have **no story points** and do **not** affect the Delivery Timeline forecast — they serve coordination, not planning.
+- Workitems have **no story points**, **no maturity level**, and **no discovery dialogue** — they serve coordination, not planning. Do not run a Why/What/How loop here.
+- A Workitem is either clearly formulated and ready to be created, or it is not created yet. If the team is unsure about the break-down, pause: capture what is clear and resume later — do not log half-formed Workitems.
 - Keep delivery detail in Workitems, not in the Backlog. The Story stays readable; the steps live where the team works on them.
 
 ## When to create them
@@ -37,11 +38,15 @@ Create Workitems when a Story is **Ready** and about to be (or is being) impleme
 
 ## Bugs are workitems
 
-A bug or rework on a Story is created as a **Workitem with `isBug = true`** on that Story — not as a separate Story. `isBug` is an attribute of the Workitem itself (set it as an argument on the Workitem's create call, or via the MCP); the Workitem's parent is the affected Story. The backend handles the rest (reopening the Story and the bug rollup). The content is still just the workitem text: describe what is broken and the expected behavior. Do not create a new Story for a bug, and do not set any bug flag on the Story.
+A bug or rework on a Story is created as a **Workitem with `isBug = true`** on that Story — not as a separate Story. `isBug` is an attribute of the Workitem itself (set it as an argument on the Workitem's create call, or via the MCP); the Workitem's parent is the affected Story. The backend handles the rest (reopening the Story and the bug rollup).
+
+Keep it Quick-Capture: **at most one clarifying question** before creating the bug Workitem — typically *what is the expected behaviour vs. what actually happens?* (apply the *one open question per beat* rule from `betterplan-workflow`). Do not run the full Story discovery loop on a bug. The Workitem content is the bug description: what is broken, expected behaviour, and (if the user offered it) reproduction steps. Do not create a new Story for a bug, and do not set any bug flag on the Story.
 
 ## Create them (MCP or Markdown)
 
-Follow the "Creating an item: MCP first, Markdown fallback" rule in the `betterplan-workflow` skill. If the Betterplan MCP is available, create each Workitem via its tool with `type: workitem` and `parentId` set to the Story (and `isBug: true` for a bug). Workitems carry no estimation. Otherwise output the Markdown checklist below.
+Follow the *Creating an item: MCP first, Markdown fallback* rule in `betterplan-workflow` — including the **pre-create confirmation**: show the proposed Workitem list (or single bug Workitem) in chat first and ask *"Soll ich die so anlegen — als Workitems unter <Story>?"* before any MCP call or Markdown output. Never act in the same turn you first show the proposal. If the user requests changes, update the list in chat and re-confirm; do not silently patch.
+
+If the Betterplan MCP is available, create each Workitem via its tool with `type: workitem` and `parentId` set to the Story (and `isBug: true` for a bug). Workitems carry no estimation. Otherwise output the Markdown checklist below.
 
 ## Output template (Markdown fallback)
 
@@ -55,3 +60,7 @@ Content only — the workitem actions themselves. The parent Story is a field, s
 ```
 
 Name the parent Story in your chat reply, not in the pasteable list. Keep the list short and action-oriented. If it grows large, the parent Story is probably too big — suggest splitting the Story instead (see method-deep-dive in `betterplan-workflow`).
+
+## Pause if uncertain
+
+Workitems are intentionally small and fast. There is no canvas and no resume dialogue here — but the *spirit* of *Resuming refinement of an existing item* (in `betterplan-workflow`) still applies: if you are unsure whether the list of Workitems is complete, pause. Tell the user what is captured so far and what is missing, and create the rest in a later turn. Never create an uncertain Workitem just to fill the list.
