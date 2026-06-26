@@ -14,7 +14,7 @@ metadata:
 
 # Create a Betterplan Story
 
-Stories are the **implementation** blocks that live in the Backlog. There are three types. They share the same mechanics and differ in purpose and how they are written. Each maps to a `type` value in the Betterplan data model (used by the future MCP):
+Stories are the **implementation** blocks that live in the Backlog. There are three types. They share the same mechanics and differ in purpose and how they are written. Each maps to a `type` value in the Betterplan data model (used when creating via the MCP):
 
 - **User Story** (`type: story`) — concrete user/customer value. → see `references/user-story.md`
 - **Project Story** (`type: project`) — needed but no direct user value: organizational, hardware, docs, recording decisions/events. → see `references/project-story.md`
@@ -38,9 +38,158 @@ From the `betterplan-workflow` skill:
 - Estimate in **Story Points** only when asked; otherwise leave it out and note Betterplan auto-fills the team median.
 - A Story can be Closed in any phase — closing low-value work early is good.
 
-## Step 3 — write it well
+## Step 3 — discovery dialogue (slow down before writing)
 
-This quality bar (INVEST-style) is the target for a **Ready** Story. An Idea or early Draft need not meet it yet — fill in detail as the Story matures (see "Match depth to maturity").
+This is the heart of the skill. **Do not write the Story description, acceptance criteria, or any concept document until this loop has settled.** Most Stories arrive as an Idea or rough Draft. Your job here is to **talk**, not to ship.
+
+The loop has three gates. Walk them **in order**; do not jump ahead, even if you think you already know the answer.
+
+1. **Why-gate — value & trigger.** Confirm the persona (one concrete person, not a role label), the concrete trigger moment ("in which review / meeting / situation does this hurt?"), and the outcome the person wants. Mirror it back in one sentence and ask the user to confirm before moving on.
+   - *Optional shortcut for Project / Devteam Stories* when the trigger is obvious (e.g. "security patch", "CI is broken", "regulatory deadline"). State the trigger in one sentence, ask the user to confirm, then move on. Do not skip the user confirmation.
+2. **What-gate — rules & examples.** For every rule the Story will need, ask the user for at least one concrete positive example and one counter-example or out-of-scope case. Capture these in the canvas (see Step 3a). A rule with no example is not a rule yet — keep asking. Move on only when the user confirms the rule set feels complete.
+3. **How-gate — shape & constraints.** Only now discuss UI location, persistence, data model, classification labels, visual treatment. Surface **options with trade-offs** ("Vorschlag A … / Alternative B …, trade-off …"), do not declare decisions.
+
+### Question discipline
+
+- **One open question per beat**, not a multi-choice salvo. Multi-choice is allowed only when the user explicitly asks for options, or when the choice is genuinely categorical (e.g. type selection in Step 1).
+- After every user answer: mirror what you heard in one sentence, update the canvas (Step 3a), then ask the next single question.
+- If you notice yourself wanting to write the Story now — stop. Ask one more clarifying question instead.
+
+### Maturity-aware refinement
+
+Before starting the loop, check the Story's current maturity (Idea / Draft / Ready) and what the user wants to achieve in this session. **The default target is the next maturity step** (Idea → Draft, Draft → Ready). State this default explicitly and confirm before starting. The user may override with:
+
+- **Multiple steps in one session** (e.g. Idea → Ready), when the Story is small and obviously clear. Run all relevant gates back-to-back, no silent shortcuts.
+- **Stay at the current maturity** (e.g. "I just want to add one detail to this Draft"). Run only the gate the detail belongs to (Why / What / How), not the whole loop.
+
+Only the questions needed for the chosen jump are asked. Do not re-open gates that were already settled in a previous session — read the existing Story content and activity log first.
+
+The loop ends only when the Ready-Gate checklist in Step 3b is satisfied for the chosen target maturity **and the user explicitly confirms** that the canvas reflects the Story. Until then, no description text, no AC list, no concept attachment, no maturity tag change.
+
+## Step 3a — the Story canvas (shared working surface)
+
+While the discovery dialogue runs, maintain a small canvas in the chat. The canvas is the **single source** from which the Story description is later derived (in Step 4). It also doubles as the snapshot the assistant writes back into the description whenever the loop is paused (see Step 3b), so the next session can resume from it.
+
+For now this skill produces **one artifact only: the Story description**. A separate Concept document is **out of scope** here — a detailed concept will be written later during implementation, possibly by another agent, using the description as input. Therefore the description must end up precise enough to support that.
+
+**Write the canvas in the user's language.** If the user writes German, use German labels (Warum / Regeln / Wie / Annahmen / Offene Fragen). If English, use the English labels shown below. Stay consistent within one session.
+
+Show the canvas back to the user **after every answer**, updated in place:
+
+```
+### Canvas — <working Story title>
+
+Why (persona + trigger + outcome):
+  <one sentence>
+
+Rules (each will become one acceptance criterion):
+  - R1: <rule> | Example: <positive> | Counter: <negative or out-of-scope>
+  - R2: …
+
+How (each becomes either a finer AC or a Context note):
+  - <decision area>, Vorschlag: … | Alternative: … | Trade-off: …
+
+Open questions (block Ready):
+  - Q1: <still unresolved>
+
+Assumptions (explicitly accepted by user):
+  - A1: <user said "ok, take this as given">
+```
+
+Rules of the canvas:
+
+- Every rule must have **at least one positive example**. A rule without an example is a wish, not a rule.
+- Every How-entry starts as **Vorschlag + Alternative**, not as a decision. It hardens into a decision only after the user confirms. Once confirmed, it lands in the description as either a finer acceptance criterion (when it expresses observable behavior) or in the Context section (when it's a rationale, constraint, or background decision a future implementer needs).
+- A point moves from Open questions to Assumptions only when the user **says so**. The assistant never promotes silently.
+- The canvas itself is informal Markdown in chat — it is **not** the Story description text and is not uploaded anywhere.
+
+## Step 3b — Maturity-Gates, pause & resume
+
+Before writing the Story description, check that the canvas meets the **minimum information** required for the chosen target maturity. Never infer "done" from "feels done".
+
+### Minimum information per maturity (Definition of …)
+
+Match the bar to the target maturity chosen in Step 3 ("Maturity-aware refinement"):
+
+| Target | Minimum information that must be on the canvas |
+|---|---|
+| **Idea** | Title (activity verb) + a one-line summary **or** up to 3 Open questions. No Why-mirror required, no rules, no examples. |
+| **Draft** | Confirmed Why (one sentence) + at least one Rule with one positive Example + any captured Open questions. How-gate may stay empty. |
+| **Ready** | Confirmed Why + every Rule has ≥1 positive Example **and** ≥1 counter-example or out-of-scope note + zero open questions (or each remaining one explicitly accepted as Assumption) + user said "yes, write it up". |
+
+If the chosen target was lower than Ready (e.g. "bring this from Idea to Draft"), check the lighter minimum and stop there — do not silently push past it into the next maturity.
+
+Post the relevant gate check in chat before writing:
+
+```
+Gate check for <Story title> — target maturity: <Idea / Draft / Ready>
+  [ ] <items from the row above, one checkbox each>
+  [ ] User said "yes, write it up"   (always last)
+```
+
+- All boxes checked → continue to Step 4.
+- Any box unchecked → either keep going in the discovery loop, **or** pause (see below).
+
+### Pause at any time
+
+The user may pause the discovery loop at any moment ("das reicht für heute", "stop here", "schreib in die Description was wir haben"). The assistant may also offer a pause when the user signals fatigue or when the loop has produced enough for a lower maturity than originally targeted.
+
+When pausing:
+
+1. Run the gate check for the **highest maturity whose minimum is currently satisfied** by the canvas — that becomes the actual target this session.
+2. Write the current canvas state into the Story description via Step 4, keeping Open questions explicit (a Story can land at Idea or Draft with open questions; that is the point).
+3. Set the maturity tag and date for the *achieved* level, not for the originally announced target.
+4. Tell the user clearly what was achieved and what is still missing for the next level, in one or two sentences.
+
+### Resume an existing Story
+
+When the skill is invoked on an existing Story, **do not start from scratch**. First read the Story's current state and reconstruct the canvas from it:
+
+1. Read `title`, `description`, current maturity tag, recent activity comments, and any captured Open questions / Out of scope notes.
+2. Rebuild the canvas mentally: which Why is already confirmed, which Rules have Examples, which How-decisions are settled, which Open questions remain.
+3. Show the reconstructed canvas in chat with a one-line summary: "Aktueller Stand: maturity X, Y open questions, fehlt für Z: …".
+4. Ask the user what the goal of *this* session is — same rules as Step 3 ("Maturity-aware refinement"): default is next step up; user may override.
+5. Re-enter the loop only on the gates that are still incomplete for the chosen target. Do not re-litigate gates that were already settled.
+
+### Maturity-mismatch warning
+
+If, while reading the Story, the assistant finds that the **current maturity tag is higher than the minimum information present** (e.g. a Story tagged `progress:ready` whose canvas does not actually satisfy the Ready bar), point this out before starting the dialogue:
+
+> "Diese Story ist als Ready getaggt, aber es fehlen: <konkrete Lücken>. Sollen wir nachziehen, die Maturity zurücksetzen, oder beides ignorieren?"
+
+Let the user decide; do not silently downgrade the tag.
+
+## Step 4 — write the description (the only artifact)
+
+Run this step only after the Step 3b gate for the chosen target maturity has passed (or after a pause was triggered). **Derive the description from the canvas — do not start from a blank page.**
+
+### Scope of this skill (for now)
+
+This skill produces **one artifact: the Story's `description` field in Betterplan**. No separate Concept document, no attachment, no design spec.
+
+"Description" here means the whole content that lives in the `description` field of the task. It is **not** just a one-line intro — it includes all the usual sections (see "Output shape" below):
+
+- The User-Story intro line (`Als …, will ich …, damit …`) or its Project/Devteam equivalent.
+- `## Context` — background, decisions, constraints a future implementer needs.
+- `## Acceptance criteria` — observable states to be true at the end.
+- `## Out of scope` — explicit boundary.
+- `## Open questions` — anything still unresolved (or moved to Assumptions during the dialogue).
+
+A detailed implementation concept is written **later, during implementation**, by a human or an agent. The description must be precise enough to make that later work cheap — every Rule, Example, Out-of-scope note, accepted Assumption and Open question from the canvas must be reflected, so the implementer does not have to guess what was meant.
+
+(The future workflow for the longer implementation concept is out of scope for this skill version and will be defined separately.)
+
+### Length guidance
+
+The description may grow longer than a one-liner — that is fine. Keep it readable:
+
+- Aim for a description that fits **on one screen of scrolling** when filled in.
+- Cut anything that only restates what is already clear from the canvas; carry information, not ceremony.
+- If the description starts to feel like a small document with multiple subsections of prose explanation, the Story may need to be split, or the extra material belongs in a later concept (not here).
+
+### Quality bar (INVEST)
+
+This quality bar is the target for a **Ready** Story. An Idea or early Draft need not meet it yet — fill in detail as the Story matures (see "Match depth to maturity").
 
 - **Independent** enough to build on its own.
 - **Negotiable** — describes intent, not a rigid spec.
@@ -49,11 +198,15 @@ This quality bar (INVEST-style) is the target for a **Ready** Story. An Idea or 
 - **Small** — fits within an iteration; if not, split it (see method-deep-dive in betterplan-workflow).
 - **Testable** — has acceptance criteria you could check.
 
-Read the matching `references/<type>.md` for the type-specific template, voice, and examples, then produce the Markdown.
+Read the matching `references/<type>.md` for the type-specific template, voice, and examples, then create the Story.
 
-## Output shape
+## Step 5 — create it (MCP or Markdown)
 
-Output **content only** — what goes into the Story's title and description. Do **not** include type, parent epic, maturity, story points, or dependency lines in the pasteable block; those are set on the Story inside Betterplan. If type or relationships matter, say so in your chat reply around the artifact.
+Follow the "Creating an item: MCP first, Markdown fallback" rule in the `betterplan-workflow` skill. In short: if the Betterplan MCP is available, create the Story via its tool (content → `title` + `description`; set `type` = `story`/`project`/`dev`, plus `parentId`, `estimation`, maturity dates as arguments). Otherwise output the Markdown shape below for the user to paste in.
+
+## Output shape (Markdown fallback)
+
+Output **content only** — what goes into the Story's title and description. Do **not** include type, parent epic, maturity, story points, or dependency lines in the pasteable block; those are fields (set as MCP arguments, or mentioned in your chat reply when pasting Markdown).
 
 A Story description **may** use these sections (in this order). Everything is optional — see "Match depth to maturity" below. Read the matching `references/<type>.md` for the type-specific voice and a worked example.
 
