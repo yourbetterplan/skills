@@ -1,10 +1,12 @@
-# Betterplan data model (for the future MCP)
+# Type mapping & conventions
 
-This is the shape items take in the Betterplan API/MCP. It is **not connected yet** — until then the skills output Markdown (title + description). When the MCP is available, map the same content onto these fields.
+This file holds only the conceptual mapping that the Betterplan MCP does **not** spell out on its own. The MCP describes its tools, fields, and argument types at runtime — rely on those for exact field names, required arguments, and endpoints. Do not duplicate the API surface here; it would only drift.
 
-Every building block is one task object, distinguished by the `type` field. `title` and `description` hold the content; everything else is structure/metadata set on the task, not written into the description.
+What stays here is methodology, not API plumbing: how the building blocks map to `type` strings, how maturity is represented, what counts as content vs metadata, and the bug rule.
 
-## `type` values
+## Building block ↔ `type` value
+
+Every building block is one task object, distinguished by `type`:
 
 | Building block | `type` |
 |---|---|
@@ -15,28 +17,16 @@ Every building block is one task object, distinguished by the `type` field. `tit
 | Devteam Story | `dev` |
 | Workitem | `workitem` |
 
-Note the mapping: the three story types are distinct `type` values — a User Story is `story`, a Project Story is `project`, a Devteam Story is `dev`.
+Note the non-obvious part: the three story types are distinct `type` values — a User Story is `story`, a Project Story is `project`, a Devteam Story is `dev`.
 
-## Key fields of TaskCreate
+## Content vs metadata
 
-| Field | Type | Meaning |
-|---|---|---|
-| `type` | string (enum above) | The building block type. Required. |
-| `title` | string | Item title. Required. **Content.** |
-| `description` | string (Markdown) | Item body, incl. acceptance criteria. Default "". **Content.** |
-| `parentId` | string \| null | Parent task: epic→initiative, story→epic, workitem→story. **Structure, not content.** |
-| `releaseId` | string \| null | Release assignment. |
-| `estimation` | integer \| null | Story Points. Workitems have none. Auto-filled with team median if null. |
-| `priority` | integer (default 0) | Ordering within a maturity stage. |
-| `completionState` | string (default `open`) | `open` or `closed`. |
-| `tags` | string[] | Tag names (see project tag definitions). |
-| `assignee` | string \| null | Assignee user id. |
-| `isBug` | boolean (default false) | Set **on a Workitem** (`type: workitem`) to mark it as a bug — never on the Story. The Workitem's `parentId` points to the affected Story. The backend reopens that Story and maintains the bug rollup (`ProjectResponse.bugRollup` = task ids with an unresolved fix descendant). |
-| `color`, `cardImageAttachmentId`, `displayOrder` | — | Presentation/ordering. |
+- **Content** lives in `title` + `description` (Markdown). This is what the create-* skills produce.
+- **Metadata / structure** is set as fields on the item, never written into the description: `type`, `parentId` (epic→initiative, story→epic, workitem→story), `releaseId`, `estimation` (Story Points), `tags`, `assignee`, the maturity dates, `completionState`.
 
 ## Maturity is expressed through date fields
 
-There is **no single status field**. A Story's maturity level is derived from which date fields are set (and `completionState`):
+There is **no single status field**. A Story's maturity is derived from which date fields are set (plus `completionState`):
 
 | Maturity | Set field |
 |---|---|
@@ -48,15 +38,8 @@ There is **no single status field**. A Story's maturity level is derived from wh
 | Done | `doneDate` |
 | Closed | `closedDate` + `completionState = "closed"` |
 
-A new item created without dates is at **Idea**. Initiatives and Epics are structure and normally do not carry maturity dates.
+A new item created without dates is at **Idea**. Initiatives and Epics are structure and normally carry no maturity dates.
 
-## Related objects (not created by these skills yet)
+## Bugs
 
-- **Releases** (`ReleaseCreate`): `title`, `position`, optional `date`, `goal`, `features`, `metrics`, `status` (default `planned`).
-- **Dependencies** (`CreateDependencyRequest`): `sourceTaskId`, `targetTaskId`, `dependencyType` (e.g. blocks/requires — exact strings TBC).
-- **Discussions / comments** (`DiscussionCreate`, `CommentCreate`): per-task threads with markdown content.
-- **Attachments** (`AttachmentUploadJsonRequest`): base64 upload tied to an `entity_type` + `entity_id`.
-
-## Implication for the create-* skills
-
-Output only `title` + `description` content. Do not bake `type`, `parentId`, `estimation`, maturity, tags, or dependencies into the text — those are fields. When the MCP is connected, set them as arguments on the create call instead.
+A bug is **not** a separate Story. It is a Workitem (`type: workitem`) with `isBug = true`, whose `parentId` points to the affected Story. `isBug` is set on the Workitem, never on the Story. The backend reopens the parent Story and maintains the bug rollup. See `create-workitem`.

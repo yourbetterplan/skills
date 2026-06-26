@@ -2,7 +2,7 @@
 
 A collection of skills for creating well-formed Betterplan building blocks and classifying work into the right type, based on the Betterplan method (Scope → Prepare → Build → Insight).
 
-The skills produce clean Markdown you can paste into Betterplan today. They are written so they can later create items directly through the Betterplan MCP server once it is connected.
+When the Betterplan MCP server is connected, the skills create items directly in the app through its tools. Without it, they fall back to clean Markdown you can paste in. The content is the same either way — only the delivery differs.
 
 ## Components
 
@@ -25,11 +25,11 @@ Start with `betterplan-workflow` when the type is unclear; it routes to the matc
 
 ## Setup
 
-No configuration required. Skills output Markdown.
+No configuration required for the Markdown fallback.
 
-A Betterplan MCP server (OAuth) is planned to let the skills read and write items directly in the app. It is not part of this plugin yet. When it is connected, the same classification and conventions apply — items are created through the MCP tools instead of Markdown, mapping content to `title` + `description` and everything else to fields.
+To create items directly in the app, connect the Betterplan MCP server (OAuth) separately in Claude. It is not bundled in this plugin. Once its tools are present, the skills prefer them automatically (content → `title` + `description`, everything else as arguments); without it they output Markdown. The MCP describes its own tools and fields at runtime, so the plugin does not bundle an API schema.
 
-The API/MCP data model is documented in `skills/betterplan-workflow/references/data-model.md`: the `type` enum (`initiative`, `epic`, `story`, `project`, `dev`, `workitem`), how maturity maps to date fields, and which fields are structure versus content.
+`skills/betterplan-workflow/references/data-model.md` keeps only the conceptual mapping the MCP does not convey: the `type` values (`initiative`, `epic`, `story`, `project`, `dev`, `workitem`), how maturity maps to date fields, content versus metadata, and the bug rule.
 
 ## Usage examples
 

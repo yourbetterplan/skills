@@ -36,9 +36,11 @@ If it has only one obvious implementation, it may just be a User Story. If it ex
 - Reads as a step in a journey, not the whole goal and not a single buildable option.
 - Could plausibly hold more than one option/variant (otherwise it may be a Story).
 
-## Output template
+## Create it (MCP or Markdown)
 
-Content only — title and description, no type/parent/meta (those are set in Betterplan):
+Follow the "Creating an item: MCP first, Markdown fallback" rule in the `betterplan-workflow` skill. If the Betterplan MCP is available, create the Epic via its tool with `type: epic` and `parentId` set to its Initiative (content → `title` + `description`). Otherwise output the Markdown below.
+
+Content only — title and description, no type/parent/meta (those are fields):
 
 ```
 # <Epic title>

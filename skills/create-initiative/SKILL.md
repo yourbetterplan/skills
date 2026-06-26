@@ -39,9 +39,11 @@ If it is actually a concrete buildable thing, it is a Story. If it is a single s
 - Cannot be "done" by a single team in a single iteration.
 - Big enough to need more than one step (otherwise it may be an Epic or a Story).
 
-## Output template
+## Create it (MCP or Markdown)
 
-Content only — title and description, no type/parent/meta (those are set in Betterplan):
+Follow the "Creating an item: MCP first, Markdown fallback" rule in the `betterplan-workflow` skill. If the Betterplan MCP is available, create the Initiative via its tool with `type: initiative` (content → `title` + `description`). Otherwise output the Markdown below.
+
+Content only — title and description, no type/parent/meta (those are fields):
 
 ```
 # <Initiative title>
@@ -49,4 +51,4 @@ Content only — title and description, no type/parent/meta (those are set in Be
 <1–3 sentences: the goal, who it serves, and why it matters.>
 ```
 
-After producing it, offer to break it into Epics (the steps toward the goal) with the `create-epic` skill.
+After creating it, offer to break it into Epics (the steps toward the goal) with the `create-epic` skill.

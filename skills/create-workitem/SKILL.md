@@ -37,11 +37,15 @@ Create Workitems when a Story is **Ready** and about to be (or is being) impleme
 
 ## Bugs are workitems
 
-A bug or rework on a Story is created as a **Workitem with `isBug = true`** on that Story — not as a separate Story. `isBug` is an attribute of the Workitem itself (set it on the Workitem's create call); the Workitem's parent is the affected Story. The backend handles the rest (reopening the Story and the bug rollup). The content is still just the workitem text: describe what is broken and the expected behavior. Do not create a new Story for a bug, and do not set any bug flag on the Story.
+A bug or rework on a Story is created as a **Workitem with `isBug = true`** on that Story — not as a separate Story. `isBug` is an attribute of the Workitem itself (set it as an argument on the Workitem's create call, or via the MCP); the Workitem's parent is the affected Story. The backend handles the rest (reopening the Story and the bug rollup). The content is still just the workitem text: describe what is broken and the expected behavior. Do not create a new Story for a bug, and do not set any bug flag on the Story.
 
-## Output template
+## Create them (MCP or Markdown)
 
-Content only — the workitem actions themselves. The parent Story is set in Betterplan, so no need to repeat its id or meta:
+Follow the "Creating an item: MCP first, Markdown fallback" rule in the `betterplan-workflow` skill. If the Betterplan MCP is available, create each Workitem via its tool with `type: workitem` and `parentId` set to the Story (and `isBug: true` for a bug). Workitems carry no estimation. Otherwise output the Markdown checklist below.
+
+## Output template (Markdown fallback)
+
+Content only — the workitem actions themselves. The parent Story is a field, so no need to repeat its id or meta:
 
 ```
 - [ ] <action — e.g. Add /search endpoint>
