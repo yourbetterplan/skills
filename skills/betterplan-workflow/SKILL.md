@@ -46,6 +46,17 @@ There are two groups. **Structure** blocks are never implemented directly — th
 | Devteam Story | Implementation | Cross-cutting technical work (refactoring, build pipeline, technical debt). |
 | Workitem | Implementation detail | Smallest unit. Belongs to a Story, used only on the Iteration Board to coordinate delivery. No story points. |
 
+## Starting from a rough idea
+
+Often the user does not arrive with a fully classified piece of work. They say "I just have an idea", "we should do something with X", "Idee: Y", or "what about Z?". When that happens, **do not start with a classification quiz**. The work is light, fast, and one-directional:
+
+1. **Capture the idea as an Idea Story.** Default `type` is `story` with maturity tag `progress:idea`. Title = a short activity-form distillation of the user's sentence. Description: one line of intent (use the user-story form when it is already implicit; otherwise a plain intent sentence is fine).
+2. **Propose where it belongs in the Story Map.** Look at existing Initiatives and Epics in the project. Suggest the most plausible parent (`parentId`) with one line of reasoning. If nothing fits, propose a new Initiative or Epic to host it, with one line of why.
+3. **Ask the user to confirm or correct the placement.** One question, not a multi-choice list of all Initiatives. If the user corrects, just move it — no debate.
+4. **Stop here unless the user wants more.** The idea is captured and placed. Further refinement (Draft, Ready) happens later via `create-story` — the user decides when.
+
+Only step into the classification flow (next section) when the user explicitly wants to commit to a non-Story type, or when the idea is obviously not a Story (e.g. a clear large goal that asks for an Initiative). The user can always say "this is a <type>" and skip the on-ramp; take that at face value.
+
 ## Classification — pick the right type
 
 Walk this decision in order and stop at the first match:
@@ -64,7 +75,7 @@ Edge cases:
 - An unplanned task with no home Story → Devteam Story (technical cause) or Project Story (organizational).
 - If an Epic turns out to have only one way to do it, it may simply be a User Story. If a User Story keeps growing options, it may be an Epic. Structure is allowed to change.
 
-When the type is decided, hand off. The `type` column is the value the future MCP expects (see `references/data-model.md`):
+When the type is decided, hand off. The `type` column is the value used in the data model (see `references/data-model.md` for the mapping):
 
 | Block | `type` | Skill |
 |---|---|---|
@@ -89,6 +100,18 @@ An open Story moves through six states across two tracks. Initiatives and Epics 
 
 A newly created Story starts at **Idea** unless the user says otherwise. Discovery and Delivery stay inside one Story — never split clarification and implementation into separate items.
 
+### Discovery is a dialogue, not a structure
+
+The Discovery track (Idea → Draft → Ready) is not just three labels — it is a **conversation that takes time**. While a Story is in Discovery, the goal is shared understanding between user and assistant, not output volume. Rules every `create-*` skill follows:
+
+- **Do not jump maturity in a single turn.** A Story does not move from Idea straight to Ready in one conversation. The minimum path is Idea → Draft → (further dialogue) → Ready, with the user explicitly confirming each transition. Stories that are obviously small and clear may run multiple gates back-to-back, but only when the user opts in.
+- **Default refinement target = the next maturity step.** When the user says "refine this Story", default to bringing it one step up (Idea → Draft, Draft → Ready). The user can override by asking for multiple steps in one session, or for staying at the current step (just adding a detail).
+- **Open questions block the next maturity.** A Story is not Ready while open questions stand. Either resolve them or convert them to explicitly accepted assumptions that the user confirms.
+- **Prefer one open question per beat over a multi-choice salvo.** Multi-choice freezes the user into the assistant's option set; an open question invites the user's own framing. Multi-choice is fine when the user asks for options, or when the choice is genuinely categorical (e.g. selecting a type in Step 1 of `create-story`).
+- **Refinement is pauseable and resumable.** The user can stop the dialogue at any time; the assistant lands the Story at the highest maturity whose minimum is actually satisfied, writes the current state into the description (open questions stay explicit), and on the next invocation reconstructs the canvas from the description plus activity log to resume from the unfinished gate.
+
+These rules are operationalized in `create-story` Steps 3, 3a, and 3b. Other `create-*` skills follow the same spirit at their proportional scale.
+
 ### Open vs Closed
 
 Every Story is Open (still in progress, anywhere from Idea to Done) or Closed (finished or deliberately stopped). Closing a low-value Story early is a good outcome, not a failure (~20% of stories carry ~80% of value).
@@ -97,11 +120,36 @@ Every Story is Open (still in progress, anywhere from Idea to Done) or Closed (f
 
 Stories are estimated in **Story Points**, used together with team Velocity to forecast the Delivery Timeline. Do not invent a precise number. Suggest a relative size only when asked, and note that Betterplan auto-fills unestimated stories with the team median. Workitems have **no** story points.
 
-### Output format
+### Content separation: Description vs AC vs Tags
 
-Produce **content only** — exactly what goes into the item's title and description in Betterplan. Do **not** emit meta or structural fields: no type, no parent, no maturity level, no story points, no dependency lines. Those are set on the item inside Betterplan and would be noise in the text.
+Three layers, three jobs. Do not mix them.
 
-Default shape (skills adapt it per type):
+| Layer | Job | Style |
+|---|---|---|
+| **Description** | What value, for whom, why now. The reader picks up the Story in 30 seconds. | Plain prose, user-story form by default ("Als …, will ich …, damit …"). Includes all the usual sections (Context, Acceptance criteria, Out of scope, Open questions) — see `create-story` Step 4. |
+| **Acceptance criteria** | Observable states that must be true at the end. Live as a section inside the description. | Markdown checkboxes, behavior not pixels. 2–4 at Story level; finer detail belongs in Workitems. |
+| **Tags** | Metadata labels for filtering and reporting. | Single words or short phrases ("Persistenz", "UI", "Audit"). |
+
+Hard rules:
+
+- **Tag content does not belong in the description.** Mirroring a tag (e.g. writing "Persistenz" into the description because there is a Persistenz tag) is not real content.
+- **AC do not encode UI / design decisions.** Grey font, specific icon, session vs persistent storage — those are decisions that live in the description's `## Context` section as named decisions with one line of rationale. AC say what behavior must hold.
+- **AC are not implementation tasks.** "Implement X" is work, not a verifiable state. Phrase as the state that exists once the work is done.
+
+A separate, longer implementation concept is **out of scope for this skill version**; the description is the only artifact produced by `create-story`. The concept document — its shape, who writes it, and when — will be defined in a later skill iteration. For now, the description must be precise enough that the later concept can be derived from it.
+
+### Creating an item: MCP first, Markdown fallback
+
+Before creating anything, check whether **Betterplan MCP tools are available** in the current session (tool names contain `betterplan`).
+
+**If the Betterplan MCP is available**, create the item by calling its create tool — do not just print Markdown. Map:
+
+- content → `title` + `description`
+- everything else → arguments: `type` (use the mapping in the routing table / `references/data-model.md`), `parentId`, `releaseId`, `estimation`, maturity dates, `tags`, `isBug`.
+
+The MCP describes its own tools and field names at runtime — follow those for exact arguments. After creating, confirm with a short chat summary (what was created, its type and parent). If a required argument is missing (e.g. the target project or parent), ask the user.
+
+**If the MCP is not available**, fall back to a Markdown artifact the user can paste in. Output **content only** — title and description (plus acceptance criteria for Stories). Do **not** emit meta or structural fields (type, parent, maturity, story points, dependencies); mention those in the chat reply instead. Default shape (skills adapt it per type):
 
 ```
 # <Title>
@@ -112,10 +160,10 @@ Default shape (skills adapt it per type):
 - [ ] ...
 ```
 
-Keep it clean and paste-ready. If type, parent, or relationships matter, mention them to the user in the chat reply around the artifact, not inside the pasteable block.
+Either way, the content is identical — only the delivery (MCP call vs Markdown) differs.
 
-See `references/glossary.md` for term definitions, `references/method-deep-dive.md` for the full method, prioritization, and the Story Map layout, and `references/data-model.md` for the API/MCP data shape (the `type` enum, how maturity maps to date fields, and which fields are structure vs content).
+See `references/glossary.md` for term definitions, `references/method-deep-dive.md` for the full method, prioritization, and the Story Map layout, and `references/data-model.md` for the conceptual mapping the MCP does not spell out (the `type` values, how maturity maps to date fields, content vs metadata, the bug rule).
 
-## Future: Betterplan MCP
+## The Betterplan MCP
 
-A Betterplan MCP server (OAuth) will let these skills read and write items directly in the app. It is not connected yet. Until then, produce Markdown artifacts for the user to paste in. When the MCP is available, the same classification and conventions apply — create items through the MCP tools instead of Markdown, mapping content to `title` + `description` and everything else to the fields documented in `references/data-model.md`.
+The Betterplan MCP server (OAuth) lets these skills read and write items directly in the app. It is connected separately by the user, not bundled in this plugin. When its tools are present, prefer them (see "Creating an item" above); when they are not, fall back to Markdown. The MCP describes its tools, fields, and arguments itself, so rely on those at call time for exact field names; use `references/data-model.md` only for the conceptual mapping (which `type` to use, how maturity and bugs work).
