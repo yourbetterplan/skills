@@ -140,6 +140,8 @@ For Stories this is operationalised in `create-story` Step 3b with maturity gate
 
 Every Story is Open (still in progress, anywhere from Idea to Done) or Closed (finished or deliberately stopped). Closing a low-value Story early is a good outcome, not a failure (~20% of stories carry ~80% of value).
 
+**When closing an item as obsolete or "won't do":** preserve the existing description **as-is** — do not overwrite it with a closing rationale. The original idea has historical and learning value (what was the intent, what shape did it have, what made it look promising once). Put the reason for closing into the **activity log** via a comment ("Closed as obsolete because …", "Superseded by #N", "Won't do — out of scope after …"). The same applies to Initiatives, Epics, and Workitems. If the closed item is replaced by another, link to the successor in the comment, not in the description.
+
 ### Estimation (Stories only)
 
 Stories are estimated in **Story Points**, used together with team Velocity to forecast the Delivery Timeline. Do not invent a precise number. Suggest a relative size only when asked, and note that Betterplan auto-fills unestimated stories with the team median. Workitems have **no** story points.
