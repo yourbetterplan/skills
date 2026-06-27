@@ -98,6 +98,7 @@ Assumptions (explicitly accepted by user):
 
 Rules of the canvas:
 
+- **Sort into the right section as you hear it.** The canvas sections mirror the description sections — Why stays *persona + trigger + outcome*, How holds *shape / location / persistence / classification* proposals. If the user mixes layers in one sentence (e.g. names a UI location while explaining the value), do not paste the hybrid into Why — split it, sort each part into its section, and mirror it back sorted. Keeping the canvas clean makes deriving the description in Step 4 trivial instead of a second pass of structuring.
 - Every rule must have **at least one positive example**. A rule without an example is a wish, not a rule.
 - Every How-entry starts as **Vorschlag + Alternative**, not as a decision. It hardens into a decision only after the user confirms. Once confirmed, it lands in the description as either a finer acceptance criterion (when it expresses observable behavior) or in the Context section (when it's a rationale, constraint, or background decision a future implementer needs).
 - A point moves from Open questions to Assumptions only when the user **says so**. The assistant never promotes silently.
