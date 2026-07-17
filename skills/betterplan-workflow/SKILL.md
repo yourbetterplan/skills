@@ -140,7 +140,9 @@ For Stories this is operationalised in `create-story` Step 3b with maturity gate
 
 Every Story is Open (still in progress, anywhere from Idea to Done) or Closed (finished or deliberately stopped). Closing a low-value Story early is a good outcome, not a failure (~20% of stories carry ~80% of value).
 
-**When closing an item as obsolete or "won't do":** preserve the existing description **as-is** — do not overwrite it with a closing rationale. The original idea has historical and learning value (what was the intent, what shape did it have, what made it look promising once). Put the reason for closing into the **activity log** via a comment ("Closed as obsolete because …", "Superseded by #N", "Won't do — out of scope after …"). The same applies to Initiatives, Epics, and Workitems. If the closed item is replaced by another, link to the successor in the comment, not in the description.
+**When closing an item as obsolete or "won't do":** preserve the existing description **as-is** — do not overwrite it with a closing rationale. The original idea has historical and learning value (what was the intent, what shape did it have, what made it look promising once). Put the reason for closing into the **activity log** via a comment ("Closed as obsolete because …", "Superseded by #N", "Won't do — out of scope after …"). The same applies to Initiatives and Epics. If the closed item is replaced by another, link to the successor in the comment, not in the description.
+
+**Workitems have no Closed state.** They are lightweight coordination items on the Iteration Board, complete once they reach **Done** (`doneDate`) — never set `completionState = "closed"` on a Workitem. An obsolete Workitem is simply deleted; there is no closing rationale to preserve (unlike a Story, it carries no planning or historical value).
 
 ### Estimation (Stories only)
 

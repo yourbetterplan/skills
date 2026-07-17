@@ -40,6 +40,8 @@ There is **no single status field**. A Story's maturity is derived from which da
 
 A new item created without dates is at **Idea**. Initiatives and Epics are structure and normally carry no maturity dates.
 
+**Workitems do not use the `Closed` state.** A Workitem is a lightweight coordination item on the Iteration Board and is complete once `doneDate` is set (the **Done** column). `completionState` stays at its default and is never set to `"closed"` for a Workitem; an obsolete Workitem is deleted rather than closed. The `Closed` row above applies to Stories (and, when explicitly stopped, Initiatives and Epics).
+
 ## Bugs
 
 A bug is **not** a separate Story. It is a Workitem (`type: workitem`) with `isBug = true`, whose `parentId` points to the affected Story. `isBug` is set on the Workitem, never on the Story. The backend reopens the parent Story and maintains the bug rollup. See `create-workitem`.
