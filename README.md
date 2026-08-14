@@ -25,18 +25,9 @@ The [`skills`](https://www.npmjs.com/package/skills) package works with **pi**, 
 npx skills@latest add yourbetterplan/skills
 ```
 
-**GitLab** (full URL — GitLab is fully supported):
-```bash
-npx skills@latest add https://gitlab.com/yourbetterplan/skills
-```
-
 **Install only a specific skill** (custom path inside the repo):
 ```bash
-# GitHub
 npx skills@latest add https://github.com/yourbetterplan/skills/tree/main/betterplan-workflow
-
-# GitLab
-npx skills@latest add https://gitlab.com/yourbetterplan/skills/tree/main/betterplan-workflow
 ```
 
 **Options:**
@@ -56,17 +47,12 @@ npx skills@latest add yourbetterplan/skills --list
 If you use **pi**, you can also install this repository as a package:
 
 ```bash
-# GitHub
+# GitHub shorthand
 pi install git:github.com/yourbetterplan/skills
 
-# GitLab
-pi install git:gitlab.com/yourbetterplan/skills
-
 # SSH
-pi install git:git@gitlab.com:yourbetterplan/skills.git
+pi install git:git@github.com:yourbetterplan/skills.git
 ```
-
-`pi` accepts any git host via HTTPS or SSH. The `git:` prefix is required for shorthand formats; full protocol URLs (`https://`, `ssh://`) work without it.
 
 ## Manage this registry locally
 
