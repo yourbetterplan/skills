@@ -1,5 +1,5 @@
 ---
-name: create-initiative
+name: betterplan-create-initiative
 description: >
   This skill should be used when the user wants to create or phrase a Betterplan
   Initiative — a large goal that sets direction. Triggers include "create an
@@ -58,4 +58,4 @@ Content only — title and description, no type/parent/meta (those are fields):
 <1–3 sentences: the goal, who it serves, and why it matters.>
 ```
 
-After creating it, offer to break it into Epics (the steps toward the goal) with the `create-epic` skill.
+After creating it, offer to break it into Epics (the steps toward the goal) with the `betterplan-create-epic` skill.

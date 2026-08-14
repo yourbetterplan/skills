@@ -11,7 +11,7 @@ Cross-cutting work within the endeavor that has **no direct user value** but sti
 - For a decision/event record, capture what was decided, when, by whom, and the consequence — this is what makes the Delivery Timeline traceable later.
 - Acceptance criteria describe "done" in concrete, checkable terms (signed, delivered, published, configured).
 
-Use the standard section structure from the create-story skill: summary, `## Context`, `## Acceptance criteria`, `## Out of scope`, `## Open questions`. For a pure decision/event record, acceptance criteria and out-of-scope often do not apply — omit them and keep the context.
+Use the standard section structure from the betterplan-create-story skill: summary, `## Context`, `## Acceptance criteria`, `## Out of scope`, `## Open questions`. For a pure decision/event record, acceptance criteria and out-of-scope often do not apply — omit them and keep the context.
 
 ## Examples
 

@@ -1,5 +1,5 @@
 ---
-name: create-epic
+name: betterplan-create-epic
 description: >
   This skill should be used when the user wants to create a Betterplan Epic — a
   sub-goal under an Initiative that represents a step the user takes toward the
@@ -55,4 +55,4 @@ Content only — title and description, no type/parent/meta (those are fields):
 <1–2 sentences: the step in the user's journey this represents.>
 ```
 
-After producing it, offer to write the Stories for this step with the `create-story` skill.
+After producing it, offer to write the Stories for this step with the `betterplan-create-story` skill.

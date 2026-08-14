@@ -1,46 +1,154 @@
-# Betterplan plugin
+# Betterplan Skills
 
-A collection of skills for creating well-formed Betterplan building blocks and classifying work into the right type, based on the Betterplan method (Scope → Prepare → Build → Insight).
+Official skill registry for [Betterplan](https://yourbetterplan.com) — agile project planning for small teams.
 
-When the Betterplan MCP server is connected, the skills create items directly in the app through its tools. Without it, they fall back to clean Markdown you can paste in. The content is the same either way — only the delivery differs.
+## What is this?
 
-## Components
+This repository contains skills specific to the Betterplan workflow:
 
-| Skill | What it does | Triggers on |
-|---|---|---|
-| `betterplan-workflow` | The brain: explains the method and classifies a request into the right building block; holds the shared conventions (maturity, open/closed, story points, output format). | "is this an epic or a story", "how should I structure this", "help me plan in Betterplan" |
-| `create-initiative` | Creates an Initiative — a large goal that sets direction. | "create an initiative", describing a big outcome |
-| `create-epic` | Creates an Epic — a step the user takes toward a goal. | "create an epic", "break this initiative into steps" |
-| `create-story` | Creates a Story — User, Project, or Devteam — with type-specific guidance in `references/`. | "write a user story", "add a project/devteam story" |
-| `create-workitem` | Breaks a Ready Story into Workitems for the Iteration Board. | "break this into workitems", "split into tasks" |
+| Skill                          | Purpose                                                                  |
+| ------------------------------ | ------------------------------------------------------------------------ |
+| `betterplan-workflow`          | Classifies work into the correct building blocks; holds shared conventions |
+| `betterplan-create-initiative` | Creates an **Initiative** (business goal)                                |
+| `betterplan-create-epic`       | Creates an **Epic** (step in the process)                                |
+| `betterplan-create-story`      | Creates a **Story** (user, project, or devteam story)                      |
+| `betterplan-create-workitem`   | Creates **Workitems** or bug entries for a Story                           |
 
-## How they fit together
+## Install into your agent
+
+### Via `skills` CLI (recommended)
+
+The [`skills`](https://www.npmjs.com/package/skills) package works with **pi**, Claude Code, Codex, Cursor, and many other agents.
+
+**GitHub** (shorthand):
+```bash
+npx skills@latest add yourbetterplan/skills
+```
+
+**GitLab** (full URL — GitLab is fully supported):
+```bash
+npx skills@latest add https://gitlab.com/yourbetterplan/skills
+```
+
+**Install only a specific skill** (custom path inside the repo):
+```bash
+# GitHub
+npx skills@latest add https://github.com/yourbetterplan/skills/tree/main/betterplan-workflow
+
+# GitLab
+npx skills@latest add https://gitlab.com/yourbetterplan/skills/tree/main/betterplan-workflow
+```
+
+**Options:**
+```bash
+# Install globally instead of project-local
+npx skills@latest add yourbetterplan/skills -g
+
+# Install only specific skills
+npx skills@latest add yourbetterplan/skills --skill betterplan-workflow --skill betterplan-create-story
+
+# List what would be installed without installing
+npx skills@latest add yourbetterplan/skills --list
+```
+
+### Via `pi` directly
+
+If you use **pi**, you can also install this repository as a package:
+
+```bash
+# GitHub
+pi install git:github.com/yourbetterplan/skills
+
+# GitLab
+pi install git:gitlab.com/yourbetterplan/skills
+
+# SSH
+pi install git:git@gitlab.com:yourbetterplan/skills.git
+```
+
+`pi` accepts any git host via HTTPS or SSH. The `git:` prefix is required for shorthand formats; full protocol URLs (`https://`, `ssh://`) work without it.
+
+## Manage this registry locally
+
+```bash
+# List all skills registered in this repo
+npx skills list
+
+# Add a new skill (copies the folder into the repo and registers it in the manifest)
+npx skills add ~/path/to/new-skill
+
+# Remove a skill (deletes the folder and removes the manifest entry)
+npx skills remove betterplan-create-epic
+```
+
+## Repository Structure
 
 ```
-Initiative  →  Epic  →  Story (User / Project / Devteam)  →  Workitem
-   goal         step          buildable work                  delivery step
+.
+├── skills.json              # Central manifest of all skills
+├── package.json             # NPM metadata & CLI binaries
+├── bin/skills-cli.js        # CLI tool (list / add / remove)
+├── README.md
+├── betterplan-workflow/
+│   ├── SKILL.md
+│   └── references/
+├── betterplan-create-initiative/
+│   └── SKILL.md
+├── betterplan-create-epic/
+│   └── SKILL.md
+├── betterplan-create-story/
+│   ├── SKILL.md
+│   └── references/
+└── betterplan-create-workitem/
+    └── SKILL.md
 ```
 
-Start with `betterplan-workflow` when the type is unclear; it routes to the matching `create-*` skill. Each `create-*` skill also triggers directly (e.g. "write a user story"). The shared rules live only in `betterplan-workflow`, so the creation skills stay small.
+## Manifest (`skills.json`)
 
-## Setup
+Every skill is registered in the manifest:
 
-No configuration required for the Markdown fallback.
+```json
+{
+  "id": "betterplan-create-epic",
+  "name": "betterplan-create-epic",
+  "path": "betterplan-create-epic",
+  "version": "0.1.0",
+  "description": "..."
+}
+```
 
-To create items directly in the app, connect the Betterplan MCP server (OAuth) separately in Claude. It is not bundled in this plugin. Once its tools are present, the skills prefer them automatically (content → `title` + `description`, everything else as arguments); without it they output Markdown. The MCP describes its own tools and fields at runtime, so the plugin does not bundle an API schema.
+- `id` — unique skill name (must match the `name` field in `SKILL.md`)
+- `path` — folder name in the repository
+- `version` — semantic version
 
-`skills/betterplan-workflow/references/data-model.md` keeps only the conceptual mapping the MCP does not convey: the `type` values (`initiative`, `epic`, `story`, `project`, `dev`, `workitem`), how maturity maps to date fields, content versus metadata, and the bug rule.
+## Conventions for New Skills
 
-## Usage examples
+1. **Folder names** must be prefixed with `betterplan-` (e.g. `betterplan-my-skill`).
+2. Every skill folder must contain at least a `SKILL.md` with YAML frontmatter:
+   ```yaml
+   ---
+   name: betterplan-my-skill
+   description: >
+     Short description of when this skill is used.
+   metadata:
+     version: "0.1.0"
+   ---
+   ```
+3. Cross-references to other skills use the full name in backticks:  
+   ``Use `betterplan-workflow` for classification.``
+4. After creating a new skill folder:  
+   `npx skills add ./betterplan-my-skill`
 
-- "We want customers to return orders themselves." → `create-initiative`
-- "Break the Search initiative into epics." → `create-epic`
-- "Write a user story for autocomplete in search." → `create-story` (User Story)
-- "Record that we decided to ship web-only first." → `create-story` (Project Story)
-- "We need a CI pipeline." → `create-story` (Devteam Story)
-- "Break the autocomplete story into workitems." → `create-workitem`
-- "Is 'set up the build pipeline' a story or something else?" → `betterplan-workflow`
+## Development
 
-## Reference
+The CLI tool is a simple Node.js script with no external dependencies:
 
-Method details and terminology: https://www.yourbetterplan.com/en/blog/getting-started
+```bash
+node bin/skills-cli.js list
+node bin/skills-cli.js add ./path/to/skill
+node bin/skills-cli.js remove betterplan-create-epic
+```
+
+## License
+
+MIT

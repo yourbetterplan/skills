@@ -1,0 +1,42 @@
+{
+  "name": "betterplan-skills",
+  "version": "0.1.0",
+  "description": "Official skill registry for Betterplan — planning & delivery method.",
+  "skills": [
+    {
+      "id": "betterplan-workflow",
+      "name": "betterplan-workflow",
+      "path": "betterplan-workflow",
+      "version": "0.1.0",
+      "description": "Classifies work into the correct Betterplan building block and holds shared conventions for all create-* skills."
+    },
+    {
+      "id": "betterplan-create-initiative",
+      "name": "betterplan-create-initiative",
+      "path": "betterplan-create-initiative",
+      "version": "0.1.0",
+      "description": "Creates or phrases a Betterplan Initiative — a large goal that sets direction."
+    },
+    {
+      "id": "betterplan-create-epic",
+      "name": "betterplan-create-epic",
+      "path": "betterplan-create-epic",
+      "version": "0.1.0",
+      "description": "Creates a Betterplan Epic — a sub-goal under an Initiative that represents a step toward the goal."
+    },
+    {
+      "id": "betterplan-create-story",
+      "name": "betterplan-create-story",
+      "path": "betterplan-create-story",
+      "version": "0.1.0",
+      "description": "Creates a Betterplan Story (user, project, or devteam story)."
+    },
+    {
+      "id": "betterplan-create-workitem",
+      "name": "betterplan-create-workitem",
+      "path": "betterplan-create-workitem",
+      "version": "0.1.0",
+      "description": "Breaks a Betterplan Story into Workitems or reports bugs as Workitems."
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "name": "betterplan-skills",
+  "version": "0.1.0",
+  "description": "Official skill registry for Betterplan — add, remove and list agent skills.",
+  "main": "bin/skills-cli.js",
+  "bin": {
+    "betterplan-skills": "./bin/skills-cli.js",
+    "skills": "./bin/skills-cli.js"
+  },
+  "scripts": {
+    "list": "node bin/skills-cli.js list",
+    "add": "node bin/skills-cli.js add",
+    "remove": "node bin/skills-cli.js remove"
+  },
+  "keywords": [
+    "betterplan",
+    "skills",
+    "agent",
+    "mcp",
+    "planning",
+    "pi-package"
+  ],
+  "pi": {
+    "skills": [
+      "./betterplan-workflow",
+      "./betterplan-create-initiative",
+      "./betterplan-create-epic",
+      "./betterplan-create-story",
+      "./betterplan-create-workitem"
+    ]
+  },
+  "author": "Betterplan",
+  "license": "MIT",
+  "private": false
+}

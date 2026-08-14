@@ -11,7 +11,7 @@ Cross-cutting **technical** work internal to the development team, with no direc
 - Keep it genuinely cross-cutting. Technical work that belongs to one User Story should stay inside that Story (or its Workitems), not become a separate Devteam Story.
 - Acceptance criteria are checkable technical outcomes.
 
-Use the standard section structure from the create-story skill: summary, `## Context`, `## Acceptance criteria`, `## Out of scope`, `## Open questions`.
+Use the standard section structure from the betterplan-create-story skill: summary, `## Context`, `## Acceptance criteria`, `## Out of scope`, `## Open questions`.
 
 ## Example
 

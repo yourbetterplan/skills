@@ -1,5 +1,5 @@
 ---
-name: create-story
+name: betterplan-create-story
 description: >
   This skill should be used when the user wants to create a Betterplan Story —
   a User Story (user value), a Project Story (organizational, no user value), or
@@ -275,4 +275,4 @@ decisions, links, constraints. Keep it to what helps someone pick the story up.>
 
 Depth per maturity and AC rules are defined upstream — see **Step 3b "Minimum information per maturity"** for what the description must contain at Idea, Draft, and Ready, and **Step 4.2** for how acceptance criteria are phrased. Do not pad with placeholder text; fill in only what is actually on the canvas.
 
-After producing a Story, offer to break it into Workitems with the `create-workitem` skill once it is Ready for an iteration.
+After producing a Story, offer to break it into Workitems with the `betterplan-create-workitem` skill once it is Ready for an iteration.

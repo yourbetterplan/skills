@@ -1,5 +1,5 @@
 ---
-name: create-workitem
+name: betterplan-create-workitem
 description: >
   This skill should be used when the user wants to break a Betterplan Story into
   Workitems — the smallest units that coordinate delivery on the Iteration
@@ -19,7 +19,7 @@ A Workitem is the **smallest unit** of work. It belongs to one Story and exists 
 
 Key rules (from `betterplan-workflow`):
 
-- A Workitem always has a **parent Story**. If there is no parent Story yet, create the Story first with `create-story`.
+- A Workitem always has a **parent Story**. If there is no parent Story yet, create the Story first with `betterplan-create-story`.
 - Workitems have **no story points**, **no maturity level**, and **no discovery dialogue** — they serve coordination, not planning. Do not run a Why/What/How loop here.
 - A Workitem has **no `Closed` state**. It is complete when it reaches the **Done** column (`doneDate`) — never set `completionState = "closed"` on a Workitem. Unlike a Story, a Workitem carries no planning or historical value, so an obsolete Workitem is simply deleted, not closed with a rationale.
 - A Workitem is either clearly formulated and ready to be created, or it is not created yet. If the team is unsure about the break-down, pause: capture what is clear and resume later — do not log half-formed Workitems.

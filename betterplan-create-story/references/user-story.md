@@ -19,7 +19,7 @@ The "so that" is the important part — it carries the value. If you cannot stat
 - Acceptance criteria describe observable behavior from the user's side, as checkable states.
 - Prefer the smallest version that is still valuable; richer variants become their own Stories.
 
-Use the standard section structure from the create-story skill: summary, `## Context`, `## Acceptance criteria`, `## Out of scope`, `## Open questions`.
+Use the standard section structure from the betterplan-create-story skill: summary, `## Context`, `## Acceptance criteria`, `## Out of scope`, `## Open questions`.
 
 ## Example
 

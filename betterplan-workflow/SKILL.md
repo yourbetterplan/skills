@@ -7,8 +7,8 @@ description: >
   an epic or a story", "how should I structure this", "what goes in the
   backlog", "help me plan in Betterplan", or when any create-* Betterplan skill
   needs the shared rules (maturity levels, open/closed, story points, output
-  format). It routes the request to create-initiative, create-epic,
-  create-story, or create-workitem.
+  format). It routes the request to betterplan-create-initiative, betterplan-create-epic,
+  betterplan-create-story, or betterplan-create-workitem.
 metadata:
   version: "0.1.0"
 ---
@@ -53,7 +53,7 @@ Often the user does not arrive with a fully classified piece of work. They say "
 1. **Capture the idea as an Idea Story.** Default `type` is `story` with maturity tag `progress:idea`. Title = a short activity-form distillation of the user's sentence. Description: one line of intent (use the user-story form when it is already implicit; otherwise a plain intent sentence is fine).
 2. **Propose where it belongs in the Story Map.** Look at existing Initiatives and Epics in the project. Suggest the most plausible parent (`parentId`) with one line of reasoning. If nothing fits, propose a new Initiative or Epic to host it, with one line of why.
 3. **Ask the user to confirm or correct the placement.** One question, not a multi-choice list of all Initiatives. If the user corrects, just move it — no debate.
-4. **Stop here unless the user wants more.** The idea is captured and placed. Further refinement (Draft, Ready) happens later via `create-story` — the user decides when.
+4. **Stop here unless the user wants more.** The idea is captured and placed. Further refinement (Draft, Ready) happens later via `betterplan-create-story` — the user decides when.
 
 Only step into the classification flow (next section) when the user explicitly wants to commit to a non-Story type, or when the idea is obviously not a Story (e.g. a clear large goal that asks for an Initiative). The user can always say "this is a <type>" and skip the on-ramp; take that at face value.
 
@@ -71,7 +71,7 @@ Walk this decision in order and stop at the first match:
 
 Edge cases:
 
-- "Bug / rework" on a Story: do **not** create a new Story. Add a **Workitem with `isBug = true`** to the affected Story (use `create-workitem`). The backend handles the rest — reopening the Story and the bug rollup. Knowledge stays on the Story.
+- "Bug / rework" on a Story: do **not** create a new Story. Add a **Workitem with `isBug = true`** to the affected Story (use `betterplan-create-workitem`). The backend handles the rest — reopening the Story and the bug rollup. Knowledge stays on the Story.
 - An unplanned task with no home Story → Devteam Story (technical cause) or Project Story (organizational).
 - If an Epic turns out to have only one way to do it, it may simply be a User Story. If a User Story keeps growing options, it may be an Epic. Structure is allowed to change.
 
@@ -79,12 +79,12 @@ When the type is decided, hand off. The `type` column is the value used in the d
 
 | Block | `type` | Skill |
 |---|---|---|
-| Initiative | `initiative` | `create-initiative` |
-| Epic | `epic` | `create-epic` |
-| User Story | `story` | `create-story` |
-| Project Story | `project` | `create-story` |
-| Devteam Story | `dev` | `create-story` |
-| Workitem | `workitem` | `create-workitem` |
+| Initiative | `initiative` | `betterplan-create-initiative` |
+| Epic | `epic` | `betterplan-create-epic` |
+| User Story | `story` | `betterplan-create-story` |
+| Project Story | `project` | `betterplan-create-story` |
+| Devteam Story | `dev` | `betterplan-create-story` |
+| Workitem | `workitem` | `betterplan-create-workitem` |
 
 ## Shared conventions
 
@@ -107,10 +107,10 @@ The Discovery track (Idea → Draft → Ready) is not just three labels — it i
 - **Do not jump maturity in a single turn.** A Story does not move from Idea straight to Ready in one conversation. The minimum path is Idea → Draft → (further dialogue) → Ready, with the user explicitly confirming each transition. Stories that are obviously small and clear may run multiple gates back-to-back, but only when the user opts in.
 - **Default refinement target = the next maturity step.** When the user says "refine this Story", default to bringing it one step up (Idea → Draft, Draft → Ready). The user can override by asking for multiple steps in one session, or for staying at the current step (just adding a detail).
 - **Open questions block the next maturity.** A Story is not Ready while open questions stand. Either resolve them or convert them to explicitly accepted assumptions that the user confirms.
-- **Prefer one open question per beat over a multi-choice salvo.** Multi-choice freezes the user into the assistant's option set; an open question invites the user's own framing. Multi-choice is fine when the user asks for options, or when the choice is genuinely categorical (e.g. selecting a type in Step 1 of `create-story`).
+- **Prefer one open question per beat over a multi-choice salvo.** Multi-choice freezes the user into the assistant's option set; an open question invites the user's own framing. Multi-choice is fine when the user asks for options, or when the choice is genuinely categorical (e.g. selecting a type in Step 1 of `betterplan-create-story`).
 - **Refinement is pauseable and resumable.** The user can stop the dialogue at any time; the assistant lands the Story at the highest maturity whose minimum is actually satisfied, writes the current state into the description (open questions stay explicit), and on the next invocation reconstructs the canvas from the description plus activity log to resume from the unfinished gate.
 
-These rules are operationalized in `create-story` Steps 3, 3a, and 3b. Other `create-*` skills follow the same spirit at their **proportional scale** — Initiatives and Epics are structure (no maturity levels), Workitems are coordination (no maturity, no discovery), so the dialogue shrinks accordingly:
+These rules are operationalized in `betterplan-create-story` Steps 3, 3a, and 3b. Other `create-*` skills follow the same spirit at their **proportional scale** — Initiatives and Epics are structure (no maturity levels), Workitems are coordination (no maturity, no discovery), so the dialogue shrinks accordingly:
 
 | Concept | Story | Epic | Initiative | Workitem |
 |---|---|---|---|---|
@@ -134,7 +134,7 @@ When a `create-*` skill is invoked on an item that already exists, do **not** st
 4. **Ask** what the goal of *this* session is — one question. For Stories, the default target is the next maturity step (see *Discovery is a dialogue*). For Epics / Initiatives, the default is "tighten what is already there" unless the user names something else.
 5. **Re-enter** the dialogue only on the parts that are still incomplete. Do not re-litigate points that were already settled.
 
-For Stories this is operationalised in `create-story` Step 3b with maturity gates. For Epics and Initiatives the same spirit applies without maturity tags. For Workitems it does not apply — Workitems are mechanical break-downs and are not refined in dialogue.
+For Stories this is operationalised in `betterplan-create-story` Step 3b with maturity gates. For Epics and Initiatives the same spirit applies without maturity tags. For Workitems it does not apply — Workitems are mechanical break-downs and are not refined in dialogue.
 
 ### Open vs Closed
 
@@ -154,7 +154,7 @@ Three layers, three jobs. Do not mix them.
 
 | Layer | Job | Style |
 |---|---|---|
-| **Description** | What value, for whom, why now. The reader picks up the Story in 30 seconds. | Plain prose, user-story form by default ("Als …, will ich …, damit …"). Includes all the usual sections (Context, Acceptance criteria, Out of scope, Open questions) — see `create-story` Step 4. |
+| **Description** | What value, for whom, why now. The reader picks up the Story in 30 seconds. | Plain prose, user-story form by default ("Als …, will ich …, damit …"). Includes all the usual sections (Context, Acceptance criteria, Out of scope, Open questions) — see `betterplan-create-story` Step 4. |
 | **Acceptance criteria** | Observable states that must be true at the end. Live as a section inside the description. | Markdown checkboxes, behavior not pixels. 2–4 at Story level; finer detail belongs in Workitems. |
 | **Tags** | Metadata labels for filtering and reporting. | Single words or short phrases ("Persistenz", "UI", "Audit"). |
 
@@ -162,6 +162,7 @@ Hard rules — generic (every `create-*` skill):
 
 - **Tag content does not belong in the description.** Mirroring a tag (e.g. writing "Persistenz" into the description because there is a Persistenz tag) is not real content. Tags are labels for filtering; the description is content.
 - **Be specific, not generic.** Avoid role labels that could be anyone ("Product Manager", "Developer", "the user"). Name the actual person, team, or situation — for Stories, carry the real persona from the Canvas Why-line; for Epics and Initiatives, name the concrete audience ("Customer Service team", "Stakeholder PMs in Reviews/Retros").
+- **No index prefixes in titles.** A title carries meaning, not position — never prefix it with an outline or sequence number ("I1 · …", "E1.1 · …", "Story 3: …", "R2 – …"). Ordering and hierarchy already live in the map structure and `displayOrder`; a number baked into the title goes stale the instant anything is reordered or reparented, and makes reordering harder because every move means a rename. Refer to items by name. (If you need a stable outline id for cross-referencing, keep it in the source doc, not the Betterplan title.)
 - **Context, not ceremony.** Every section of the description should teach or frame something the implementer needs. Cut anything that only restates what is already obvious from structure or tags.
 
 Hard rules — Story-only:
@@ -169,7 +170,7 @@ Hard rules — Story-only:
 - **AC do not encode UI / design decisions.** Grey font, specific icon, session vs persistent storage — those are decisions that live in the description's `## Context` section as named decisions with one line of rationale. AC say what behavior must hold.
 - **AC are not implementation tasks.** "Implement X" is work, not a verifiable state. Phrase as the state that exists once the work is done.
 
-A separate, longer implementation concept is **out of scope for this skill version**; the description is the only artifact produced by `create-story`. The concept document — its shape, who writes it, and when — will be defined in a later skill iteration. For now, the description must be precise enough that the later concept can be derived from it.
+A separate, longer implementation concept is **out of scope for this skill version**; the description is the only artifact produced by `betterplan-create-story`. The concept document — its shape, who writes it, and when — will be defined in a later skill iteration. For now, the description must be precise enough that the later concept can be derived from it.
 
 ### Creating an item: MCP first, Markdown fallback
 
