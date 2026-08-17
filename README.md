@@ -14,7 +14,21 @@ Official skill registry for [Betterplan](https://yourbetterplan.com) — agile p
 
 ## Install
 
-Works with **pi**, Claude Code, Codex, Cursor, and [70+ other agents](https://www.npmjs.com/package/skills).
+### Claude Code (Plugin Marketplace)
+
+```shell
+/plugin marketplace add yourbetterplan/skills
+/plugin install betterplan-workflow@betterplan-skills
+```
+
+Install the other skills the same way — `betterplan-create-initiative`,
+`betterplan-create-epic`, `betterplan-create-story`, `betterplan-create-workitem`.
+Browse everything with `/plugin` and pull in updates with
+`/plugin marketplace update betterplan-skills`.
+
+### Other agents
+
+Works with **pi**, Codex, Cursor, and [70+ other agents](https://www.npmjs.com/package/skills).
 
 ```bash
 # Install all skills (project-local)

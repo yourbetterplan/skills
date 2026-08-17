@@ -1,55 +1,82 @@
 {
+  "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
   "name": "betterplan-skills",
-  "version": "0.1.0",
+  "owner": {
+    "name": "Betterplan",
+    "url": "https://yourbetterplan.com"
+  },
   "description": "Official skill registry for Betterplan — planning & delivery method.",
-  "author": "Betterplan",
-  "license": "MIT",
-  "repository": "https://github.com/yourbetterplan/skills",
+  "version": "0.1.0",
   "plugins": [
     {
-      "id": "betterplan-workflow",
       "name": "betterplan-workflow",
-      "version": "0.1.0",
+      "source": "./",
+      "skills": ["./betterplan-workflow"],
+      "strict": false,
       "description": "Classifies work into the correct Betterplan building block and understands the Betterplan method. Routes requests to the appropriate create-* skill.",
-      "path": "./betterplan-workflow",
-      "entrypoint": "SKILL.md",
-      "tags": ["betterplan", "workflow", "classification", "planning"]
+      "version": "0.1.0",
+      "author": { "name": "Betterplan" },
+      "homepage": "https://yourbetterplan.com",
+      "repository": "https://github.com/yourbetterplan/skills",
+      "license": "MIT",
+      "category": "planning",
+      "keywords": ["betterplan", "workflow", "classification", "planning"]
     },
     {
-      "id": "betterplan-create-initiative",
       "name": "betterplan-create-initiative",
-      "version": "0.1.0",
+      "source": "./",
+      "skills": ["./betterplan-create-initiative"],
+      "strict": false,
       "description": "Creates a Betterplan Initiative — a large business goal that sets direction.",
-      "path": "./betterplan-create-initiative",
-      "entrypoint": "SKILL.md",
-      "tags": ["betterplan", "initiative", "planning", "goal"]
+      "version": "0.1.0",
+      "author": { "name": "Betterplan" },
+      "homepage": "https://yourbetterplan.com",
+      "repository": "https://github.com/yourbetterplan/skills",
+      "license": "MIT",
+      "category": "planning",
+      "keywords": ["betterplan", "initiative", "planning", "goal"]
     },
     {
-      "id": "betterplan-create-epic",
       "name": "betterplan-create-epic",
-      "version": "0.1.0",
+      "source": "./",
+      "skills": ["./betterplan-create-epic"],
+      "strict": false,
       "description": "Creates a Betterplan Epic — a step in the business process under an Initiative.",
-      "path": "./betterplan-create-epic",
-      "entrypoint": "SKILL.md",
-      "tags": ["betterplan", "epic", "planning", "process"]
+      "version": "0.1.0",
+      "author": { "name": "Betterplan" },
+      "homepage": "https://yourbetterplan.com",
+      "repository": "https://github.com/yourbetterplan/skills",
+      "license": "MIT",
+      "category": "planning",
+      "keywords": ["betterplan", "epic", "planning", "process"]
     },
     {
-      "id": "betterplan-create-story",
       "name": "betterplan-create-story",
-      "version": "0.1.0",
+      "source": "./",
+      "skills": ["./betterplan-create-story"],
+      "strict": false,
       "description": "Creates a Betterplan Story — User Story, Project Story, or Devteam Story.",
-      "path": "./betterplan-create-story",
-      "entrypoint": "SKILL.md",
-      "tags": ["betterplan", "story", "user-story", "backlog"]
+      "version": "0.1.0",
+      "author": { "name": "Betterplan" },
+      "homepage": "https://yourbetterplan.com",
+      "repository": "https://github.com/yourbetterplan/skills",
+      "license": "MIT",
+      "category": "planning",
+      "keywords": ["betterplan", "story", "user-story", "backlog"]
     },
     {
-      "id": "betterplan-create-workitem",
       "name": "betterplan-create-workitem",
-      "version": "0.1.0",
+      "source": "./",
+      "skills": ["./betterplan-create-workitem"],
+      "strict": false,
       "description": "Creates Betterplan Workitems or bug entries for a Story.",
-      "path": "./betterplan-create-workitem",
-      "entrypoint": "SKILL.md",
-      "tags": ["betterplan", "workitem", "task", "bug"]
+      "version": "0.1.0",
+      "author": { "name": "Betterplan" },
+      "homepage": "https://yourbetterplan.com",
+      "repository": "https://github.com/yourbetterplan/skills",
+      "license": "MIT",
+      "category": "planning",
+      "keywords": ["betterplan", "workitem", "task", "bug"]
     }
   ]
 }
