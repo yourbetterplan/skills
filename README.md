@@ -11,6 +11,7 @@ Official skill registry for [Betterplan](https://yourbetterplan.com) — agile p
 | `betterplan-create-epic` | Creates an **Epic** (step in the process) |
 | `betterplan-create-story` | Creates a **Story** (user, project, or devteam story) |
 | `betterplan-create-workitem` | Creates **Workitems** or bug entries for a Story |
+| `betterplan-implement-story` | Implements a Story autonomously via an agent — proposes Workitems, creates them in the Iteration Board, implements with one commit per Workitem, and tracks progress in real time |
 
 ## Install
 
@@ -22,7 +23,7 @@ Official skill registry for [Betterplan](https://yourbetterplan.com) — agile p
 ```
 
 Install the other skills the same way — `betterplan-create-initiative`,
-`betterplan-create-epic`, `betterplan-create-story`, `betterplan-create-workitem`.
+`betterplan-create-epic`, `betterplan-create-story`, `betterplan-create-workitem`, `betterplan-implement-story`.
 Browse everything with `/plugin` and pull in updates with
 `/plugin marketplace update betterplan-skills`.
 
