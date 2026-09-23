@@ -3,12 +3,13 @@ name: betterplan-implement-story
 description: >
   This skill should be used to implement Betterplan Stories using a coding agent.
   The agent picks up Stories tagged with "Agent" that are in a current iteration,
-  proposes Workitems, implements them autonomously (one commit per Workitem,
-  one branch per Story), and updates the Iteration Board in real time. Triggers
-  include "mache deine Arbeit", "implement all agent stories", or when a human
-  manually adds the "Agent" tag to a Story in a current iteration.
+  proposes Workitems at a chosen granularity level, implements them autonomously
+  (one commit per Workitem, one branch per Story), and updates the Iteration
+  Board in real time. Triggers include "mache deine Arbeit", "implement all
+  agent stories", or when a human manually adds the "Agent" tag to a Story in
+  a current iteration.
 metadata:
-  version: "0.1.0"
+  version: "0.2.0"
 ---
 
 # Implement a Story with the coding agent
@@ -21,7 +22,7 @@ The flow for the human is short:
 3. Add the tag **`project:Agent`**.
 4. Say **"mache deine Arbeit"**.
 
-The agent does the rest: propose Workitems → confirm → branch → commit per Workitem → board updates → merge → done.
+The agent does the rest: choose granularity → propose Workitems → confirm → branch → commit per Workitem → board updates → merge → done.
 
 ## Core signal: the `project:Agent` tag
 
@@ -57,7 +58,30 @@ If no Stories are found: report to the human and stop. If Stories have the tag b
 
 > *"Story X, Y, and Z have the Agent tag but are not in a current iteration — skipped. Move them into an iteration to activate them."*
 
-## Step 2 — Read & analyse the Story
+## Step 2 — Signal start on the board
+
+Before the agent spends any time analysing, it signals to the team that this Story is now being worked on:
+
+1. **Move Story to Doing**: set `startedDate` on the Story in Betterplan.
+2. **Add the `project:Agent` tag**: if the human already added it (queued the Story), it is already present; if not, the agent adds it now. Either way, the tag is set.
+
+This gives immediate visual feedback on the Iteration Board: other team members see "a Story is being implemented by an agent right now."
+
+## Step 3 — Choose granularity level
+
+Before reading the Story or proposing Workitems, the agent asks the human which level of detail they want for tracking:
+
+> *"Wie detailliert soll ich die Arbeit tracken? (1 = keine Workitems, 2 = grob/Default, 3 = volles Detail)"*
+
+| Level | Name | Beschreibung |
+|---|---|---|
+| **1** | Keine Workitems | Alles lokal auf dem Branch, keine Workitems in Betterplan. Der Agent committed und pusht, trackt aber nichts im Board. Sichtbar ist nur: Story Doing → Done. |
+| **2** (default) | Grob — Backend/Frontend/… | Wenige grobe Workitems (z.B. "Backend", "Frontend", "Tests", "Review & Merge"). Innerhalb eines Workitems tracked der Agent den Fortschritt über eine **Checkliste im Workitem-Description** (Sub-Steps). |
+| **3** | Volles Detail | Jedes AC → ein oder mehrere Workitems. Jeder logische Schritt ein eigenes Workitem auf dem Board. |
+
+The default is **Level 2** if the human doesn't express a preference. The chosen level affects everything that follows: how Workitems are proposed, created, tracked, and completed.
+
+## Step 4 — Read & analyse the Story
 
 The agent reads the full Story content:
 
@@ -70,21 +94,58 @@ If the maturity is not **Ready**, the agent does not proceed — inform the huma
 
 > *"Story BP-123 is tagged Agent but is at Draft maturity. Bring it to Ready first via betterplan-create-story."*
 
-## Step 3 — Propose Workitems
+## Step 5 — Propose Workitems (level-dependent)
 
-The agent derives a Workitem plan from the Story, using the same logic as `betterplan-create-workitem`:
+The agent derives a plan. How the plan looks depends on the level chosen in Step 3.
 
-1. Each **Acceptance Criterion** becomes at least one Workitem.
-2. Add implementation steps the team needs: backend, frontend, tests, review, deploy — only those that apply.
-3. **Link each Workitem to one or more ACs** from the Story — note the AC reference in the proposal. This mapping drives both implementation and later AC-tracking.
-4. Order them so the Story can reach Done sequentially.
-5. Keep each Workitem small enough to finish in roughly a day.
+### Level 1 (keine Workitems)
 
-**Show the proposal in chat** with the working title of each Workitem and which AC(s) it covers:
+The agent shows the implementation approach as a simple list of steps in chat. No Workitems are proposed or later created in Betterplan. The human confirms just the approach, then the agent implements everything on one branch.
+
+> *"Ich implementiere BP-123 auf branch feature/bp-123-text-search (target: main). Schritte: Backend-Endpoint, Frontend-UI, Tests, dann Merge. Einverstanden?"*
+
+### Level 2 (grob — default)
+
+Group the ACs and implementation steps into **few, coarse Workitems** — typically:
+
+- **Backend** — Datenmodell, API-Endpoints, Logik
+- **Frontend** — UI, Interaktionen, Validierung
+- **Tests** — alle Tests (Unit, Integration, E2E) für diese Story
+- **Review & Merge** — Code-Review, Branch mergen, CI grün kriegen
+
+Each coarse Workitem gets an **inline Checkliste** of substeps. The checklist lives in the Workitem description in Betterplan and is updated by the agent as it progresses.
+
+**Show the proposal in chat** — including the workitems plus their internal checklists:
 
 ```
 ### Implementierungsplan für "BP-123 — Text-Suche mit Autocomplete"
 
+Level: Grob (2)
+Branch: feature/bp-123-text-search (target: main)
+
+Workitems:
+  1. Backend                        → AC1
+     [ ] Endpoint definieren
+     [ ] Query-Logik implementieren
+     [ ] Auditing anbinden
+     [ ] Tests für Backend
+  2. Frontend                       → AC1, AC2
+     [ ] Input-Feld mit Autocomplete
+     [ ] 2-Zeichen-Gate
+     [ ] Audit-Einträge anzeigen
+  3. Review & Merge
+
+→ Sag "los" oder änder einzelne Punkte.
+```
+
+### Level 3 (volles Detail)
+
+Each **Acceptance Criterion** becomes one or more Workitems. Add implementation steps (backend, frontend, tests, review) where they don't map to an AC directly. Each Workitem is roughly one day or smaller.
+
+```
+### Implementierungsplan für "BP-123 — Text-Suche mit Autocomplete"
+
+Level: Detail (3)
 Branch: feature/bp-123-text-search (target: main)
 
 Workitems (Reihenfolge):
@@ -99,73 +160,95 @@ Workitems (Reihenfolge):
 
 **Do not** create anything in Betterplan yet. The human must see and confirm the plan first.
 
-If the Story already has Workitems (pre-created by the human or a previous session), the agent reads them and proposes the implementation sequence — the human may still adjust or confirm as-is.
+If the Story already has Workitems (pre-created by the human or a previous session), the agent reads them and proposes the implementation sequence at the chosen level — the human may still adjust or confirm as-is.
 
-## Step 4 — Confirm the plan
+## Step 6 — Confirm the plan
 
 The human either:
 
-- Says **"los"** / **"go"** / **"ja"** → proceeds to Step 5.
+- Says **"los"** / **"go"** / **"ja"** → proceeds to Step 7.
 - Requests changes → update the proposal in chat, re-show, wait for confirmation.
-- Cancels → stop, leave Story and tag untouched.
+- Cancels → **undo**: move the Story back to Todo (clear `startedDate`), remove the `project:Agent` tag, and stop. The Story is now unassigned and ready for a human or another session.
 
-**One confirmation for the whole list.** Once confirmed, the agent works autonomously through all Workitems. No per-Workitem gate unless an error occurs (see Step 7).
+**One confirmation for the whole list.** Once confirmed, the agent works autonomously. No per-Workitem gate unless an error occurs (see Step 9).
 
-## Step 5 — Set up & create Workitems
+## Step 7 — Set up (level-dependent)
 
-The agent executes the plan setup:
+### Level 1 (keine Workitems)
 
-1. **Create the Branch**: `feature/<story-id>-<short-slug>` (e.g. `feature/bp-123-text-search`). Target branch = the repo's default branch (usually `main` or `master`).
-2. **Create Workitems in Betterplan**: via the MCP, using `type: workitem`, with `parentId` set to the Story. Set initial status to **Todo** (`todoDate` set). Each Workitem's title matches the proposal.
-3. **Set Story to Doing**: set `startedDate` on the Story, so the Iteration Board reflects active work.
-4. **Tag `project:Agent` remains** on the Story — it was set by the human and stays until done.
+1. **Create the Branch**: `feature/<story-id>-<short-slug>`. Target = default branch.
+2. **No Workitems created in Betterplan.** The agent works entirely on the branch and updates only the Story (Doing → Done).
 
-If a Workitem already exists for a given AC (pre-created), the agent reuses it — update its status, don't create a duplicate.
+### Level 2 (grob) & Level 3 (volles Detail)
 
-## Step 6 — Implement (autonomous loop)
+1. **Create the Branch**: `feature/<story-id>-<short-slug>`. Target = default branch.
+2. **Create Workitems in Betterplan**: via the MCP, using `type: workitem`, with `parentId` set to the Story. Set initial status to **Todo** (`todoDate` set).
+   - **Level 2**: Each Workitem's description contains the **inline checklist** (substeps as Markdown checkboxes `- [ ]`).
+   - **Level 3**: Each Workitem's title matches the proposal; no internal checklist needed.
+
+If a Workitem already exists for a given scope (pre-created), the agent reuses it — update its status, don't create a duplicate.
+
+(The Story is already on **Doing** with the `project:Agent` tag — both were set in Step 2.)
+
+## Step 8 — Implement (autonomous loop, level-adapted)
+
+### Level 1 (keine Workitems)
+
+No Workitem loop. The agent simply implements the whole Story:
+
+1. Write all code, tests, config across the whole Story's scope.
+2. Commit (as one commit or logical sequence) and push to the feature branch.
+3. Mark the corresponding ACs as done in the Story description (toggle `- [ ]` → `- [x]` as each is satisfied).
+
+Then proceed to Step 10 (Finish).
+
+### Level 2 (grob)
+
+For each coarse Workitem **in order**:
+
+1. **Move to Doing**: update the Workitem in Betterplan (`startedDate` or equivalent board-column date).
+2. **Implement substeps**: work through the inline checklist in the Workitem description. As each substep completes:
+   - Commit the substep (one commit per logical change — not necessarily one per checklist item, but each commit should be clean).
+   - **Update the checklist** in the Workitem description via the MCP: toggle `- [ ]` → `- [x]` for the completed substep.
+3. **Mark the AC(s)** this coarse Workitem covers as done in the Story description (toggle `- [ ]` → `- [x]`) — only if fully satisfied.
+4. **Move to Done**: update the Workitem in Betterplan (`doneDate`).
+
+After each Workitem, reflect progress: if at least one sub-step is Done and others remain, the Workitem stays at Doing.
+
+### Level 3 (volles Detail)
 
 For each Workitem **in order**:
 
-1. **Move to Doing**: update the Workitem in Betterplan — set the field that corresponds to "Doing" on the Iteration Board (typically `startedDate` or an equivalent board-column date, following what the MCP exposes).
-2. **Implement**: write code, tests, configuration, or documentation needed to satisfy the AC(s) this Workitem covers. The agent operates within its normal capabilities (editing files, running commands, reading documentation).
-3. **Commit**: create one commit per Workitem. Commit message format:
+1. **Move to Doing**: update the Workitem in Betterplan.
+2. **Implement**: write code, tests, config needed to satisfy the linked AC(s).
+3. **Commit**: one commit per Workitem. Commit message:
    ```
    <Workitem title>
-   
+
    Story: BP-123
    Workitem: <Workitem ID or title>
    AC: <which AC this addresses, if applicable>
    ```
 4. **Push** the commit to the feature branch.
-5. **Mark the corresponding AC(s) in the Story description**: read the current Story description, find the AC checkbox(es) linked to this Workitem, change `- [ ]` to `- [x]`. Update the Story via the MCP (`description` field).
-6. **Move to Done**: update the Workitem in Betterplan — set the "Done" column date (`doneDate`). (Workitems have no Closed state — Done is terminal.)
+5. **Mark the AC(s)** in the Story description (`- [ ]` → `- [x]`).
+6. **Move to Done**: update the Workitem in Betterplan (`doneDate`).
 
-After each Workitem, reflect the progress on the parent Story: if at least one Workitem is Done and others remain, the Story stays at Doing.
-
-**Repeat** until all Workitems are Done.
-
-### Workitem content & scope
-
-- A Workitem is a **concrete action** ("Add /search endpoint", "Write tests for empty query").
-- It covers **one logical step**, not cross-cutting work (cross-cutting concerns → separate Devteam/Project Story).
-- If a Workitem turns out too large during implementation (roughly >1 day), the agent may split it into two Workitems — but must **propose the split in chat** and await confirmation before continuing.
-
-### AC-update discipline
+### AC-update discipline (all levels)
 
 - Mark an AC as done (`- [x]`) **only when it is truly satisfied** by the code just committed — not pre-emptively.
 - If a Workitem covers multiple ACs, mark all of them.
 - If a Workitem only partially satisfies an AC, **do not mark it**. The AC stays open until the Workitem (or a later one) fully satisfies it.
 - Never remove or re-order ACs in the description. Only toggle the checkbox.
 
-## Step 7 — Error handling
+## Step 9 — Error handling
 
 If a Workitem **cannot be completed** (test fails persistently, AC is not implementable as described, external dependency is missing, ambiguity the agent cannot resolve):
 
 1. **Stop immediately**. Do not skip, retry, or work around silently.
-2. **Move the failing Workitem back to Todo** — undo the in-progress status in Betterplan.
+2. **Move the failing Workitem back to Todo** — undo the in-progress status in Betterplan (for Level 1: note the failure point; there is no Workitem to roll back).
 3. **Move the parent Story back to Todo** — reset `startedDate`, leave `todoDate` set.
 4. **Post a comment** on the Story (via the Betterplan MCP) with:
-   - Which Workitem failed and why.
+   - Which Workitem/step failed and why.
    - What was tried.
    - Suggested next step for the human (fix the AC, provide credentials, unblock a dependency, etc.).
 5. **Signal in chat**: describe the failure clearly.
@@ -177,9 +260,9 @@ The agent also stops on:
 - **Iteration ends** while working → the agent finishes the **current Workitem and Story** (the one it started), then stops. It will not pick up the next Story until the next iteration begins.
 - **Branch conflict / push rejected** → report the conflict, stop, let the human resolve.
 
-## Step 8 — Finish the Story
+## Step 10 — Finish the Story
 
-When all Workitems are Done:
+When all implementation is complete (all Workitems at Done for levels 2/3, or full implementation committed for level 1):
 
 1. **Merge the branch**: squash-merge or rebase-merge the feature branch into the default branch. Push.
 2. **Move Story to Done**: set `doneDate` on the Story in Betterplan.
@@ -187,6 +270,9 @@ When all Workitems are Done:
 4. **Optional activity comment**: post a summary (optional, follow the *Activity comments* rules from `betterplan-workflow`): number of Workitems, branch name, merge commit hash.
 5. **Tell the human**: "Story BP-123 is done, branch merged, tag removed."
 6. **Go to next Story**: scan again (Step 1) for the next `project:Agent`-tagged Story in a current iteration. If none remain, report "All agent stories implemented."
+
+### Level-1 variation
+For Level 1 (no Workitems): there are no Workitems to summarise. Just note the branch name and merge commit. The Story went directly from Doing → Done with implementation on the branch.
 
 ## Manual tag assignment vs. agent-set tag
 
@@ -196,10 +282,12 @@ There is exactly one flow for assigning a Story to the agent:
 |---|---|---|
 | Add `project:Agent` tag | Human | Story is queued for the agent on next "mache deine Arbeit" |
 | Remove `project:Agent` tag | Human or Agent (on completion) | Story is no longer assigned to the agent |
-| Set Story to Doing | Agent (after plan confirmed) | Board reflects active work |
-| Set Story to Done | Agent (after all Workitems done + merge) | Board reflects completion |
+| Set Story to Doing | Agent (Step 2) | Board reflects active work immediately |
+| Add `project:Agent` tag | Agent (Step 2, if not already present) | Story is tagged as agent-active |
+| Remove `project:Agent` tag | Agent (Step 10, on completion) | Story is no longer agent-assigned |
+| Set Story to Done | Agent (Step 10) | Board reflects completion |
 
-The agent **never** adds the `project:Agent` tag itself. It only removes it on completion. The human controls the queue by adding and removing the tag.
+The agent **adds** the tag when it starts working on a Story (Step 2) and **removes** it when the Story is done (Step 10). A human can also pre-add the tag to queue a Story for the next "mache deine Arbeit".
 
 ## Interaction with `project:Agent` across sessions
 

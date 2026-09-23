@@ -16,7 +16,8 @@
       "./betterplan-create-initiative",
       "./betterplan-create-epic",
       "./betterplan-create-story",
-      "./betterplan-create-workitem"
+      "./betterplan-create-workitem",
+      "./betterplan-implement-story"
     ]
   },
   "author": "Betterplan",
