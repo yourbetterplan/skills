@@ -77,6 +77,20 @@
       "license": "MIT",
       "category": "planning",
       "keywords": ["betterplan", "workitem", "task", "bug"]
+    },
+    {
+      "name": "betterplan-implement-story",
+      "source": "./",
+      "skills": ["./betterplan-implement-story"],
+      "strict": false,
+      "description": "Implements a Betterplan Story autonomously via a coding agent (agent picks up Stories tagged with Agent that are in a current iteration, proposes Workitems, implements them with board tracking).",
+      "version": "0.2.0",
+      "author": { "name": "Betterplan" },
+      "homepage": "https://yourbetterplan.com",
+      "repository": "https://github.com/yourbetterplan/skills",
+      "license": "MIT",
+      "category": "planning",
+      "keywords": ["betterplan", "implement", "agent", "automation"]
     }
   ]
 }
