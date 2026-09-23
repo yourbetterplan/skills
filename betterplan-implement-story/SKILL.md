@@ -202,18 +202,26 @@ No Workitem loop. The agent simply implements the whole Story:
 
 Then proceed to Step 10 (Finish).
 
-### Level 2 (grob)
+### Level 2 (grob) — Incremental checklist tracking
 
-For each coarse Workitem **in order**:
+For each coarse Workitem **in order**, follow this exact rhythm. The key rule: **update the board after EVERY substep — not in bulk at the end.**
 
 1. **Move to Doing**: update the Workitem in Betterplan (`startedDate` or equivalent board-column date).
-2. **Implement substeps**: work through the inline checklist in the Workitem description. As each substep completes:
-   - Commit the substep (one commit per logical change — not necessarily one per checklist item, but each commit should be clean).
-   - **Update the checklist** in the Workitem description via the MCP: toggle `- [ ]` → `- [x]` for the completed substep.
-3. **Mark the AC(s)** this coarse Workitem covers as done in the Story description (toggle `- [ ]` → `- [x]`) — only if fully satisfied.
+
+2. **Loop through each substep in the inline checklist.** For each substep:
+   - **Implement**: write code, config, or docs needed for this single substep.
+   - **Commit**: one commit per substep. Commit message should name the substep.
+   - **Push** the commit to the feature branch.
+   - **Update the checklist immediately** via the Betterplan MCP: read the current Workitem description, toggle exactly this one checkbox from `- [ ]` → `- [x]`, and write the updated description back.
+   - **Do NOT** wait until later substeps are done. This toggle must happen **before** you start the next substep.
+   - **Do NOT** batch several substeps into one update. Each substep produces a visible change on the board.
+   - **Workitem stays on Doing** throughout — do NOT move it to Done until all substeps are complete.
+
+3. **Mark the AC(s)** this coarse Workitem covers as done in the Story description (toggle `- [ ]` → `- [x]`) — only if fully satisfied by the completed substeps.
+
 4. **Move to Done**: update the Workitem in Betterplan (`doneDate`).
 
-After each Workitem, reflect progress: if at least one sub-step is Done and others remain, the Workitem stays at Doing.
+After each Workitem, reflect progress: if at least one substep is Done and others remain, the Workitem stays at Doing. The human can open the Workitem in the board at any time and see exactly which substeps are done and which remain.
 
 ### Level 3 (volles Detail)
 
