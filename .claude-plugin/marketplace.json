@@ -147,13 +147,13 @@
       ]
     },
     {
-      "name": "betterplan-build-playbook",
+      "name": "betterplan-transform",
       "source": "./",
       "skills": [
-        "./betterplan-build-playbook"
+        "./betterplan-transform"
       ],
       "strict": false,
-      "description": "Authors a Betterplan Playbook — a reusable Story Map for a repeatable process — from reference material and a structured interview with a domain expert.",
+      "description": "Transforms raw project materials (PDF, DOCX, XLSX, CSV, Markdown, HTML, RTF, ODT, TXT) into agent-friendly Markdown under .betterplan/references/.",
       "version": "0.2.0",
       "author": {
         "name": "Betterplan"
@@ -164,20 +164,20 @@
       "category": "planning",
       "keywords": [
         "betterplan",
-        "playbook",
-        "template",
-        "story-map"
+        "transform",
+        "references",
+        "markdown"
       ]
     },
     {
-      "name": "betterplan-compile-playbook",
+      "name": "betterplan-extract",
       "source": "./",
       "skills": [
-        "./betterplan-compile-playbook"
+        "./betterplan-extract"
       ],
       "strict": false,
-      "description": "Compiles a Playbook Definition into an importable Betterplan Template and validates it against the live API schema.",
-      "version": "0.1.0",
+      "description": "Extracts structured domain knowledge — requirements, constraints, risks, ambiguities — from transformed references into .betterplan/requirements/ and a glossary.",
+      "version": "0.2.0",
       "author": {
         "name": "Betterplan"
       },
@@ -187,10 +187,9 @@
       "category": "planning",
       "keywords": [
         "betterplan",
-        "playbook",
-        "template",
-        "import",
-        "validation"
+        "extract",
+        "requirements",
+        "glossary"
       ]
     }
   ]

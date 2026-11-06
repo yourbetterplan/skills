@@ -18,13 +18,11 @@
       "./betterplan-create-story",
       "./betterplan-create-workitem",
       "./betterplan-implement-story",
-      "./betterplan-build-playbook",
-      "./betterplan-compile-playbook"
+      "./betterplan-transform",
+      "./betterplan-extract"
     ]
   },
-  "scripts": {
-    "compile-playbook": "node betterplan-compile-playbook/scripts/compile.mjs"
-  },
+  "scripts": {},
   "dependencies": {
     "ajv": "^8.17.1",
     "yaml": "^2.6.1"
