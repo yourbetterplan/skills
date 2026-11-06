@@ -20,7 +20,8 @@
       "./betterplan-implement-story",
       "./betterplan-transform",
       "./betterplan-goal",
-      "./betterplan-extract"
+      "./betterplan-extract",
+      "./betterplan-storymap"
     ]
   },
   "scripts": {},

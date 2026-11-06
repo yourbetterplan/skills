@@ -214,6 +214,29 @@
         "requirements",
         "glossary"
       ]
+    },
+    {
+      "name": "betterplan-storymap",
+      "source": "./",
+      "skills": [
+        "./betterplan-storymap"
+      ],
+      "strict": false,
+      "description": "Builds the User Story Map from .betterplan/GOAL.md and the extracted requirements, as Markdown under .betterplan/storymap/ plus a coverage artifact. Runs after betterplan-extract.",
+      "version": "0.1.0",
+      "author": {
+        "name": "Betterplan"
+      },
+      "homepage": "https://yourbetterplan.com",
+      "repository": "https://github.com/yourbetterplan/skills",
+      "license": "MIT",
+      "category": "planning",
+      "keywords": [
+        "betterplan",
+        "storymap",
+        "backbone",
+        "planning"
+      ]
     }
   ]
 }

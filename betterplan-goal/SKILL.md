@@ -45,8 +45,9 @@ Ein Ziel, das ohne Blick auf das Material entsteht, ist eine Vermutung.
 2. **`grilling` aufrufen.** Das Verfahren liefert dieser Skill nicht selbst.
    Rufe den Skill `grilling` auf und führe damit die Befragung.
 3. **`GOAL.md` schreiben** — in der Sprache, in der der Mensch schreibt.
-4. **Nicht weiterlaufen.** Das Bauen der Story Map oder das Extrahieren ist
-   ein eigener Schritt mit eigenem Skill.
+4. **Nicht weiterlaufen.** Das Extrahieren (`betterplan-extract`) und das Bauen
+   der Story Map (`betterplan-storymap`) sind eigene Schritte mit eigenen
+   Skills.
 
 ## Das Fragenterritorium
 
@@ -61,7 +62,8 @@ was noch offen ist.
 - **Zuschnitt** — welche Art Produkt oder Gegenstand, ausdrücklich eingegrenzt
 - **Ziellinie** — welcher Zustand als fertig gilt
 - **Nicht-Ziele** — was absichtlich draußen bleibt
-- **Backbone-Gestalt** — welche Initiativen die Story Map tragen wird
+- **Backbone-Gestalt** — welche Initiativen die Story Map tragen wird, in
+  welcher Reihenfolge; zur Flughöhe siehe unten
 - **Offene Tatsachen** — was nur der Mensch beantworten kann, festgehalten statt geraten
 
 Mehrere dieser Entscheidungen lassen sich nur mit dem Betterplan-Datenmodell im
@@ -69,6 +71,25 @@ Kopf stellen: ob eine Rolle eine Persona oder ein Tag wird, ob etwas als
 Initiative oder als Epic trägt, dass ein Epic genau eine Initiative als Eltern
 hat, dass Project und Devteam Stories auf Wurzelebene hängen. Lies
 `betterplan-workflow`, bevor du zum Backbone fragst.
+
+### Flughöhe der Backbone-Frage
+
+Der Abschnitt `goal:backbone` enthält genau drei Dinge:
+
+1. die Initiativen, jede mit einem Satz, was sie erreicht,
+2. ihre Reihenfolge,
+3. die Begründung der Reihenfolgeentscheidungen, die nicht selbsterklärend sind.
+
+Die Epic-Ebene gehört in den Map-Bau (`betterplan-storymap`). Rutscht die
+Befragung trotzdem dorthin — das passiert, und es ist nützlich, weil
+Widersprüche im Material oft erst auf Epic-Ebene auffallen —, dann landet das
+Ergebnis in einer Arbeitsnotiz im Map-Verzeichnis des Projekts, ausdrücklich
+als Entwurf gekennzeichnet, und `goal:backbone` verweist darauf.
+
+Diese Grenze ist nicht kosmetisch. Die Initiativen entscheiden, wie
+`betterplan-extract` die Anforderungen schneidet — deshalb gehören sie hierher.
+Die Epics entscheiden nichts an der Extraktion und wären in `GOAL.md` eine
+eingefrorene Struktur, die der Map-Bau später nicht mehr frei umwerfen kann.
 
 ## Format von `GOAL.md`
 

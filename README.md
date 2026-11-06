@@ -15,6 +15,7 @@ Official skill registry for [Betterplan](https://yourbetterplan.com) — agile p
 | `betterplan-transform` | Transforms raw project material (PDF, DOCX, XLSX, CSV, …) into agent-friendly Markdown under `.betterplan/references/` |
 | `betterplan-goal` | Defines the **goal** of the endeavor and records it in `.betterplan/GOAL.md` — runs between transform and extract |
 | `betterplan-extract` | Extracts requirements, constraints, risks and open questions from the transformed references |
+| `betterplan-storymap` | Builds the **Story Map** from the goal and the extracted requirements, as Markdown under `.betterplan/storymap/` plus a coverage artifact |
 
 ## Install
 
@@ -28,7 +29,7 @@ Official skill registry for [Betterplan](https://yourbetterplan.com) — agile p
 Install the other skills the same way — `betterplan-create-initiative`,
 `betterplan-create-epic`, `betterplan-create-story`, `betterplan-create-workitem`,
 `betterplan-implement-story`, `betterplan-transform`, `betterplan-goal`,
-`betterplan-extract`.
+`betterplan-extract`, `betterplan-storymap`.
 Browse everything with `/plugin` and pull in updates with
 `/plugin marketplace update betterplan-skills`.
 
