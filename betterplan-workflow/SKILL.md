@@ -116,13 +116,17 @@ Recording a persona is **optional**. What the perspective rule above requires is
 
 A usable persona is a concrete audience, under the same rule as every other name here: never a role label that could be anyone ("the user", "Product Manager"). "Layman consumer setting up a smart-home device at home" is a persona; "End user" is a placeholder.
 
-### Playbook templates carry no Project or Devteam Stories
+### Playbook templates
 
-A Playbook exists to make visible which task belongs to which step, and its Story Map read left to right *is* the product. Project and Devteam Stories take no parent, so they hang beside the backbone rather than under a step — in a template that is self-defeating, because an authored item nobody can see under its step contradicts the one thing the template is for.
+Two rules apply only to a Playbook — a Story Map authored to be instantiated by teams the author never meets.
 
-A Playbook template therefore contains **only Initiatives, Epics and User Stories**. Project and Devteam Stories are created on the fly during execution, by the team doing the work, when the need appears.
+**A template carries no Project or Devteam Stories.** A Playbook exists to make visible which task belongs to which step, and its Story Map read left to right *is* the product. Project and Devteam Stories take no parent, so they hang beside the backbone rather than under a step — in a template that is self-defeating, because an authored item nobody can see under its step contradicts the one thing the template is for. A Playbook template therefore contains **only Initiatives, Epics and User Stories**. Project and Devteam Stories are created on the fly during execution, by the team doing the work, when the need appears.
 
 Where that forces a clarifying decision into Story shape, find the beneficiary on the company side rather than abandoning the rule: *"Als Hersteller möchte ich früh wissen, welcher Konformitätsweg für mein Produkt gilt, damit ich das nicht kurz vor Markteintritt feststelle."*
+
+**Template Stories land at Idea, with fully worked content.** Work each Story as far as the source material allows — description, acceptance criteria, source citation, out-of-scope — and still set maturity to **Idea**. This looks like a contradiction of the maturity rules and is not: the Discovery dialogue belongs to the team that instantiates the template, and it has not happened yet. A template Story is a fully argued *proposal*, not an agreement. The open questions that remain are the decisions that team must make — product-specific choices the author cannot answer — and they stay written down rather than being dropped to make the Story look Ready.
+
+Template personas carry the same note: the instantiating team sharpens them to its actual product. A template cannot name a concrete audience it has never seen, so it names the audience *types* the source material distinguishes and says so.
 
 ### Maturity levels (only for Stories)
 
@@ -182,6 +186,24 @@ Every Story is Open (still in progress, anywhere from Idea to Done) or Closed (f
 
 Stories are estimated in **Story Points**, used together with team Velocity to forecast the Delivery Timeline. Do not invent a precise number. Suggest a relative size only when asked, and note that Betterplan auto-fills unestimated stories with the team median. Workitems have **no** story points.
 
+### Dependencies: hard ones are modelled, soft ones are textual
+
+Two kinds of relation between items, and they are carried differently.
+
+A **hard dependency** forces an order: item B cannot start, or cannot be finished, until item A is done. These are the relations that would form a critical path in project management. Model them as **real Betterplan dependencies** (`create_dependency`) — only then do they reach the Delivery Timeline and show what actually gates what. Naming the dependency in prose instead leaves it invisible to planning.
+
+A **soft reference** explains, contrasts, or points at related work without forcing an order. Carry it as a `#NNN` reference in the description. No dependency object.
+
+| Relation | Carried as | Example |
+|---|---|---|
+| Hard — B is gated by A | `create_dependency` | Conformity route can only be assessed once the product category is determined |
+| Soft — B is informed by A | `#NNN` in the description | "Builds on the glossary established in #214" |
+
+Two consequences worth stating:
+
+- **Decide deliberately, both ways.** An order modelled where none exists blocks work that could run in parallel; an order left unmodelled where one exists makes the timeline lie. When creating or refining an item, ask whether something genuinely gates it.
+- **An intermediate format must be able to carry hard dependencies.** Where a Story Map is drafted outside Betterplan first — in Markdown, for review in Git — the format needs a place for them (frontmatter, keyed by stable item id). A format that cannot express them is unusable as a precursor, because the dependencies would have to be reconstructed from prose on import. This does not change the single-item Markdown fallback below, which still keeps structural fields out of the artifact and names them in the chat reply.
+
 ### Content separation: Description vs AC vs Tags
 
 Three layers, three jobs. Do not mix them.
@@ -196,6 +218,7 @@ Hard rules — generic (every `create-*` skill):
 
 - **Tag content does not belong in the description.** Mirroring a tag (e.g. writing "Persistenz" into the description because there is a Persistenz tag) is not real content. Tags are labels for filtering; the description is content.
 - **Be specific, not generic.** Avoid role labels that could be anyone ("Product Manager", "Developer", "the user"). Name the actual person, team, or situation — for Stories, carry the real persona from the Canvas Why-line; for Epics and Initiatives, name the concrete audience ("Customer Service team", "Stakeholder PMs in Reviews/Retros").
+- **Titles are checkable.** A title is a short verb phrase naming one observable outcome, so that "done" is a fact and not an opinion — "Set up the intake channel", not "Vulnerability topic"; "Determine the product category", not "Product categories". If you cannot tick it off, you have written a heading, not an item. This holds at every level: an Initiative's outcome is larger than an Epic's, but both must be nameable as a result that either exists or does not.
 - **No index prefixes in titles.** A title carries meaning, not position — never prefix it with an outline or sequence number ("I1 · …", "E1.1 · …", "Story 3: …", "R2 – …"). Ordering and hierarchy already live in the map structure and `displayOrder`; a number baked into the title goes stale the instant anything is reordered or reparented, and makes reordering harder because every move means a rename. Refer to items by name. (If you need a stable outline id for cross-referencing, keep it in the source doc, not the Betterplan title.)
 - **Context, not ceremony.** Every section of the description should teach or frame something the implementer needs. Cut anything that only restates what is already obvious from structure or tags.
 

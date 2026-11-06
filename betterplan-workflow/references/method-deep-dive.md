@@ -13,6 +13,24 @@ The Story Map is the heart of Betterplan and the shared reference everyone uses.
 
 Screenplay test: the Story Map tells the story of the user within the endeavor. Goals become Initiatives; the steps to reach them become Epics. If the story reads right, the structure is right.
 
+### Building a map: breadth before depth
+
+**Mile wide, inch deep.** Reach the end of the big story before going deep on any part of it. Complete the backbone — every step, left to right — before writing Stories under any one step. Deciding the details of step 1 before knowing whether step 7 exists produces a map that has to be rebuilt.
+
+**Even altitude.** Epics along the backbone should be comparable in size. Mixed granularity breaks the narrative, because a reader cannot tell whether the next card is the next step or a detail of the previous one. An Epic obviously larger than its neighbours either hides several steps, or the neighbours should be merged.
+
+**One protagonist per map.** A map tells one actor's journey. When it interleaves the journeys of different actors — a manufacturer and its supplier, a buyer and a seller — the left-to-right reading stops being a narrative and becomes a schedule. Two actors, two maps; the relation between them lives in dependencies.
+
+**Establishing and operating are two steps, not one.** A capability that is built once and then run continuously — an intake channel, a reporting duty, a support obligation — appears twice on the map: establishing it, where it belongs in the journey, and operating it, in a late step after the thing is live. Collapsed into one step, the map claims the work finishes when it does not.
+
+### Slicing releases
+
+A release is **an outcome, not a batch of items**. Slice horizontally: a release cuts thinly across *all* the steps rather than completing the leftmost ones.
+
+**The first slice is a walking skeleton** — the thinnest end-to-end path through every step. It barely works and solves one problem badly, and it is still worth more than a perfect first step with nothing behind it.
+
+**A release may be a learning goal.** Its purpose is then to test the riskiest assumption rather than to deliver value — Patton's minimum viable product experiment. Such a release states the question it answers and which result would change the plan. A release with neither a stated outcome nor a question is a date, not a release.
+
 ## Prepare — prioritization
 
 Prioritization in the Backlog follows one principle: **stop starting, start finishing.** Whatever is furthest along has the highest priority — a Story in progress beats one still in draft. Within a maturity stage, top-to-bottom order sets priority.
