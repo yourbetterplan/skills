@@ -126,12 +126,16 @@ Where that forces a clarifying decision into Story shape, find the beneficiary o
 
 **A template may carry a Project Story, but only a wired one.** Some work in a Playbook genuinely has no single step it belongs to — obtaining an access credential that gates several Epics, establishing a company-wide status that decides four different things, keeping track of regulation that is still arriving. Attached to any one Epic, such an item lies about its reach; left out, the template is silent about work the team cannot skip.
 
-Two conditions, and both must hold:
+The test is **cross-cuttingness**: more than one Story, in more than one place, depends on it or is shaped by it. **One dependant means it is not cross-cutting** — the work belongs inside that Story, as acceptance criterion or description content.
 
-1. **Genuinely cross-cutting** — more than one Story in more than one place depends on it. **One dependant means it is not cross-cutting**: the work belongs inside that Story, as acceptance criterion or description content.
-2. **Bound by a modelled dependency**, not by a `#NNN` prose reference. A Project Story takes no parent, so it hangs beside the backbone; the dependency is what makes it visible, because dependencies reach the Delivery Timeline. The item then appears as the gate it is.
+A Project Story takes no parent, so it needs binding to the Stories it affects. Two ways, not equivalent:
 
-A Project Story with no dependency is inadmissible: either it gates nothing, or it is not cross-cutting. Reviewing a template therefore includes checking the dependency edges — a missing one is a defect, not a stylistic choice.
+- Where an ordering is genuinely forced, **model the dependency**. It then reaches the Delivery Timeline and appears as the gate it is. The dependency rule above requires this anyway.
+- Where none is forced, a **`#NNN` reference** from the affected Stories is enough. A company-wide status that changes *how* four Stories are done without blocking any of them has no dependency to model and is still cross-cutting.
+
+A forced ordering is therefore a **strong indicator** of cross-cuttingness, not an admission requirement — demanding it would exclude exactly the items that inform rather than block. What must be stated either way is the **reach**: an item whose dependants cannot be named is an item whose reach was not checked.
+
+**Use Project Stories sparingly.** The bar is not "is this cross-cutting enough to be allowed" but "would the instantiating team miss something essential if this were not its own item". Most candidates fail it: they fit inside a User Story, or they are the *Why* of one and belong in its Context. A template that accumulates root-level items has drifted back into the problem this rule carves an exception from.
 
 **Template Stories land at Idea, with fully worked content.** Work each Story as far as the source material allows — description, acceptance criteria, source citation, out-of-scope — and still set maturity to **Idea**. This looks like a contradiction of the maturity rules and is not: the Discovery dialogue belongs to the team that instantiates the template, and it has not happened yet. A template Story is a fully argued *proposal*, not an agreement. The open questions that remain are the decisions that team must make — product-specific choices the author cannot answer — and they stay written down rather than being dropped to make the Story look Ready.
 

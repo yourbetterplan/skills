@@ -74,14 +74,15 @@ die der fertige Backbone wieder umwirft.
    Beschreibungsaufbau, Akzeptanzkriterien als Zustände. Nicht pro Story an
    `betterplan-create-story` delegieren: ein Discovery-Dialog je Story skaliert
    bei dreistelligen Story-Zahlen nicht. Zeigen, bestätigen lassen, weiter.
-7. **Querschnittliche Arbeit als Project Story anlegen** — und nur dann. Was
-   mehr als eine Story in mehr als einer Initiative gated, gehört nicht unter
-   ein Epic; dort würde es über seine Reichweite lügen. **Ein einziger
-   Abhängiger heißt: nicht querschnittlich** — dann gehört die Arbeit in jene
-   Story, als Akzeptanzkriterium oder Beschreibungsinhalt. Typische Fälle:
-   ein Zugang, der erst beantragt werden muss; ein unternehmensweiter Status,
-   der an mehreren Stellen Folgen hat; das Nachziehen von Material, das noch
-   im Entstehen ist.
+7. **Querschnittliche Arbeit als Project Story anlegen** — sparsam. Was mehr
+   als eine Story in mehr als einer Initiative betrifft, gehört nicht unter ein
+   Epic; dort würde es über seine Reichweite lügen. **Ein einziger Abhängiger
+   heißt: nicht querschnittlich** — dann gehört die Arbeit in jene Story.
+   Typische Fälle: ein Zugang, der erst beantragt werden muss; ein
+   unternehmensweiter Status, der an mehreren Stellen Folgen hat; eine
+   festzuhaltende Entscheidung; das Nachziehen von Material, das noch im
+   Entstehen ist. Schlage zuerst **alle** Kandidaten vor, die du siehst, und
+   lasse kürzen — die Messlatte liegt beim Menschen, nicht bei dir.
 8. **Abhängigkeiten setzen.** Harte als `dependsOn`, weiche als `#NNN`-Bezug im
    Text. Die Regel steht in `betterplan-workflow`.
 9. **Abdeckung prüfen** und `COVERAGE.md` schreiben.
@@ -146,22 +147,30 @@ Platzhalter-Story zudecken.
 ## Die Project-Story-Prüfung
 
 Eine Project Story nimmt **keinen Parent** und hängt damit neben dem Backbone.
-Sichtbar wird sie allein über die Abhängigkeit — nicht über einen
-`#NNN`-Bezug im Text, denn der erreicht einen Leser, aber nicht die Planung.
+Sie braucht deshalb eine Bindung an die Stories, die sie betrifft — über eine
+**modellierte Abhängigkeit**, wo eine Reihenfolge erzwungen ist, sonst über
+einen **`#NNN`-Bezug** aus den betroffenen Stories. Eine erzwungene Reihenfolge
+ist ein starker Indikator für Querschnittlichkeit, **aber keine Bedingung**:
+ein unternehmensweiter Status, der verändert *wie* vier Stories gemacht werden
+ohne eine davon zu blockieren, hat keine Abhängigkeit — und ist trotzdem
+querschnittlich.
 
-Vor dem Schreiben jeder Project Story prüfe genau zwei Dinge:
+Nenne beim Vorschlagen jeder Project Story ihre **Reichweite**, nicht erst auf
+Nachfrage: *„betrifft vier Stories in zwei Initiativen, davon zwei gated
+(Abhängigkeit gesetzt), zwei nur geformt (`#NNN`)"*. Eine Project Story, deren
+Abhängige du nicht benennen kannst, ist eine, deren Reichweite du nicht geprüft
+hast.
 
-1. **Wie viele Stories hängen daran, und in wie vielen Initiativen?**
-   Mehr als eine Story in mehr als einer Initiative → Project Story.
-   **Genau eine → keine Project Story**, sondern Inhalt jener Story.
-2. **Ist mindestens eine harte Abhängigkeit modelliert?**
-   Nein → die Project Story ist unzulässig. Entweder gated sie nichts, oder
-   sie ist nicht querschnittlich; in beiden Fällen gehört sie in eine User
-   Story.
+**Genau ein Abhängiger → keine Project Story**, sondern Inhalt jener Story:
+Akzeptanzkriterium oder Beschreibung.
 
-Nenne das Ergebnis beider Prüfungen beim Vorschlagen, nicht erst auf Nachfrage:
-*„gated vier Stories in zwei Initiativen, Abhängigkeiten gesetzt auf #…"*.
-Eine Project Story ohne diesen Satz ist nicht prüfbar.
+**Setze Project Stories sparsam ein.** Die Messlatte ist nicht „ist das
+querschnittlich genug, um erlaubt zu sein", sondern **„würde dem
+instanziierenden Team etwas Wesentliches fehlen, wenn das kein eigenes Item
+wäre"**. Die meisten Kandidaten fallen durch: sie passen in eine User Story,
+oder sie sind das *Warum* einer Story und gehören in ihren Context. Sammelt
+eine Vorlage Items auf Wurzelebene an, ist sie in das Problem zurückgerutscht,
+von dem die Regel eine Ausnahme ist.
 
 **Devteam Stories und Workitems entstehen in einer Vorlage nicht.** Sie sind
 Sache des ausführenden Teams. Die Regel und ihre Begründung stehen in
