@@ -199,7 +199,7 @@
         "./betterplan-extract"
       ],
       "strict": false,
-      "description": "Extracts structured domain knowledge — requirements, constraints, risks, ambiguities — from transformed references into .betterplan/requirements/ and a glossary.",
+      "description": "Extracts structured domain knowledge — requirements, constraints, risks, ambiguities — from transformed references into .betterplan/requirements/ and a glossary. Requires a project goal from betterplan-goal.",
       "version": "0.2.0",
       "author": {
         "name": "Betterplan"
