@@ -1,14 +1,14 @@
 ---
 name: betterplan-goal
 description: >
-  Definiert das Ziel eines Betterplan-Projekts und schreibt es nach
-  .betterplan/GOAL.md. Verwende diesen Skill, wenn das Ziel eines Vorhabens
-  unklar ist oder geschärft werden soll — bei Fragen wie "worum geht es in
-  diesem Projekt eigentlich", "wir brauchen ein Ziel", "was soll am Ende
-  dabei herauskommen", oder wenn betterplan-extract mit fehlendem GOAL.md
-  abgebrochen hat. Läuft nach betterplan-transform und vor
-  betterplan-extract. Erneut aufrufbar: schärft ein bestehendes Ziel,
-  statt bei null anzufangen.
+  Defines the goal of a Betterplan project and records it in .betterplan/GOAL.md.
+  Use this skill when the goal of an endeavor is unclear or needs sharpening —
+  for requests like "what is this project actually for", "we need a goal",
+  "define the goal", "what should come out of this", "worum geht es in diesem
+  Projekt", "wir brauchen ein Ziel", or when betterplan-extract stopped because
+  GOAL.md was missing. Runs after betterplan-transform and before
+  betterplan-extract. Re-invocable: sharpens an existing goal rather than
+  starting over. Delegates the interview itself to the generic grilling skill.
 metadata:
   version: "0.1.0"
 ---

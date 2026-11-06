@@ -16,7 +16,7 @@
       ],
       "strict": false,
       "description": "Classifies work into the correct Betterplan building block and understands the Betterplan method. Routes requests to the appropriate create-* skill.",
-      "version": "0.1.0",
+      "version": "0.2.0",
       "author": {
         "name": "Betterplan"
       },

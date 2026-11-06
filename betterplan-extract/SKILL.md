@@ -39,11 +39,22 @@ anlegt, würde mehr versprechen als es hält.
 Fehlt eines der beiden, **brich ab** und verweise auf den zuständigen Skill.
 Nicht weiterlaufen.
 
-Als fehlend gilt ein `GOAL.md` auch dann, wenn es existiert, aber leer ist oder
-nur aus Überschriften ohne Inhalt besteht. Prüfe die acht Anker:
+Die Prüfung ist eine **Entscheidungsregel**, kein Eindruck. `GOAL.md` ist
+hinreichend, wenn **beides** gilt:
 
-`goal:purpose` · `goal:usage-context` · `goal:roles` · `goal:scope` ·
-`goal:finish-line` · `goal:non-goals` · `goal:backbone` · `goal:open-facts`
+1. Alle acht Anker sind vorhanden — `goal:purpose` · `goal:usage-context` ·
+   `goal:roles` · `goal:scope` · `goal:finish-line` · `goal:non-goals` ·
+   `goal:backbone` · `goal:open-facts`
+2. Auf **jeden** Anker folgt Text, nicht nur die nächste Überschrift.
+
+Andernfalls gilt die Datei als fehlend — auch wenn sechs von acht Abschnitten
+gut gefüllt sind. Zwei fehlende Abschnitte sind zwei Entscheidungen, die nicht
+getroffen wurden, und die Extraktion würde sie erfinden.
+
+Ein von Hand geschriebenes `GOAL.md` **ohne** Anker ist der häufigste Fall
+davon. Es ist nicht unbrauchbar, aber es ist auch nicht der Vertrag: Nenne die
+fehlenden Anker und verweise auf `betterplan-goal`, das ein bestehendes Ziel
+schärft statt es neu zu erfinden.
 
 ## Warum ein Ziel Pflicht ist
 
@@ -143,21 +154,48 @@ ein zweiter Lauf der Extraktion.
 
 ## Manuelle Markierungen
 
-Abschnitte mit `<!-- manual -->` im Kopf werden bei einem erneuten Lauf **nicht
-überschrieben**. So überleben handgeschriebene Ergänzungen die Neu-Extraktion.
+Ein Abschnitt, dessen **Überschrift** von `<!-- manual -->` gefolgt wird, wird
+bei einem erneuten Lauf **nicht überschrieben**. Der geschützte Bereich reicht
+von der Überschrift bis zur nächsten Überschrift derselben oder einer höheren
+Ebene:
+
+```markdown
+## Fristen aus dem Rahmenvertrag <!-- manual -->
+
+Vom Kunden am 12.11. mündlich bestätigt, Vertrag folgt.
+
+## Nächster Abschnitt            ← ab hier wieder generiert
+```
+
+Diese Markierung ist der einzige Schutz, den handgeschriebener Text hat. Zwei
+Regeln dazu:
+
+- **Widerspricht das Material einem markierten Abschnitt**, überschreibe ihn
+  nicht und korrigiere ihn nicht. Der Widerspruch gehört nach
+  `unklarheiten.md` — mit beiden Fassungen und der Quelle.
+- **Lösche nichts ohne Grund.** Ergänze Neues, korrigiere Veraltetes, und wenn
+  du etwas entfernst, sag im Bericht welche Zeile und warum.
 
 ## Erneuter Lauf
 
-Der Skill ist wiederholbar und arbeitet inkrementell — über gelesene Zeitstempel
-und Markierungen, nicht über Skriptlogik:
+Der Skill ist wiederholbar:
 
-- Ist eine Referenz **neuer** als die Ausgaben, in die sie eingeflossen ist,
-  melde das und extrahiere sie neu.
-- Haben sich die Referenzen geändert, **nachdem** `GOAL.md` geschrieben wurde,
+- **`<!-- manual -->` bleibt unangetastet.**
+- **Beantwortete Unklarheiten wandern**, statt sich zu verdoppeln. Wird eine
+  Frage aus `unklarheiten.md` durch neues Material beantwortet, wird daraus
+  eine Anforderung in `requirements/` und der Eintrag verschwindet aus
+  `unklarheiten.md` — nicht beides.
+- **Zeitstempel taugen nicht als Inkrementalitätssignal.**
+  `betterplan-transform` schreibt bei jedem Lauf alle Referenzen neu, also ist
+  nach einem Transform-Lauf *jede* Referenz neuer als *jede* Ausgabe. Wer darauf
+  baut, extrahiert immer alles neu und nennt es inkrementell. Vergleiche
+  stattdessen den `source:`- und `converted:`-Wert im Kopf der Referenz mit dem,
+  was im letzten `EXTRACTION-REPORT.md` als gelesen vermerkt ist — oder sag
+  ehrlich, dass dieser Lauf eine Vollextraktion ist.
+- **Haben sich die Referenzen geändert, nachdem `GOAL.md` geschrieben wurde**,
   ist das Ziel möglicherweise überholt: **warnen und weiterlaufen**, nicht
   blockieren. Bei jedem erneuten `transform` zu blockieren wäre feindselig.
   Ob das Ziel nachgezogen wird, entscheidet der Mensch.
-- `<!-- manual -->` bleibt unangetastet.
 
 ## Notizen
 

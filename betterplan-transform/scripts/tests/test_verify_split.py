@@ -68,12 +68,161 @@ def test_crlf_source_passes(tmp_path):
 
 
 def test_oversized_indivisible_section_passes(tmp_path):
+    """The splitting step is told not to *produce* a one-section split, but the
+    guard must still accept one it finds — rejecting it would discard text that
+    is demonstrably intact."""
     body = "x" * 90_000 + "\n"
     original = tmp_path / "doc.md"
     original.write_text(body, encoding="utf-8")
     _write_split(tmp_path / "doc", "doc.pdf", [("01-whole.md", body)])
 
     assert verify_split(original, tmp_path / "doc").ok
+
+
+def test_reordered_sections_fail(tmp_path):
+    """Counts match, text does not. The guard exists to catch a model that
+    rewrote rather than cut, so size equality must not be enough."""
+    original = tmp_path / "doc.md"
+    original.write_text("alpha\nbeta\ngamma\n", encoding="utf-8")
+    _write_split(
+        tmp_path / "doc",
+        "doc.pdf",
+        [("01-head.md", "gamma\n"), ("02-tail.md", "alpha\nbeta\n")],
+    )
+
+    verdict = verify_split(original, tmp_path / "doc")
+
+    assert not verdict.ok
+
+
+def test_equal_length_substitution_fails(tmp_path):
+    original = tmp_path / "doc.md"
+    original.write_text("The cat sat\n", encoding="utf-8")
+    _write_split(tmp_path / "doc", "doc.pdf", [("01-whole.md", "A dog ran!!\n")])
+
+    verdict = verify_split(original, tmp_path / "doc")
+
+    assert not verdict.ok
+
+
+def test_normalised_soft_hyphen_fails(tmp_path):
+    """Soft hyphens survive conversion by design, so they are exactly what a
+    helpful model would 'fix'. A 1:1 substitution keeps every count intact."""
+    original = tmp_path / "doc.md"
+    original.write_text("Kommunika­tionstechnik\n", encoding="utf-8")
+    _write_split(
+        tmp_path / "doc", "doc.pdf", [("01-whole.md", "Kommunika-tionstechnik\n")]
+    )
+
+    assert not verify_split(original, tmp_path / "doc").ok
+
+
+def test_index_link_escaping_the_section_dir_fails(tmp_path):
+    """An index whose only link points back at the original reports a perfect
+    split of zero sections — and the caller then deletes that original."""
+    original = tmp_path / "doc.md"
+    original.write_text("alpha\nbeta\ngamma\n", encoding="utf-8")
+    section_dir = tmp_path / "doc"
+    section_dir.mkdir()
+    (section_dir / "INDEX.md").write_text(
+        "<!-- generated -->\n# doc.pdf\n\n- [whole](../doc.md)\n", encoding="utf-8"
+    )
+
+    verdict = verify_split(original, section_dir)
+
+    assert not verdict.ok
+    assert "../doc.md" in verdict.reason
+
+
+def test_nested_section_directory_fails(tmp_path):
+    """<slug>/<slug>/ nesting: iterdir() sees only the subdirectory, so the
+    orphan check cannot see the files inside it."""
+    original = tmp_path / "doc.md"
+    original.write_text("alpha\nbeta\ngamma\n", encoding="utf-8")
+    section_dir = tmp_path / "doc"
+    _write_split(section_dir / "doc", "doc.pdf", [("01-whole.md", "alpha\nbeta\ngamma\n")])
+    section_dir.mkdir(exist_ok=True)
+    (section_dir / "INDEX.md").write_text(
+        "<!-- generated -->\n# doc.pdf\n\n- [whole](doc/01-whole.md)\n", encoding="utf-8"
+    )
+
+    assert not verify_split(original, section_dir).ok
+
+
+def test_original_without_trailing_newline_passes(tmp_path):
+    """Every agent file-writing tool appends a final newline. If that one byte
+    discards the split, the feature never works for such a reference."""
+    original = tmp_path / "doc.md"
+    original.write_bytes(b"alpha\nbeta")
+    _write_split(
+        tmp_path / "doc", "doc.pdf", [("01-head.md", "alpha\n"), ("02-tail.md", "beta\n")]
+    )
+
+    assert verify_split(original, tmp_path / "doc").ok
+
+
+def test_dotfile_in_section_dir_is_ignored(tmp_path):
+    """One Finder visit leaves a .DS_Store; it must not look like text loss."""
+    original = tmp_path / "doc.md"
+    original.write_text("alpha\nbeta\ngamma\n", encoding="utf-8")
+    section_dir = tmp_path / "doc"
+    _write_split(
+        section_dir,
+        "doc.pdf",
+        [("01-head.md", "alpha\nbeta\n"), ("02-tail.md", "gamma\n")],
+    )
+    (section_dir / ".DS_Store").write_bytes(b"\x00\x01")
+
+    assert verify_split(original, section_dir).ok
+
+
+def test_section_body_may_begin_with_a_comment(tmp_path):
+    """A section carrying no generated header whose body legitimately starts
+    with `<!--` must not have that block eaten as if it were the header."""
+    original = tmp_path / "doc.md"
+    body = "<!--\nsource: upstream.pdf\n-->\n\nalpha\n"
+    original.write_text(body, encoding="utf-8")
+    section_dir = tmp_path / "doc"
+    section_dir.mkdir()
+    (section_dir / "01-whole.md").write_text(body, encoding="utf-8")
+    (section_dir / "INDEX.md").write_text(
+        "<!-- generated -->\n# doc.pdf\n\n- [all](01-whole.md)\n", encoding="utf-8"
+    )
+
+    assert verify_split(original, section_dir).ok
+
+
+def test_regenerated_conversion_timestamp_is_not_text_loss(tmp_path):
+    """transform.py stamps `converted:` with the current time, so re-running it
+    changes the monolith without changing the document. Verifying a correct
+    split against a freshly regenerated original must not fail — the documented
+    reaction to a failure is to discard the split."""
+    header = "<!--\nsource: doc.pdf\nformat: pdf\nconverted: {ts}\nsize: 7 bytes\n-->\n\n"
+    original = tmp_path / "doc.md"
+    original.write_text(
+        header.format(ts="2026-11-06T18:37:51.811487") + "alpha\nbeta\n", encoding="utf-8"
+    )
+    section_dir = tmp_path / "doc"
+    _write_split(
+        section_dir,
+        "doc.pdf",
+        [
+            ("01-head.md", header.format(ts="2026-11-06T16:19:18.015009") + "alpha\n"),
+            ("02-tail.md", "beta\n"),
+        ],
+    )
+
+    assert verify_split(original, section_dir).ok
+
+
+def test_missing_original_is_operator_error_not_text_loss(tmp_path):
+    """The documented reaction to exit 1 is to discard the split. A typo in a
+    path must therefore not exit 1."""
+    import verify_split as mod
+
+    code = mod.main(["verify_split.py", str(tmp_path / "nope.md"), str(tmp_path)])
+
+    assert code == 2
 
 
 def test_stale_section_from_previous_run_fails(tmp_path):

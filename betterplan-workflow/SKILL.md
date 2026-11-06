@@ -10,7 +10,7 @@ description: >
   format). It routes the request to betterplan-create-initiative, betterplan-create-epic,
   betterplan-create-story, or betterplan-create-workitem.
 metadata:
-  version: "0.1.0"
+  version: "0.2.0"
 ---
 
 # Betterplan workflow & classification
@@ -66,8 +66,8 @@ Walk this decision in order and stop at the first match:
 3. **Two questions, both must hold** → User Story. (e.g. "Text search with autocomplete")
    - *Direction*: is the benefit aimed **outward**, at someone nameable **outside the project team**?
    - *Deliverable*: is something handed over that gives that beneficiary a capability?
-4. **Is it needed, but the benefit stays inside the project team?**
-   - Organizational, contractual, hardware, or recording a decision/event → Project Story.
+4. **Is it needed, but fails either test in step 3?** — no outward beneficiary, or nothing handed over that gives one a capability.
+   - Organizational, contractual, hardware, or recording a decision/event → Project Story. (Paying a notified body, signing a supplier contract, registering with an authority: outward-facing, but nothing is delivered that gives anyone a new capability.)
    - Technical and internal to the dev team (refactoring, CI/CD, tech debt) → Devteam Story.
 5. **Is it a small task that only helps coordinate the delivery of one Story inside an iteration?** → Workitem.
 
