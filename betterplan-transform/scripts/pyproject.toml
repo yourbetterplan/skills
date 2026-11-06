@@ -1,0 +1,26 @@
+# Dependency manifest for the transform scripts.
+#
+# python-docx and openpyxl are imported by transform.py but were never declared
+# anywhere in this repository, so DOCX and XLSX conversion could not work from a
+# clean checkout — only the PDF path happened to run, because it shells out to
+# pdftotext instead of importing anything. Declaring them here fixes that.
+
+[project]
+name = "betterplan-transform-scripts"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+    "python-docx",
+    "openpyxl",
+]
+
+[dependency-groups]
+dev = [
+    "pytest",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+# verify_split.py sits beside this file, not in a package; without this the test
+# module's own directory is the only thing on sys.path.
+pythonpath = ["."]
