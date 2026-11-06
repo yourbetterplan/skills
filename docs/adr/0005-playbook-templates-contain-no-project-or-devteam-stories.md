@@ -1,5 +1,12 @@
 # A Playbook template contains no Project or Devteam Stories
 
+> **Partly superseded by ADR 0009.** The exclusion of **Project Stories** was too
+> broad: a template may carry one when it is genuinely cross-cutting *and* bound
+> to the Stories it gates by a modelled dependency — which is the visibility this
+> decision asked for and could not yet obtain. ADR 0007 supplied the mechanism.
+> The **Devteam Story** and **Workitem** exclusions below stand unchanged, as
+> does the direction-of-departure principle.
+
 A Playbook exists to make visible, at a glance, which task belongs to which step
 of the journey. Its Story Map is read left to right as a narrative, and that
 narrative is the product.

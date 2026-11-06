@@ -66,7 +66,7 @@ Project Story / Devteam Story (buildable work, root-level — takes no parent)
 └── Workitem (delivery coordination, iteration board only)
 ```
 
-Project and Devteam Stories sit at the root. They take no parent, so they hang beside the backbone rather than under a step — correct for genuinely cross-cutting work, and the reason a Playbook template does not use them (see *Shared conventions* in `SKILL.md`).
+Project and Devteam Stories sit at the root. They take no parent, so they hang beside the backbone rather than under a step — correct for genuinely cross-cutting work. In a Playbook template a Devteam Story is therefore out of place, while a Project Story is admissible **only when bound to the Stories it gates by a modelled dependency**, which is what makes a parentless item visible to planning (see *Playbook templates* in `SKILL.md`).
 
 ## Splitting guidance
 

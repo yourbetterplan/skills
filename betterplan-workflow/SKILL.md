@@ -120,9 +120,18 @@ A usable persona is a concrete audience, under the same rule as every other name
 
 Two rules apply only to a Playbook — a Story Map authored to be instantiated by teams the author never meets.
 
-**A template carries no Project or Devteam Stories.** A Playbook exists to make visible which task belongs to which step, and its Story Map read left to right *is* the product. Project and Devteam Stories take no parent, so they hang beside the backbone rather than under a step — in a template that is self-defeating, because an authored item nobody can see under its step contradicts the one thing the template is for. A Playbook template therefore contains **only Initiatives, Epics and User Stories**. Project and Devteam Stories are created on the fly during execution, by the team doing the work, when the need appears.
+**A template carries no Devteam Stories and no Workitems.** A Playbook exists to make visible which task belongs to which step, and its Story Map read left to right *is* the product. Devteam Stories are technical work internal to the dev team, and a template author has no dev team. Workitems are coordination artifacts of the executing team on the Iteration Board, created ready or not at all. Both are created during execution, by the team doing the work, when the need appears.
 
 Where that forces a clarifying decision into Story shape, find the beneficiary on the company side rather than abandoning the rule: *"Als Hersteller möchte ich früh wissen, welcher Konformitätsweg für mein Produkt gilt, damit ich das nicht kurz vor Markteintritt feststelle."*
+
+**A template may carry a Project Story, but only a wired one.** Some work in a Playbook genuinely has no single step it belongs to — obtaining an access credential that gates several Epics, establishing a company-wide status that decides four different things, keeping track of regulation that is still arriving. Attached to any one Epic, such an item lies about its reach; left out, the template is silent about work the team cannot skip.
+
+Two conditions, and both must hold:
+
+1. **Genuinely cross-cutting** — more than one Story in more than one place depends on it. **One dependant means it is not cross-cutting**: the work belongs inside that Story, as acceptance criterion or description content.
+2. **Bound by a modelled dependency**, not by a `#NNN` prose reference. A Project Story takes no parent, so it hangs beside the backbone; the dependency is what makes it visible, because dependencies reach the Delivery Timeline. The item then appears as the gate it is.
+
+A Project Story with no dependency is inadmissible: either it gates nothing, or it is not cross-cutting. Reviewing a template therefore includes checking the dependency edges — a missing one is a defect, not a stylistic choice.
 
 **Template Stories land at Idea, with fully worked content.** Work each Story as far as the source material allows — description, acceptance criteria, source citation, out-of-scope — and still set maturity to **Idea**. This looks like a contradiction of the maturity rules and is not: the Discovery dialogue belongs to the team that instantiates the template, and it has not happened yet. A template Story is a fully argued *proposal*, not an agreement. The open questions that remain are the decisions that team must make — product-specific choices the author cannot answer — and they stay written down rather than being dropped to make the Story look Ready.
 

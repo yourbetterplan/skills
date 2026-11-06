@@ -20,7 +20,7 @@ Baut die User Story Map aus `GOAL.md` und den extrahierten Anforderungen.
 
 | Ausgabe | Inhalt |
 |---|---|
-| `.betterplan/storymap/` | eine Datei pro Item — Initiativen, Epics, User Stories; dazu Personas und Releases |
+| `.betterplan/storymap/` | eine Datei pro Item — Initiativen, Epics, User Stories, ggf. querschnittliche Project Stories; dazu Personas und Releases |
 | `.betterplan/COVERAGE.md` | Anforderung → Story, lückenlos |
 
 **Lies vorher** `betterplan-workflow` (Klassifikation, geteilte Konventionen) und
@@ -74,11 +74,19 @@ die der fertige Backbone wieder umwirft.
    Beschreibungsaufbau, Akzeptanzkriterien als Zustände. Nicht pro Story an
    `betterplan-create-story` delegieren: ein Discovery-Dialog je Story skaliert
    bei dreistelligen Story-Zahlen nicht. Zeigen, bestätigen lassen, weiter.
-7. **Abhängigkeiten setzen.** Harte als `dependsOn`, weiche als `#NNN`-Bezug im
+7. **Querschnittliche Arbeit als Project Story anlegen** — und nur dann. Was
+   mehr als eine Story in mehr als einer Initiative gated, gehört nicht unter
+   ein Epic; dort würde es über seine Reichweite lügen. **Ein einziger
+   Abhängiger heißt: nicht querschnittlich** — dann gehört die Arbeit in jene
+   Story, als Akzeptanzkriterium oder Beschreibungsinhalt. Typische Fälle:
+   ein Zugang, der erst beantragt werden muss; ein unternehmensweiter Status,
+   der an mehreren Stellen Folgen hat; das Nachziehen von Material, das noch
+   im Entstehen ist.
+8. **Abhängigkeiten setzen.** Harte als `dependsOn`, weiche als `#NNN`-Bezug im
    Text. Die Regel steht in `betterplan-workflow`.
-8. **Abdeckung prüfen** und `COVERAGE.md` schreiben.
-9. **Nicht importieren.** Die Übertragung nach Betterplan ist ein eigener
-   Schritt mit eigenem Fehlerprofil.
+9. **Abdeckung prüfen** und `COVERAGE.md` schreiben.
+10. **Nicht importieren.** Die Übertragung nach Betterplan ist ein eigener
+    Schritt mit eigenem Fehlerprofil.
 
 Nach jeder bestätigten Naht ist die Map auf der Platte ein gültiger
 Zwischenstand. Der Skill ist an jeder Naht pausierbar.
@@ -101,8 +109,8 @@ Eine Datei pro Item. Die Hierarchie steht im Pfad, die Identität im Frontmatter
 | Feld | Für | Inhalt |
 |---|---|---|
 | `id` | alle | stabil und eindeutig, **nie** aus dem Pfad abgeleitet |
-| `type` | alle | `initiative` · `epic` · `story` |
-| `parent` | Epics, Stories | `id` des Elternteils |
+| `type` | alle | `initiative` · `epic` · `story` · `project` |
+| `parent` | Epics, User Stories | `id` des Elternteils — Project Stories haben **keinen** |
 | `title` | alle | abhakbare Verbphrase, ohne Positionsnummer |
 | `order` | alle | Position unter dem Elternteil |
 | `persona` | Stories | Nutznießer |
@@ -134,6 +142,30 @@ Drei Befundarten:
 Ein Loch in der Map ist ein Befund, kein Formfehler. Ein Epic ohne Story, eine
 Anforderung ohne Heimat: benennen, nicht wegdrücken und nicht mit einer
 Platzhalter-Story zudecken.
+
+## Die Project-Story-Prüfung
+
+Eine Project Story nimmt **keinen Parent** und hängt damit neben dem Backbone.
+Sichtbar wird sie allein über die Abhängigkeit — nicht über einen
+`#NNN`-Bezug im Text, denn der erreicht einen Leser, aber nicht die Planung.
+
+Vor dem Schreiben jeder Project Story prüfe genau zwei Dinge:
+
+1. **Wie viele Stories hängen daran, und in wie vielen Initiativen?**
+   Mehr als eine Story in mehr als einer Initiative → Project Story.
+   **Genau eine → keine Project Story**, sondern Inhalt jener Story.
+2. **Ist mindestens eine harte Abhängigkeit modelliert?**
+   Nein → die Project Story ist unzulässig. Entweder gated sie nichts, oder
+   sie ist nicht querschnittlich; in beiden Fällen gehört sie in eine User
+   Story.
+
+Nenne das Ergebnis beider Prüfungen beim Vorschlagen, nicht erst auf Nachfrage:
+*„gated vier Stories in zwei Initiativen, Abhängigkeiten gesetzt auf #…"*.
+Eine Project Story ohne diesen Satz ist nicht prüfbar.
+
+**Devteam Stories und Workitems entstehen in einer Vorlage nicht.** Sie sind
+Sache des ausführenden Teams. Die Regel und ihre Begründung stehen in
+`betterplan-workflow`.
 
 ## Wenn das Quellmaterial ein Pflichtenkatalog ist
 
