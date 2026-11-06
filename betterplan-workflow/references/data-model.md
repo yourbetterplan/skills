@@ -22,7 +22,29 @@ Note the non-obvious part: the three story types are distinct `type` values — 
 ## Content vs metadata
 
 - **Content** lives in `title` + `description` (Markdown). This is what the create-* skills produce.
-- **Metadata / structure** is set as fields on the item, never written into the description: `type`, `parentId` (epic→initiative, story→epic, workitem→story), `releaseId`, `estimation` (Story Points), `tags`, `assignee`, the maturity dates, `completionState`.
+- **Metadata / structure** is set as fields on the item, never written into the description: `type`, `parentId` (see below), `releaseId`, `estimation` (Story Points), `tags`, `assignee`, the maturity dates, `completionState`.
+
+## The parent is required, and the backend enforces it
+
+| Type | `parentId` |
+|---|---|
+| Initiative (`initiative`) | none — sits at the root |
+| Epic (`epic`) | **required** — an Initiative |
+| User Story (`story`) | **required** — an Epic |
+| Project Story (`project`) | none — root-level work |
+| Devteam Story (`dev`) | none — root-level work |
+| Workitem (`workitem`) | **required** — a Story, Project Story or Devteam Story |
+
+This is a hard backend rule, not a convention. Creating an Epic, User Story or
+Workitem without its parent is rejected with HTTP 400 — as is a `parentId`
+naming a task of the wrong type, or no task at all. The same check runs on
+update whenever `type` or `parentId` changes.
+
+So **never create one of these three without knowing its parent.** If the
+parent does not exist yet, create it first: an Epic before its Stories, a
+Story before its Workitems. If it is unclear which parent the user means, ask
+— do not guess, and do not create the item parentless "for now". A parentless
+item used to be accepted and then could not be updated at all.
 
 ## Maturity is expressed through date fields
 
