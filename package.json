@@ -17,8 +17,17 @@
       "./betterplan-create-epic",
       "./betterplan-create-story",
       "./betterplan-create-workitem",
-      "./betterplan-implement-story"
+      "./betterplan-implement-story",
+      "./betterplan-build-playbook",
+      "./betterplan-compile-playbook"
     ]
+  },
+  "scripts": {
+    "compile-playbook": "node betterplan-compile-playbook/scripts/compile.mjs"
+  },
+  "dependencies": {
+    "ajv": "^8.17.1",
+    "yaml": "^2.6.1"
   },
   "author": "Betterplan",
   "license": "MIT",
