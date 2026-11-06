@@ -67,13 +67,13 @@ Walk this decision in order and stop at the first match:
    - *Direction*: is the benefit aimed **outward**, at someone nameable **outside the project team**?
    - *Deliverable*: is something handed over that gives that beneficiary a capability?
 4. **Is it needed, but fails either test in step 3?** — no outward beneficiary, or nothing handed over that gives one a capability.
-   - Organizational, contractual, hardware, or recording a decision/event → Project Story. (Paying a notified body, signing a supplier contract, registering with an authority: outward-facing, but nothing is delivered that gives anyone a new capability.)
+   - Organizational, contractual, hardware, or recording a decision/event → Project Story. (Obtaining an access credential granted only on request; signing a supplier contract; procuring a test device; writing down which of two approaches was chosen and why. Outward-facing or infrastructural, but nothing is handed over that gives a beneficiary a new capability.)
    - Technical and internal to the dev team (refactoring, CI/CD, tech debt) → Devteam Story.
 5. **Is it a small task that only helps coordinate the delivery of one Story inside an iteration?** → Workitem.
 
 Edge cases:
 
-- **A document is not automatically a Project Story.** The artifact's form does not decide; the beneficiary does. Internal documentation with no outside audience is a Project Story. A document *delivered* to someone who can then do something — technical documentation a manufacturer produces on an authority's request, an integration guide an integrator needs, a Software Bill of Materials a customer feeds into their own vulnerability handling — passes both tests in step 3 and is a User Story. This is why `documentation` is absent from the step 4 list.
+- **A document is not automatically a Project Story.** The artifact's form does not decide; the beneficiary does. Internal documentation with no outside audience is a Project Story. A document *delivered* to someone who can then do something — a runbook the operations team needs to take a service over, an integration guide another team needs to connect to it, a parts list a customer feeds into their own planning — passes both tests in step 3 and is a User Story. This is why `documentation` is absent from the step 4 list.
 - "Bug / rework" on a Story: do **not** create a new Story. Add a **Workitem with `isBug = true`** to the affected Story (use `betterplan-create-workitem`). The backend handles the rest — reopening the Story and the bug rollup. Knowledge stays on the Story.
 - An unplanned task with no home Story → Devteam Story (technical cause) or Project Story (organizational).
 - If an Epic turns out to have only one way to do it, it may simply be a User Story. If a User Story keeps growing options, it may be an Epic. Structure is allowed to change.
@@ -106,7 +106,7 @@ This matters most where the material arrives as a list of duties: regulation, ce
 
 **Who owes the work is a second, orthogonal dimension** and is carried as a tag with the bare role name — `project:Hersteller`, `project:Zulieferer` — grouped by colour, never by a category word inside the value (see the tag rules in `references/data-model.md`). The two dimensions coincide often, and that is fine: a manufacturer is both beneficiary and obligation-bearer of its own documentation, while a user is the beneficiary of updates the manufacturer owes. One backbone then reads left to right as a narrative and filters by responsibility.
 
-**Counterparties are not personas.** An authority, a notified body, a CSIRT appears in the Story text as the *trigger* of an obligation — "auf begründetes Verlangen der Marktüberwachungsbehörde" — never in the Why-line. Nobody works a Story titled "Als Marktüberwachungsbehörde will ich…".
+**Counterparties are not personas.** A supervisory authority, an auditor, a certifying body, a funding agency appears in the Story text as the *trigger* of an obligation — "on the authority's substantiated request", "before the audit date" — never in the Why-line. Nobody works a Story titled "As the supervisory authority I want…". The test is not whether the party is important but whether the Story hands it a new capability; a party that only asks, checks or permits does not get one.
 
 ### Personas
 
