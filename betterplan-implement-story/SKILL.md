@@ -9,7 +9,7 @@ description: >
   agent stories", or when a human manually adds the "Agent" tag to a Story in
   a current iteration.
 metadata:
-  version: "0.2.0"
+  version: "0.3.0"
 ---
 
 # Implement a Story with the coding agent
@@ -37,12 +37,37 @@ Workitems created by the agent **do not carry** the `project:Agent` tag — only
 
 Before the agent can pick up a Story, all of the following must be true:
 
-1. **Maturity Ready** — the Story's `readyDate` is set. (Discovery was done via `betterplan-create-story`; the Why, Rules + Examples, and How-decisions are settled.)
+1. **Maturity Ready** — the Story carries `progress:ready`. (Discovery was done via `betterplan-create-story`; the Why, Rules + Examples, and How-decisions are settled.)
 2. **In a current iteration** — the Story is assigned to an iteration whose `startDate ≤ today ≤ endDate`.
 3. **Tag `project:Agent`** — the tag is set on the Story in Betterplan.
 4. **Git repo accessible** — the agent can clone, branch, commit, and push to the repository linked to the project.
 
 The agent **will not** pick up Stories missing any of these. Stories that have the tag but fail the iteration check are mentioned once at startup and then skipped.
+
+## Moving a card on the board
+
+Every "move X to Y" below means **changing the phase**, and the phase *is* the
+task's `progress:*` tag — `idea`, `draft`, `ready`, `todo`, `doing`, `done`.
+Changing it moves the card **and** makes the backend stamp the matching lead-time
+date as part of the transition.
+
+**Never write the lead-time dates yourself.** Setting `startedDate` or `doneDate`
+records that a transition happened without performing it: the stamp lands, the
+card does not move. Those fields exist for importing work that already has
+history.
+
+Two ways to change a phase:
+
+- **`POST /projects/{project_id}/tasks:progress`** — carries the *phase*, not a computed tag list, and maps it against the stored row, so a tag somebody set while you were working survives. Prefer this whenever REST is reachable.
+- **MCP `update_task`** — has no phase argument, so you go through `tags`, and `tags` is a **full replacement**. Read the task's current tags, swap the single `progress:*` entry, send the complete list back. Anything you omit is removed — including `project:Agent`, which this skill depends on.
+
+**Never re-send a whole task you just read.** `reworkPoints` is a *delta* that
+accumulates, so echoing it back inflates the Story's rework count on every
+update. Send only the fields you are changing.
+
+Closing is a separate axis — `completionState = "closed"`. There is no
+`progress:closed`, and a Workitem never closes at all (see
+`betterplan-create-workitem`).
 
 ## Step 1 — Scan & prioritise
 
@@ -50,7 +75,7 @@ On "mache deine Arbeit" (or equivalent trigger), the agent:
 
 1. Finds **all open Stories** (not Closed, not Done) with tag `project:Agent`.
 2. Filters to those in a **current iteration** (any iteration where `startDate ≤ today ≤ endDate`).
-3. **Sorts by Betterplan priority** — uses `displayOrder` ascending (lower number = higher priority, the natural backlog order).
+3. **Sorts by backlog priority** — `priority` ascending (zero-based, lower = higher priority). Not `displayOrder`: that is the storyboard's sort position, keyed by view, and a different axis entirely.
 4. Picks the **highest-priority Story**.
 5. If multiple Stories qualify but currently in-progress work is blocked (error state), finishes the blocking Story first. Otherwise, picks the next in order.
 
@@ -62,8 +87,13 @@ If no Stories are found: report to the human and stop. If Stories have the tag b
 
 Before the agent spends any time analysing, it signals to the team that this Story is now being worked on:
 
-1. **Move Story to Doing**: set `startedDate` on the Story in Betterplan.
+1. **Move Story to Doing**: change the Story's phase to `doing`.
 2. **Add the `project:Agent` tag**: if the human already added it (queued the Story), it is already present; if not, the agent adds it now. Either way, the tag is set.
+
+Both touch tags, so do them as **one** update: read the Story's tags, swap
+`progress:ready` → `progress:doing`, add `project:Agent` if absent, send the
+complete list. Two separate `update_task` calls would have the second one's tag
+list overwrite the first one's.
 
 This gives immediate visual feedback on the Iteration Board: other team members see "a Story is being implemented by an agent right now."
 
@@ -168,7 +198,7 @@ The human either:
 
 - Says **"los"** / **"go"** / **"ja"** → proceeds to Step 7.
 - Requests changes → update the proposal in chat, re-show, wait for confirmation.
-- Cancels → **undo**: move the Story back to Todo (clear `startedDate`), remove the `project:Agent` tag, and stop. The Story is now unassigned and ready for a human or another session.
+- Cancels → **undo**: move the Story back to `todo` and remove the `project:Agent` tag in one update, then stop. Leave the lead-time dates alone — they record that the Story was briefly started, which is true. The Story is now unassigned and ready for a human or another session.
 
 **One confirmation for the whole list.** Once confirmed, the agent works autonomously. No per-Workitem gate unless an error occurs (see Step 9).
 
@@ -182,7 +212,7 @@ The human either:
 ### Level 2 (grob) & Level 3 (volles Detail)
 
 1. **Create the Branch**: `feature/<story-id>-<short-slug>`. Target = default branch.
-2. **Create Workitems in Betterplan**: via the MCP, using `type: workitem`, with `parentId` set to the Story. Set initial status to **Todo** (`todoDate` set).
+2. **Create Workitems in Betterplan**: via the MCP, using `type: workitem`, with `parentId` set to the Story. Send no progress tag — a Workitem created without one starts at `progress:todo`, which is exactly where it belongs.
    - **Level 2**: Each Workitem's description contains the **inline checklist** (substeps as Markdown checkboxes `- [ ]`).
    - **Level 3**: Each Workitem's title matches the proposal; no internal checklist needed.
 
@@ -206,20 +236,20 @@ Then proceed to Step 10 (Finish).
 
 For each coarse Workitem **in order**, follow this exact rhythm. The key rule: **update the board after EVERY substep — not in bulk at the end.**
 
-1. **Move to Doing**: update the Workitem in Betterplan (`startedDate` or equivalent board-column date).
+1. **Move to Doing**: change the Workitem's phase to `doing`.
 
 2. **Loop through each substep in the inline checklist.** For each substep:
    - **Implement**: write code, config, or docs needed for this single substep.
    - **Commit**: one commit per substep. Commit message should name the substep.
    - **Push** the commit to the feature branch.
-   - **Update the checklist immediately** via the Betterplan MCP: read the current Workitem description, toggle exactly this one checkbox from `- [ ]` → `- [x]`, and write the updated description back.
+   - **Update the checklist immediately** via the Betterplan MCP: read the current Workitem description, toggle exactly this one checkbox from `- [ ]` → `- [x]`, and send back **only** `description`. Do not echo the rest of the task you just read — `reworkPoints` accumulates.
    - **Do NOT** wait until later substeps are done. This toggle must happen **before** you start the next substep.
    - **Do NOT** batch several substeps into one update. Each substep produces a visible change on the board.
    - **Workitem stays on Doing** throughout — do NOT move it to Done until all substeps are complete.
 
 3. **Mark the AC(s)** this coarse Workitem covers as done in the Story description (toggle `- [ ]` → `- [x]`) — only if fully satisfied by the completed substeps.
 
-4. **Move to Done**: update the Workitem in Betterplan (`doneDate`).
+4. **Move to Done**: change the Workitem's phase to `done`.
 
 After each Workitem, reflect progress: if at least one substep is Done and others remain, the Workitem stays at Doing. The human can open the Workitem in the board at any time and see exactly which substeps are done and which remain.
 
@@ -227,7 +257,7 @@ After each Workitem, reflect progress: if at least one substep is Done and other
 
 For each Workitem **in order**:
 
-1. **Move to Doing**: update the Workitem in Betterplan.
+1. **Move to Doing**: change the Workitem's phase to `doing`.
 2. **Implement**: write code, tests, config needed to satisfy the linked AC(s).
 3. **Commit**: one commit per Workitem. Commit message:
    ```
@@ -239,7 +269,7 @@ For each Workitem **in order**:
    ```
 4. **Push** the commit to the feature branch.
 5. **Mark the AC(s)** in the Story description (`- [ ]` → `- [x]`).
-6. **Move to Done**: update the Workitem in Betterplan (`doneDate`).
+6. **Move to Done**: change the Workitem's phase to `done`.
 
 ### AC-update discipline (all levels)
 
@@ -253,8 +283,8 @@ For each Workitem **in order**:
 If a Workitem **cannot be completed** (test fails persistently, AC is not implementable as described, external dependency is missing, ambiguity the agent cannot resolve):
 
 1. **Stop immediately**. Do not skip, retry, or work around silently.
-2. **Move the failing Workitem back to Todo** — undo the in-progress status in Betterplan (for Level 1: note the failure point; there is no Workitem to roll back).
-3. **Move the parent Story back to Todo** — reset `startedDate`, leave `todoDate` set.
+2. **Move the failing Workitem back to Todo** — set its phase to `todo` (for Level 1: note the failure point; there is no Workitem to roll back).
+3. **Move the parent Story back to Todo** — set its phase to `todo`. Leave the lead-time dates as they are; they record that work started, which it did.
 4. **Post a comment** on the Story (via the Betterplan MCP) with:
    - Which Workitem/step failed and why.
    - What was tried.
@@ -273,11 +303,10 @@ The agent also stops on:
 When all implementation is complete (all Workitems at Done for levels 2/3, or full implementation committed for level 1):
 
 1. **Merge the branch**: squash-merge or rebase-merge the feature branch into the default branch. Push.
-2. **Move Story to Done**: set `doneDate` on the Story in Betterplan.
-3. **Remove `project:Agent` tag**: the Story is no longer agent-assigned.
-4. **Optional activity comment**: post a summary (optional, follow the *Activity comments* rules from `betterplan-workflow`): number of Workitems, branch name, merge commit hash.
-5. **Tell the human**: "Story BP-123 is done, branch merged, tag removed."
-6. **Go to next Story**: scan again (Step 1) for the next `project:Agent`-tagged Story in a current iteration. If none remain, report "All agent stories implemented."
+2. **Move Story to Done and remove the `project:Agent` tag** — one update, since both go through `tags`: swap `progress:doing` → `progress:done` and drop `project:Agent` in the same call.
+3. **Optional activity comment**: post a summary (optional, follow the *Activity comments* rules from `betterplan-workflow`): number of Workitems, branch name, merge commit hash.
+4. **Tell the human**: "Story BP-123 is done, branch merged, tag removed."
+5. **Go to next Story**: scan again (Step 1) for the next `project:Agent`-tagged Story in a current iteration. If none remain, report "All agent stories implemented."
 
 ### Level-1 variation
 For Level 1 (no Workitems): there are no Workitems to summarise. Just note the branch name and merge commit. The Story went directly from Doing → Done with implementation on the branch.

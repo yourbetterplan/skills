@@ -11,114 +11,187 @@
     {
       "name": "betterplan-workflow",
       "source": "./",
-      "skills": ["./betterplan-workflow"],
+      "skills": [
+        "./betterplan-workflow"
+      ],
       "strict": false,
       "description": "Classifies work into the correct Betterplan building block and understands the Betterplan method. Routes requests to the appropriate create-* skill.",
       "version": "0.1.0",
-      "author": { "name": "Betterplan" },
+      "author": {
+        "name": "Betterplan"
+      },
       "homepage": "https://yourbetterplan.com",
       "repository": "https://github.com/yourbetterplan/skills",
       "license": "MIT",
       "category": "planning",
-      "keywords": ["betterplan", "workflow", "classification", "planning"]
+      "keywords": [
+        "betterplan",
+        "workflow",
+        "classification",
+        "planning"
+      ]
     },
     {
       "name": "betterplan-create-initiative",
       "source": "./",
-      "skills": ["./betterplan-create-initiative"],
+      "skills": [
+        "./betterplan-create-initiative"
+      ],
       "strict": false,
       "description": "Creates a Betterplan Initiative — a large business goal that sets direction.",
       "version": "0.1.0",
-      "author": { "name": "Betterplan" },
+      "author": {
+        "name": "Betterplan"
+      },
       "homepage": "https://yourbetterplan.com",
       "repository": "https://github.com/yourbetterplan/skills",
       "license": "MIT",
       "category": "planning",
-      "keywords": ["betterplan", "initiative", "planning", "goal"]
+      "keywords": [
+        "betterplan",
+        "initiative",
+        "planning",
+        "goal"
+      ]
     },
     {
       "name": "betterplan-create-epic",
       "source": "./",
-      "skills": ["./betterplan-create-epic"],
+      "skills": [
+        "./betterplan-create-epic"
+      ],
       "strict": false,
       "description": "Creates a Betterplan Epic — a step in the business process under an Initiative.",
       "version": "0.1.0",
-      "author": { "name": "Betterplan" },
+      "author": {
+        "name": "Betterplan"
+      },
       "homepage": "https://yourbetterplan.com",
       "repository": "https://github.com/yourbetterplan/skills",
       "license": "MIT",
       "category": "planning",
-      "keywords": ["betterplan", "epic", "planning", "process"]
+      "keywords": [
+        "betterplan",
+        "epic",
+        "planning",
+        "process"
+      ]
     },
     {
       "name": "betterplan-create-story",
       "source": "./",
-      "skills": ["./betterplan-create-story"],
+      "skills": [
+        "./betterplan-create-story"
+      ],
       "strict": false,
       "description": "Creates a Betterplan Story — User Story, Project Story, or Devteam Story.",
       "version": "0.1.0",
-      "author": { "name": "Betterplan" },
+      "author": {
+        "name": "Betterplan"
+      },
       "homepage": "https://yourbetterplan.com",
       "repository": "https://github.com/yourbetterplan/skills",
       "license": "MIT",
       "category": "planning",
-      "keywords": ["betterplan", "story", "user-story", "backlog"]
+      "keywords": [
+        "betterplan",
+        "story",
+        "user-story",
+        "backlog"
+      ]
     },
     {
       "name": "betterplan-create-workitem",
       "source": "./",
-      "skills": ["./betterplan-create-workitem"],
+      "skills": [
+        "./betterplan-create-workitem"
+      ],
       "strict": false,
       "description": "Creates Betterplan Workitems or bug entries for a Story.",
       "version": "0.1.0",
-      "author": { "name": "Betterplan" },
+      "author": {
+        "name": "Betterplan"
+      },
       "homepage": "https://yourbetterplan.com",
       "repository": "https://github.com/yourbetterplan/skills",
       "license": "MIT",
       "category": "planning",
-      "keywords": ["betterplan", "workitem", "task", "bug"]
+      "keywords": [
+        "betterplan",
+        "workitem",
+        "task",
+        "bug"
+      ]
     },
     {
       "name": "betterplan-implement-story",
       "source": "./",
-      "skills": ["./betterplan-implement-story"],
+      "skills": [
+        "./betterplan-implement-story"
+      ],
       "strict": false,
       "description": "Implements a Betterplan Story autonomously via a coding agent (agent picks up Stories tagged with Agent that are in a current iteration, proposes Workitems, implements them with board tracking).",
-      "version": "0.2.0",
-      "author": { "name": "Betterplan" },
+      "version": "0.3.0",
+      "author": {
+        "name": "Betterplan"
+      },
       "homepage": "https://yourbetterplan.com",
       "repository": "https://github.com/yourbetterplan/skills",
       "license": "MIT",
       "category": "planning",
-      "keywords": ["betterplan", "implement", "agent", "automation"]
+      "keywords": [
+        "betterplan",
+        "implement",
+        "agent",
+        "automation"
+      ]
     },
     {
       "name": "betterplan-build-playbook",
       "source": "./",
-      "skills": ["./betterplan-build-playbook"],
+      "skills": [
+        "./betterplan-build-playbook"
+      ],
       "strict": false,
       "description": "Authors a Betterplan Playbook — a reusable Story Map for a repeatable process — from reference material and a structured interview with a domain expert.",
       "version": "0.2.0",
-      "author": { "name": "Betterplan" },
+      "author": {
+        "name": "Betterplan"
+      },
       "homepage": "https://yourbetterplan.com",
       "repository": "https://github.com/yourbetterplan/skills",
       "license": "MIT",
       "category": "planning",
-      "keywords": ["betterplan", "playbook", "template", "story-map"]
+      "keywords": [
+        "betterplan",
+        "playbook",
+        "template",
+        "story-map"
+      ]
     },
     {
       "name": "betterplan-compile-playbook",
       "source": "./",
-      "skills": ["./betterplan-compile-playbook"],
+      "skills": [
+        "./betterplan-compile-playbook"
+      ],
       "strict": false,
       "description": "Compiles a Playbook Definition into an importable Betterplan Template and validates it against the live API schema.",
       "version": "0.1.0",
-      "author": { "name": "Betterplan" },
+      "author": {
+        "name": "Betterplan"
+      },
       "homepage": "https://yourbetterplan.com",
       "repository": "https://github.com/yourbetterplan/skills",
       "license": "MIT",
       "category": "planning",
-      "keywords": ["betterplan", "playbook", "template", "import", "validation"]
+      "keywords": [
+        "betterplan",
+        "playbook",
+        "template",
+        "import",
+        "validation"
+      ]
     }
   ]
 }
