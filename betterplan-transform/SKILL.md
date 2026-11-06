@@ -159,9 +159,14 @@ Nach **jedem** zurückgekehrten Subagenten:
 
 ```bash
 uv run --directory ~/.agents/skills/betterplan-transform/scripts \
-  python3 verify_split.py .betterplan/references/<slug>.md \
-                          .betterplan/references/<slug>/
+  python3 verify_split.py "$PWD/.betterplan/references/<slug>.md" \
+                          "$PWD/.betterplan/references/<slug>/"
 ```
+
+> **Absolute Pfade sind hier Pflicht.** `--directory` wechselt das
+> Arbeitsverzeichnis in den `scripts/`-Ordner; relative Pfade zeigen dann ins
+> Leere und das Skript bricht mit `FileNotFoundError` ab — nicht mit einem
+> ehrlichen `FAIL`. Dasselbe gilt für `--project-dir` oben.
 
 Das Skript streift die generierten Köpfe ab, normalisiert Zeilenenden und
 vergleicht Zeichen- und Zeilenzahl **exakt** gegen die Gesamtdatei. Keine
