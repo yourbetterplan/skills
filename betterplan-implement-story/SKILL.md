@@ -73,11 +73,45 @@ Closing is a separate axis — `completionState = "closed"`. There is no
 
 On "mache deine Arbeit" (or equivalent trigger), the agent:
 
-1. Finds **all open Stories** (not Closed, not Done) with tag `project:Agent`.
-2. Filters to those in a **current iteration** (any iteration where `startDate ≤ today ≤ endDate`).
-3. **Sorts by backlog priority** — `priority` ascending (zero-based, lower = higher priority). Not `displayOrder`: that is the storyboard's sort position, keyed by view, and a different axis entirely.
-4. Picks the **highest-priority Story**.
-5. If multiple Stories qualify but currently in-progress work is blocked (error state), finishes the blocking Story first. Otherwise, picks the next in order.
+1. **Finds the tagged Stories** — one call:
+
+   ```
+   list_tasks(project_id, tag: ["project:Agent"], completion_state: "open")
+   ```
+
+   The tag filter ANDs, so this returns exactly the open tasks carrying the
+   tag. No `type` filter is needed: only Stories ever carry `project:Agent`
+   (Workitems created by the agent deliberately do not).
+
+   **Do not call `get_project` to find them.** It returns the whole project and
+   times out on a grown one.
+
+2. **Partitions them by phase**, reading each Story's `progress:*` tag. Only
+   `progress:ready` is eligible. Anything at `idea` or `draft` is reported in
+   Step 4, not silently dropped; anything already at `doing` is work this skill
+   was interrupted in the middle of — resume it rather than re-planning (see
+   *Interaction across sessions*).
+
+3. **Filters to a current iteration.** Iteration membership lives on the
+   iteration, not on the task:
+
+   ```
+   list_iterations(project_id)
+   ```
+
+   An iteration is current when `startDate ≤ today ≤ endDate` **and**
+   `completed` is false — a past iteration left un-completed still fails the
+   date test, but a completed one inside its own dates must not count. The
+   Story qualifies when its id appears in that iteration's `taskIds`.
+
+4. **Sorts by backlog priority** — `priority` ascending (zero-based, lower =
+   higher priority). Not `displayOrder`: that is the storyboard's sort position,
+   keyed by view, and a different axis. `priority` orders a card *within its
+   column*, which is well-defined here precisely because every candidate is in
+   the Ready column.
+
+5. **Picks the highest-priority Story.** If in-progress work is blocked (error
+   state), finish that blocking Story first.
 
 If no Stories are found: report to the human and stop. If Stories have the tag but are not in a current iteration, mention them once:
 
@@ -212,11 +246,18 @@ The human either:
 ### Level 2 (grob) & Level 3 (volles Detail)
 
 1. **Create the Branch**: `feature/<story-id>-<short-slug>`. Target = default branch.
-2. **Create Workitems in Betterplan**: via the MCP, using `type: workitem`, with `parentId` set to the Story. Send no progress tag — a Workitem created without one starts at `progress:todo`, which is exactly where it belongs.
+2. **Check for existing Workitems first** — `list_tasks(project_id, parent_id: <story-id>)`. A previous session or a human may have created some, and creating duplicates is the one mistake here that cannot be undone from the board.
+
+3. **Create the missing Workitems**: via the MCP, using `type: workitem`, with `parentId` set to the Story.
+   - Send **no progress tag** — a Workitem created without one starts at `progress:todo`, which is exactly where it belongs.
+   - Send **no `displayOrder`** — the single-task create route computes the position itself and ignores what you send. Create them in the order the plan lists them.
+   - Send **no `estimation`** — Workitems carry no story points.
    - **Level 2**: Each Workitem's description contains the **inline checklist** (substeps as Markdown checkboxes `- [ ]`).
    - **Level 3**: Each Workitem's title matches the proposal; no internal checklist needed.
 
-If a Workitem already exists for a given scope (pre-created), the agent reuses it — update its status, don't create a duplicate.
+For a Workitem that already exists, reuse it rather than creating a duplicate:
+set its phase when the loop reaches it. One already at `progress:done` is
+finished work from an earlier session — leave it alone and skip to the next.
 
 (The Story is already on **Doing** with the `project:Agent` tag — both were set in Step 2.)
 
