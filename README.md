@@ -56,6 +56,17 @@ npx skills@latest add yourbetterplan/skills --list
 pi install git:github.com/yourbetterplan/skills
 ```
 
+## Third-party skills
+
+`.agents/skills/` holds skills authored by others — `domain-modeling`,
+`grill-me`, `grill-with-docs` and `grilling`, from
+[mattpocock/skills](https://github.com/mattpocock/skills). They are not part of
+the `betterplan-*` registry and no Betterplan skill depends on them. See
+[THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md) for licensing, and do not edit
+the vendored copies — re-running the `skills` CLI overwrites them.
+
 ## License
 
-MIT
+The `betterplan-*` skills in this repository are MIT. Vendored third-party
+skills carry their own license; see
+[THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).
