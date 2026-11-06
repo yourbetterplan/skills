@@ -67,6 +67,6 @@ the vendored copies — re-running the `skills` CLI overwrites them.
 
 ## License
 
-The `betterplan-*` skills in this repository are MIT. Vendored third-party
-skills carry their own license; see
+The `betterplan-*` skills in this repository are MIT — see [LICENSE](LICENSE).
+Vendored third-party skills carry their own license; see
 [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).
