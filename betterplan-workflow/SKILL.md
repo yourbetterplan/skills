@@ -63,14 +63,17 @@ Walk this decision in order and stop at the first match:
 
 1. **Does it set overall direction and is too big to build directly?** → Initiative. (e.g. "Increase self-service checkout adoption")
 2. **Is it a step the user takes toward a goal, made of several options/variants?** → Epic. (e.g. "Search", "Checkout")
-3. **Is it concrete, buildable, and does it deliver value to a user/customer?** → User Story. (e.g. "Text search with autocomplete")
-4. **Is it needed but delivers no direct user value?**
-   - Organizational, contractual, hardware, documentation, or recording a decision/event → Project Story.
+3. **Two questions, both must hold** → User Story. (e.g. "Text search with autocomplete")
+   - *Direction*: is the benefit aimed **outward**, at someone nameable **outside the project team**?
+   - *Deliverable*: is something handed over that gives that beneficiary a capability?
+4. **Is it needed, but the benefit stays inside the project team?**
+   - Organizational, contractual, hardware, or recording a decision/event → Project Story.
    - Technical and internal to the dev team (refactoring, CI/CD, tech debt) → Devteam Story.
 5. **Is it a small task that only helps coordinate the delivery of one Story inside an iteration?** → Workitem.
 
 Edge cases:
 
+- **A document is not automatically a Project Story.** The artifact's form does not decide; the beneficiary does. Internal documentation with no outside audience is a Project Story. A document *delivered* to someone who can then do something — technical documentation a manufacturer produces on an authority's request, an integration guide an integrator needs, a Software Bill of Materials a customer feeds into their own vulnerability handling — passes both tests in step 3 and is a User Story. This is why `documentation` is absent from the step 4 list.
 - "Bug / rework" on a Story: do **not** create a new Story. Add a **Workitem with `isBug = true`** to the affected Story (use `betterplan-create-workitem`). The backend handles the rest — reopening the Story and the bug rollup. Knowledge stays on the Story.
 - An unplanned task with no home Story → Devteam Story (technical cause) or Project Story (organizational).
 - If an Epic turns out to have only one way to do it, it may simply be a User Story. If a User Story keeps growing options, it may be an Epic. Structure is allowed to change.
@@ -89,6 +92,37 @@ When the type is decided, hand off. The `type` column is the value used in the d
 ## Shared conventions
 
 Every `create-*` skill follows these. They are defined once here.
+
+### Perspective: a Story belongs to its beneficiary
+
+A User Story is written from the perspective of the **beneficiary** — the person or body that gains something — never from the perspective of whoever owes the work. That an obligation has to be met, and organized, is self-evident and does not earn its own item.
+
+This matters most where the material arrives as a list of duties: regulation, certification, tenders, audits. Written down as they arrive, every item becomes a duty roster and the Story Map tells no story at all.
+
+| | |
+|---|---|
+| Story | *"Als Nutzer möchte ich erfahren, wenn ein Sicherheitsvorfall mein Gerät betrifft, damit mein Zuhause sicher bleibt."* |
+| Not a Story | "Artikel 14 erfüllen" |
+
+**Who owes the work is a second, orthogonal dimension** and is carried as a tag with the bare role name — `project:Hersteller`, `project:Zulieferer` — grouped by colour, never by a category word inside the value (see the tag rules in `references/data-model.md`). The two dimensions coincide often, and that is fine: a manufacturer is both beneficiary and obligation-bearer of its own documentation, while a user is the beneficiary of updates the manufacturer owes. One backbone then reads left to right as a narrative and filters by responsibility.
+
+**Counterparties are not personas.** An authority, a notified body, a CSIRT appears in the Story text as the *trigger* of an obligation — "auf begründetes Verlangen der Marktüberwachungsbehörde" — never in the Why-line. Nobody works a Story titled "Als Marktüberwachungsbehörde will ich…".
+
+### Personas
+
+A persona is a **real Betterplan object**: the MCP exposes `create_persona`, `assign_persona` and `archive_persona`, they are project-scoped, and one must exist before it can be assigned.
+
+Recording a persona is **optional**. What the perspective rule above requires is the beneficiary's *point of view* in the Story; a Story that names its beneficiary in the description satisfies it on its own. Create persona objects when the same beneficiary recurs across many Stories and is worth seeing on the board — not as paperwork for a one-off.
+
+A usable persona is a concrete audience, under the same rule as every other name here: never a role label that could be anyone ("the user", "Product Manager"). "Layman consumer setting up a smart-home device at home" is a persona; "End user" is a placeholder.
+
+### Playbook templates carry no Project or Devteam Stories
+
+A Playbook exists to make visible which task belongs to which step, and its Story Map read left to right *is* the product. Project and Devteam Stories take no parent, so they hang beside the backbone rather than under a step — in a template that is self-defeating, because an authored item nobody can see under its step contradicts the one thing the template is for.
+
+A Playbook template therefore contains **only Initiatives, Epics and User Stories**. Project and Devteam Stories are created on the fly during execution, by the team doing the work, when the need appears.
+
+Where that forces a clarifying decision into Story shape, find the beneficiary on the company side rather than abandoning the rule: *"Als Hersteller möchte ich früh wissen, welcher Konformitätsweg für mein Produkt gilt, damit ich das nicht kurz vor Markteintritt feststelle."*
 
 ### Maturity levels (only for Stories)
 

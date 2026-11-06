@@ -41,11 +41,14 @@ A forecast, not a manual plan. Computed from prioritization, Story estimates, an
 ```
 Initiative (goal)
 └── Epic (step toward the goal)
-    └── User Story / Project Story / Devteam Story (buildable work)
+    └── User Story (buildable work)
         └── Workitem (delivery coordination, iteration board only)
+
+Project Story / Devteam Story (buildable work, root-level — takes no parent)
+└── Workitem (delivery coordination, iteration board only)
 ```
 
-Project and Devteam Stories often sit under an Epic too, but may also stand alone when they are cross-cutting.
+Project and Devteam Stories sit at the root. They take no parent, so they hang beside the backbone rather than under a step — correct for genuinely cross-cutting work, and the reason a Playbook template does not use them (see *Shared conventions* in `SKILL.md`).
 
 ## Splitting guidance
 
