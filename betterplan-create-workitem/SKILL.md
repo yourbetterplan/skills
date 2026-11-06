@@ -19,9 +19,9 @@ A Workitem is the **smallest unit** of work. It belongs to one Story and exists 
 
 Key rules (from `betterplan-workflow`):
 
-- A Workitem always has a **parent Story** — a User Story, a Project Story or a Devteam Story. This is enforced: the backend rejects a Workitem without a parent, and one hung under an Initiative or Epic, with HTTP 400. If there is no parent Story yet, create it first with `betterplan-create-story`; if it is unclear which Story the Workitem belongs to, ask.
+- A Workitem always has a **parent Story** — a User Story, a Project Story or a Devteam Story, never an Initiative or an Epic. If there is no parent Story yet, create it first with `betterplan-create-story`; if it is unclear which Story the Workitem belongs to, ask. Never create it parentless.
 - Workitems have **no story points**, **no maturity level**, and **no discovery dialogue** — they serve coordination, not planning. Do not run a Why/What/How loop here.
-- A Workitem has **no `Closed` state**. It is complete when it reaches the **Done** column (`doneDate`) — never set `completionState = "closed"` on a Workitem. Unlike a Story, a Workitem carries no planning or historical value, so an obsolete Workitem is simply deleted, not closed with a rationale.
+- A Workitem has **no `Closed` state**. It is complete when it reaches the **Done** column (`progress:done`) — never set `completionState = "closed"` on a Workitem. Unlike a Story, a Workitem carries no planning or historical value, so an obsolete Workitem is simply deleted, not closed with a rationale.
 - A Workitem is either clearly formulated and ready to be created, or it is not created yet. If the team is unsure about the break-down, pause: capture what is clear and resume later — do not log half-formed Workitems.
 - Keep delivery detail in Workitems, not in the Backlog. The Story stays readable; the steps live where the team works on them.
 

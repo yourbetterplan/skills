@@ -142,7 +142,7 @@ Every Story is Open (still in progress, anywhere from Idea to Done) or Closed (f
 
 **When closing an item as obsolete or "won't do":** preserve the existing description **as-is** — do not overwrite it with a closing rationale. The original idea has historical and learning value (what was the intent, what shape did it have, what made it look promising once). Put the reason for closing into the **activity log** via a comment ("Closed as obsolete because …", "Superseded by #N", "Won't do — out of scope after …"). The same applies to Initiatives and Epics. If the closed item is replaced by another, link to the successor in the comment, not in the description.
 
-**Workitems have no Closed state.** They are lightweight coordination items on the Iteration Board, complete once they reach **Done** (`doneDate`) — never set `completionState = "closed"` on a Workitem. An obsolete Workitem is simply deleted; there is no closing rationale to preserve (unlike a Story, it carries no planning or historical value).
+**Workitems have no Closed state.** They are lightweight coordination items on the Iteration Board, complete once they reach **Done** (`progress:done`) — never set `completionState = "closed"` on a Workitem. An obsolete Workitem is simply deleted; there is no closing rationale to preserve (unlike a Story, it carries no planning or historical value).
 
 ### Estimation (Stories only)
 
@@ -189,7 +189,7 @@ Never call the create / update tool, post a comment, or change a maturity tag in
 
 The MCP describes its own tools and field names at runtime — follow those for exact arguments. After creating, confirm with a short chat summary (what was created, its type and parent). If a required argument is missing (e.g. the target project or parent), ask the user.
 
-**`parentId` is required for an Epic, a User Story and a Workitem** — the backend rejects the create with HTTP 400 without it, and rejects a parent of the wrong type just the same. Create the parent first if it does not exist yet, or ask which one the user means. Never fall back to creating the item parentless. See *The parent is required* in `references/data-model.md` for the full table (Project and Devteam Stories are root-level and take no parent).
+**Always set `parentId` on an Epic, a User Story and a Workitem.** Create the parent first if it does not exist yet, or ask which one the user means. Never fall back to creating the item parentless — a parentless item has been seen to become unupdatable. See *The hierarchy* in `references/data-model.md` for the full table and the status of the backend's enforcement (Project and Devteam Stories are root-level and take no parent).
 
 **If the MCP is not available**, fall back to a Markdown artifact the user can paste in. Output **content only** — title and description (plus acceptance criteria for Stories). Do **not** emit meta or structural fields (type, parent, maturity, story points, dependencies); mention those in the chat reply instead. Default shape (skills adapt it per type):
 
@@ -219,7 +219,7 @@ Avoid: *"We asked 4 questions, you answered Y, I wrote Z."* — everything visib
 
 This rule applies to every `create-*` skill at its scale: Stories get maturity-level reflections, Epics / Initiatives get scope-level reflections, Workitems normally get no comment (the checklist item itself is the signal).
 
-See `references/glossary.md` for term definitions, `references/method-deep-dive.md` for the full method, prioritization, and the Story Map layout, and `references/data-model.md` for the conceptual mapping the MCP does not spell out (the `type` values, how maturity maps to date fields, content vs metadata, the bug rule).
+See `references/glossary.md` for term definitions, `references/method-deep-dive.md` for the full method, prioritization, and the Story Map layout, and `references/data-model.md` for the conceptual mapping the MCP does not spell out (the `type` values, how maturity is stored, content vs metadata, the tag namespacing rules, the bug rule).
 
 ## The Betterplan MCP
 

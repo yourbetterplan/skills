@@ -47,7 +47,7 @@ Follow the *Creating an item: MCP first, Markdown fallback* rule in `betterplan-
 
 If the Betterplan MCP is available, create the Epic via its tool with `type: epic` and `parentId` set to its Initiative (content → `title` + `description`). Otherwise output the Markdown below.
 
-`parentId` is not optional: the backend rejects an Epic without an Initiative — and one hung under anything other than an Initiative — with HTTP 400. If the Initiative does not exist yet, create it first with `betterplan-create-initiative`; if it is unclear which one the Epic belongs to, ask.
+`parentId` is not optional here: an Epic hangs under an Initiative and nothing else. If the Initiative does not exist yet, create it first with `betterplan-create-initiative`; if it is unclear which one the Epic belongs to, ask. Never create the Epic parentless "for now".
 
 Content only — title and description, no type/parent/meta (those are fields):
 

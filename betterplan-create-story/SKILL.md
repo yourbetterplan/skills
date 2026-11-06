@@ -243,7 +243,7 @@ Story-specific:
 
 - If the user replies with a change request (rewording, scope tweak, AC adjustment), **do not patch it in silently**. Update the canvas (Step 3a) instead, re-derive the description in Step 4, and post the new proposal. The canvas is the source of truth — direct text edits would drift the two apart.
 - When creating / updating via the MCP, set `type` = `story` / `project` / `dev`, plus `parentId`, `estimation`, maturity dates as arguments. Set the maturity date for the *achieved* level (which may be lower than the original target if the loop was paused, see Step 3b).
-- **A User Story (`story`) must name its Epic in `parentId`.** The backend rejects the create with HTTP 400 without one, and rejects an Initiative as the parent just the same. Write the Epic first with `betterplan-create-epic` if it does not exist; ask if it is unclear which Epic the Story belongs under. Project Stories (`project`) and Devteam Stories (`dev`) are root-level and take **no** parent.
+- **A User Story (`story`) must name its Epic in `parentId`** — an Epic, never an Initiative. Write the Epic first with `betterplan-create-epic` if it does not exist; ask if it is unclear which Epic the Story belongs under. Project Stories (`project`) and Devteam Stories (`dev`) are root-level and take **no** parent.
 - Post the comment from Step 4.3 only if it applies.
 - If the MCP is not available, output the Markdown shape below for the user to paste in.
 

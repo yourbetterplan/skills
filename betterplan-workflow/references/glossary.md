@@ -4,6 +4,9 @@ Terms used across the Betterplan skills.
 
 - **Endeavor** — the whole project/undertaking being planned in Betterplan.
 - **Story Map** — visual structure of the endeavor (Jeff Patton). Left→right = major steps; top→bottom = importance/options. Holds Initiatives and Epics; Stories hang under Epics.
+- **Playbook** — a reusable Story Map for a repeatable process, authored once and then instantiated as a new Endeavor. Guides someone from the start of the process to its end.
+- **Playbook Definition** — the authored source of a Playbook: its reference material and its Story Map. The Playbook is published from it; the definition is not what Betterplan loads.
+- **Template** — what Betterplan offers in the project-creation picker. Instantiating one copies its Story Map into a fresh Endeavor; the copy is independent, so later changes to the Template never reach it. A Playbook is published as a Template.
 - **Initiative** — a **business goal**: the outcome we want to achieve. Structure, not implemented directly.
 - **Epic** — a **step in the business process** that fulfils the goal. Structure, not implemented directly.
 - **User Story** — a **tool or option that fulfils a process step**, with concrete user value. A tool can be a person, a service, or a system. Implementation block.
