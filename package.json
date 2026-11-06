@@ -19,6 +19,7 @@
       "./betterplan-create-workitem",
       "./betterplan-implement-story",
       "./betterplan-transform",
+      "./betterplan-goal",
       "./betterplan-extract"
     ]
   },

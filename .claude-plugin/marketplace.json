@@ -170,6 +170,29 @@
       ]
     },
     {
+      "name": "betterplan-goal",
+      "source": "./",
+      "skills": [
+        "./betterplan-goal"
+      ],
+      "strict": false,
+      "description": "Defines the goal of a Betterplan project and records it in .betterplan/GOAL.md. Runs after betterplan-transform and before betterplan-extract.",
+      "version": "0.1.0",
+      "author": {
+        "name": "Betterplan"
+      },
+      "homepage": "https://yourbetterplan.com",
+      "repository": "https://github.com/yourbetterplan/skills",
+      "license": "MIT",
+      "category": "planning",
+      "keywords": [
+        "betterplan",
+        "goal",
+        "scope",
+        "planning"
+      ]
+    },
+    {
       "name": "betterplan-extract",
       "source": "./",
       "skills": [
