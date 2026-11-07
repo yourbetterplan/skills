@@ -73,9 +73,13 @@ def run(cmd: list[str], timeout: int = 30) -> str | None:
 
 
 def slugify(name: str) -> str:
-    """Make a filesystem-safe slug from a filename (without extension)."""
-    s = name.rsplit(".", 1)[0]
-    s = re.sub(r"[^a-zA-Z0-9äöüÄÖÜß_-]", "_", s)
+    """Make a filesystem-safe slug from a filename (without extension).
+
+    The caller strips the extension; stripping a second one here would eat the
+    name itself — `4.1_Teilnahmeantrag` is a stem, not a name with an extension,
+    and would collapse to `4`.
+    """
+    s = re.sub(r"[^a-zA-Z0-9äöüÄÖÜß_-]", "_", name)
     s = re.sub(r"_+", "_", s).strip("_")
     return s.lower()[:80]
 
