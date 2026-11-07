@@ -11,7 +11,7 @@ description: >
   step. Runs after betterplan-extract. Re-invocable: continues an unfinished map
   rather than starting over.
 metadata:
-  version: "0.1.0"
+  version: "0.2.0"
 ---
 
 # betterplan-storymap
@@ -87,7 +87,9 @@ die der fertige Backbone wieder umwirft.
 3. **Personas und Releases festlegen.** Aus `goal:roles` und `goal:scope`, vor
    den Stories: jede Story braucht eine Persona, und wo Fristen oder Lernziele
    bestehen, ein Release. Ein Release ohne genanntes Ergebnis und ohne Frage,
-   die es beantwortet, ist kein Release, sondern ein Datum.
+   die es beantwortet, ist kein Release, sondern ein Datum. **Beide sind eigene
+   Betterplan-Objekte mit festem Feldsatz — schreibe sie feldweise**, siehe
+   unten.
 4. **Initiativen schreiben.** Aus `goal:backbone`, in der dort entschiedenen
    Reihenfolge. Erfinde keine Initiative dazu und lasse keine weg: weicht das
    Material davon ab, ist das ein Befund für `betterplan-goal`, kein stiller
@@ -113,9 +115,12 @@ die der fertige Backbone wieder umwirft.
    festzuhaltende Entscheidung; das Nachziehen von Material, das noch im
    Entstehen ist. Schlage zuerst **alle** Kandidaten vor, die du siehst, und
    lasse kürzen — die Messlatte liegt beim Menschen, nicht bei dir.
-9. **Abhängigkeiten setzen.** Harte als `dependsOn`, weiche als `#NNN`-Bezug im
-   Text. Die Regel steht in `betterplan-workflow`.
-10. **Abdeckung prüfen** und `COVERAGE.md` schreiben.
+9. **Abhängigkeiten setzen.** Harte als `dependsOn`, weiche als `shapedBy` —
+   letzteres wird beim Import zum `#NNN`-Bezug im Text. Die Regel steht in
+   `betterplan-workflow`.
+10. **Maschinell prüfen**, dann **Abdeckung prüfen** und `COVERAGE.md` schreiben.
+    Erst die Verweise, dann die Inhalte: ein nicht auflösender `parent` macht
+    jede Abdeckungsaussage darüber wertlos.
 11. **Nicht importieren.** Die Übertragung nach Betterplan ist ein eigener
     Schritt mit eigenem Fehlerprofil.
 
@@ -139,25 +144,143 @@ Eine Datei pro Item. Die Hierarchie steht im Pfad, die Identität im Frontmatter
 
 | Feld | Für | Inhalt |
 |---|---|---|
-| `id` | alle | stabil und eindeutig, **nie** aus dem Pfad abgeleitet |
+| `id` | alle | **UUID**, eindeutig, **nie** aus Pfad oder Titel abgeleitet |
 | `type` | alle | `initiative` · `epic` · `story` · `project` |
 | `parent` | Epics, User Stories | `id` des Elternteils — Project Stories haben **keinen** |
 | `title` | alle | abhakbare Verbphrase, ohne Positionsnummer |
 | `order` | alle | Position unter dem Elternteil |
-| `persona` | Stories | Nutznießer |
+| `persona` | Stories | Schlüssel aus `_personas.md` |
 | `tags` | Stories | Zuständigkeit, nackte Rollenbezeichnung |
+| `priority` | nur wo **nicht** der Projekt-Default | MoSCoW-Abweichung, siehe unten |
 | `maturity` | Stories | `idea`, solange nichts anderes entschieden ist |
 | `release` | wo Fristen oder Lernziele bestehen | Schlüssel aus `_releases.md` |
 | `dependsOn` | wo harte Abhängigkeiten bestehen | Liste von `id`s |
+| `shapedBy` | wo weiche Bezüge bestehen | Liste von `id`s — wird beim Import zu `#NNN` im Text |
 | `sources` | Epics, Stories | Belegstellen im Quellmaterial |
 
-`id` wird **nicht** aus dem Pfad abgeleitet, weil `parent`, `dependsOn` und die
-`#NNN`-Bezüge darauf zeigen. Würde die Identität am Pfad hängen, bräche jede
-Umsortierung und jede Umbenennung die halbe Map — und zwar stillschweigend.
+**`id` ist eine UUID, kein sprechender Slug.** Sie wird nicht aus dem Pfad
+abgeleitet, weil `parent`, `dependsOn` und `shapedBy` darauf zeigen — hinge die
+Identität am Pfad, bräche jede Umsortierung stillschweigend die halbe Map. Und
+sie wird auch nicht aus dem **Titel** abgeleitet, weil das derselbe Fehler eine
+Schicht höher ist: ein Slug wie `E-sicher-implementieren` ist eine zweite,
+informelle Bedeutungsschicht neben dem Titel, und sie veraltet, sobald der Titel
+sich ändert. Übrig bliebe eine `id`, die etwas anderes behauptet als der Titel,
+auf die aber alle Verweise zeigen — also nicht umbenennbar. Eine UUID kann nichts
+behaupten; das ist ihr Vorzug.
+
+Der Preis ist unleserliches Frontmatter. Dagegen zwei Regeln: **in Prosa wird
+immer der Titel referenziert, nie die `id`**, und das Map-Verzeichnis trägt eine
+abgeleitete `_index.md` mit Titel → `id`.
+
+`shapedBy` ist die Markdown-Vorstufe des `#NNN`-Bezugs. In Betterplan gibt es
+dafür keine Modellierung, nur Prosa — solange die Aufgabennummern nicht
+existieren, trägt das Frontmatter die Beziehung, und der Import löst sie in den
+Beschreibungstext auf. Ein Format, das weiche Bezüge nur in Prosa kennt, verliert
+sie beim Übertragen.
 
 Der Body ist genau das, was später `description` wird: der Nutzer-Story-Satz,
 Kontext, Akzeptanzkriterien, Out of Scope, offene Fragen. Keine Metadaten in
 Prosa wiederholen — was im Frontmatter steht, steht nicht nochmal im Text.
+
+## Personas und Releases sind Objekte, nicht Prosa
+
+Beide sind **eigene Betterplan-Objekte mit festem Feldsatz**. Eine Katalogdatei,
+die sie als Prosa beschreibt, muss beim Übertragen erst zerlegt werden — und
+dabei entscheidet der Übertragende, was in welches Feld gehört. Das ist eine
+Entscheidung, die in den Map-Bau gehört, nicht in den Import.
+
+**Schreibe beide feldweise, mit den Feldnamen im Text.** Die MCP-Werkzeuge
+beschreiben ihre Felder zur Laufzeit selbst — frage sie ab, statt den Feldsatz
+aus dem Gedächtnis zu setzen, und schreibe die Katalogdatei nach dem, was sie
+sagen. Zum Zeitpunkt dieser Fassung sind das acht Felder für eine Persona (`name`
+als Pflichtfeld und im Projekt eindeutig, dazu `role`, `goals`, `wishes`,
+`challenges`, `currentBehavior`, `currentWorkaround`, `notes`) und für ein Release
+`title` und `position` als Pflichtfelder, dazu `date`, `dateLabel`, `goal`,
+`features`, `metrics`, `status`.
+
+Drei Dinge, die sich dabei regelmäßig zeigen:
+
+- **Ein Feld, das die Quelle nicht hergibt, wird als erschlossen markiert.**
+  Bei Pflichtenmaterial ist das der Normalfall für `currentBehavior` und
+  `currentWorkaround`: eine Verordnung beschreibt Pflichten, nicht
+  Nutzerverhalten. Schreibe die plausible Annahme hin **und dass sie eine ist** —
+  sonst nimmt das instanziierende Team eine Erfindung für eine Erkenntnis.
+  Gelegentlich belegt die Quelle es doch, und dann ist die Belegstelle wertvoll.
+- **Ein Release ohne Feld für Kommentar.** Releases haben kein `notes`. Was ein
+  Release über sich selbst zu sagen hat, gehört in `goal`, `features` oder
+  `metrics`; die Begründung des Releaseschnitts bleibt außerhalb der Felder und
+  wird als Kommentar gekennzeichnet.
+- **Ein Datum, das nur das instanziierende Team kennt, bleibt leer.** Hängt ein
+  Release an einer Frist, die das Team selbst setzt, ist `date` leer und `goal`
+  sagt, woraus sich das Datum ergibt. Ein geratenes Datum ist schlechter als
+  keines.
+
+**Dauerarbeit bekommt kein Release.** Eine Pflicht, die über Jahre läuft, hat
+kein Fertigdatum; sie einem Release zuzuordnen behauptet, sie sei dort erledigt —
+genau die Lüge, die die Trennung von Aufbauen und Betreiben im Backbone
+verhindern soll. Hat eine Betriebs-Initiative einen einzelnen Schritt mit echtem
+Ergebnis und Datum, trägt **nur dieser** ein Release.
+
+## MoSCoW — nur wenn es unterscheidet, und nur die Abweichungen
+
+Eine Priorisierung ist eine **Ableitung aus dem Material**, keine Schätzung. Vor
+dem Tag steht deshalb eine Messung: **gibt das Quellmaterial Modalitäten her,
+und unterscheiden sie sich?**
+
+- Bei Pflichtenmaterial nach BCP 14 steht die Modalität schon auf jeder
+  Anforderung (MUSS / SOLL / KANN / nicht normativ) — zähle sie aus. Sind weniger
+  als rund 15 % nicht-MUSS, trägt kein Filter, und du lässt es.
+- Gibt es keine Modalitäten, leitest du keine Priorität her. Eine erfundene
+  Priorisierung ist schlechter als keine.
+
+**Die Ableitungsregel: eine Story trägt die stärkste Modalität, die sie
+erfüllt.** Eine Story mit mindestens einer MUSS-Anforderung ist Must, auch wenn
+sie daneben zehn SOLL-Anforderungen erfüllt. Should ist eine Story, deren
+Anforderungen ausschließlich SOLL sind; Could eine, deren Anforderungen
+ausschließlich KANN oder nicht normativ sind.
+
+**Taggen nur die Abweichungen vom Default.** Bei Pflichtenmaterial ist fast alles
+Must — dann wird Must **nicht** getaggt, sondern einmal dokumentiert. Achtzig
+`Must`-Tags kosten auf jeder Karte Breite und beantworten keine Frage, weil ein
+Filter darauf alles zurückgibt. Der Wert liegt in der kleinen Menge, die man
+weglassen kann, wenn ein Termin kippt.
+
+**Tag-Werte bleiben kurz.** `Must`, `Should`, `Could` tragen ihre Bedeutung
+selbst und verdienen kein Kategoriewort — `project:Should`, nicht
+`project:Priorität Should`. Die Regel und ihre Begründung stehen in
+`betterplan-workflow/references/data-model.md` unter *Tags — namespacing rules*;
+sie gilt für jede Tag-Dimension, nicht nur für die Priorität.
+
+**Kein `Won't`.** Was wir nicht machen, ist kein Item: es steht als abgelehnter
+Kandidat mit Begründung neben der Map und in `goal:non-goals`. Ein `Won't` auf
+einer Karte würde heißen „wir führen das, machen es aber nicht" — dafür gibt es
+den Closed-Zustand.
+
+**Wo die Priorität produktabhängig ist, wird nicht getaggt.** Varianten an einem
+Epic sind **Alternativen, nicht Prioritäten**: welcher Weg Pflicht ist,
+entscheidet eine Eigenschaft des Produkts, die eine Vorlage nicht kennt. Ein
+`Could` auf einer Variante, die für manche Fälle der einzige zulässige Weg ist,
+ist sachlich falsch. Die Variantenstory sagt stattdessen im Text, für welchen
+Fall sie zum Pflichtweg wird.
+
+## Die Map ist maschinell prüfbar
+
+Das Markdown-Zwischenformat erlaubt eine Prüfung, die in Betterplan selbst
+niemand mehr macht — nutze sie, statt Verweise mit dem Auge zu verfolgen. Prüfbar
+und wert, geprüft zu werden, ist alles, was **stillschweigend** bricht:
+
+- `id` ist eine UUID und projektweit eindeutig
+- `parent`, `dependsOn`, `shapedBy`, `persona` und `release` lösen auf einen
+  existierenden Eintrag auf
+- Epics und User Stories haben einen Parent, Initiativen und Project Stories
+  keinen
+- keine Abhängigkeit zeigt auf sich selbst oder läuft im Kreis
+- `priority` trägt nur erlaubte Werte und widerspricht nicht den `sources`
+- kein Epic ohne Story
+
+Ein Loch, das ein Skript findet, ist billiger als eines, das der Import findet.
+Lege das Prüfskript ins Projekt, nicht in dieses Skill-Repository — es kennt die
+Konventionen *dieser* Map.
 
 ## Die Abdeckungsprüfung
 
