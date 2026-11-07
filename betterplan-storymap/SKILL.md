@@ -38,11 +38,39 @@ Dokument, das Initiativen halten sollte.
 
 ## Voraussetzungen
 
-- `.betterplan/GOAL.md`, alle acht Abschnitte mit Inhalt
+- `.betterplan/GOAL.md`, die acht tragenden Abschnitte mit Inhalt
 - `.betterplan/requirements/` aus `betterplan-extract`
 
 Fehlt eines, **brich ab** und verweise auf den zuständigen Skill. Eine Map ohne
 Ziel hat kein Ordnungsprinzip; eine Map ohne Anforderungen hat keinen Inhalt.
+
+### Die Vision — nachfragen, nicht abbrechen
+
+**Prüfe `goal:vision`, bevor du irgendetwas anderes tust.** Ein Satz, der sagt,
+worum es geht: *„Ein Angebot erstellen, das wir einreichen können."* ·
+*„Personen einen guten Start in diesen Prozess geben."* ·
+*„Nutzern ermöglichen, ihr Gerät ohne Fachwissen sicher einzurichten."*
+
+- **Vorhanden** → lies sie und halte sie beim Bauen gegen. Driftet eine
+  Initiative von ihr ab, ist das ein Befund für `betterplan-goal`.
+- **Fehlt** → stelle **eine** Frage: *„Worum geht es hier in einem Satz?"*,
+  und schreibe die Antwort als `goal:vision` nach `GOAL.md`. Nicht abbrechen,
+  nicht in `betterplan-goal` weiterschicken: es ist ein Satz, und wer die Map
+  bauen will, soll dafür nicht die Richtung wechseln müssen.
+
+Das ist die **einzige** Stelle, an der dieser Skill `GOAL.md` schreibt. Alle
+übrigen Abschnitte gehören `betterplan-goal`; weicht dort etwas ab, ist das ein
+Befund, kein stiller Umbau.
+
+**Warum das vor dem Lesen kommt:** die Vision ist die erste grobe Richtung, an
+der sich entscheidet, ob ein Backbone die richtige Geschichte erzählt. Und sie
+wird beim späteren Übertragen nach Betterplan die **Projektbeschreibung** — ein
+Playbook ohne sie liefert dem instanziierenden Team eine Map ohne Überschrift.
+
+**Die Vision beschreibt das Vorhaben, das `GOAL.md` beschreibt.** Beim Bau einer
+Vorlage ist das der Vorlagenbau selbst. Der Satz, den ein instanziierendes Team
+erbt, kann ein anderer sein — diese Frage ist **nicht entschieden** und fällt
+beim Übertragen nach Betterplan an. Erfinde hier keine zweite Vision.
 
 ## Ablauf
 
@@ -51,30 +79,32 @@ Stories danach initiativenweise — nicht umgekehrt. Wer die Stories von
 Initiative 1 schreibt, bevor Initiative 5 ihre Epics hat, entscheidet Details,
 die der fertige Backbone wieder umwirft.
 
-1. **Lesen.** `GOAL.md` vollständig, die Anforderungen, und eine eventuell im
+1. **Vision prüfen.** Vor allem anderen, siehe oben: vorhanden → gegenhalten;
+   fehlt → eine Frage, Antwort nach `GOAL.md`.
+2. **Lesen.** `GOAL.md` vollständig, die Anforderungen, und eine eventuell im
    Map-Verzeichnis liegende Arbeitsnotiz aus der Zielklärung. Die Notiz ist
    Material, keine Festlegung — sie darf vollständig umgeworfen werden.
-2. **Personas und Releases festlegen.** Aus `goal:roles` und `goal:scope`, vor
+3. **Personas und Releases festlegen.** Aus `goal:roles` und `goal:scope`, vor
    den Stories: jede Story braucht eine Persona, und wo Fristen oder Lernziele
    bestehen, ein Release. Ein Release ohne genanntes Ergebnis und ohne Frage,
    die es beantwortet, ist kein Release, sondern ein Datum.
-3. **Initiativen schreiben.** Aus `goal:backbone`, in der dort entschiedenen
+4. **Initiativen schreiben.** Aus `goal:backbone`, in der dort entschiedenen
    Reihenfolge. Erfinde keine Initiative dazu und lasse keine weg: weicht das
    Material davon ab, ist das ein Befund für `betterplan-goal`, kein stiller
    Umbau.
-4. **Backbone vollständig vorschlagen.** Alle Epics aller Initiativen in einem
+5. **Backbone vollständig vorschlagen.** Alle Epics aller Initiativen in einem
    Durchgang, als Ganzes zeigen, bestätigen lassen. Schnitt nach abgrenzbarem
    Ergebnis, gleiche Flughöhe entlang des Backbones.
-5. **Anforderungen den Epics zuordnen.** Was nirgends passt, ist ein Befund und
+6. **Anforderungen den Epics zuordnen.** Was nirgends passt, ist ein Befund und
    kein Rundungsfehler: entweder fehlt ein Epic, oder die Anforderung gehört in
    eine andere Initiative, oder sie liegt außerhalb des Zuschnitts. Benennen und
    entscheiden lassen.
-6. **Stories schreiben, eine Initiative pro Durchgang.** Selbst schreiben, nach
+7. **Stories schreiben, eine Initiative pro Durchgang.** Selbst schreiben, nach
    den Inhaltsregeln von `betterplan-create-story` — Nutznießer-Perspektive,
    Beschreibungsaufbau, Akzeptanzkriterien als Zustände. Nicht pro Story an
    `betterplan-create-story` delegieren: ein Discovery-Dialog je Story skaliert
    bei dreistelligen Story-Zahlen nicht. Zeigen, bestätigen lassen, weiter.
-7. **Querschnittliche Arbeit als Project Story anlegen** — sparsam. Was mehr
+8. **Querschnittliche Arbeit als Project Story anlegen** — sparsam. Was mehr
    als eine Story in mehr als einer Initiative betrifft, gehört nicht unter ein
    Epic; dort würde es über seine Reichweite lügen. **Ein einziger Abhängiger
    heißt: nicht querschnittlich** — dann gehört die Arbeit in jene Story.
@@ -83,10 +113,10 @@ die der fertige Backbone wieder umwirft.
    festzuhaltende Entscheidung; das Nachziehen von Material, das noch im
    Entstehen ist. Schlage zuerst **alle** Kandidaten vor, die du siehst, und
    lasse kürzen — die Messlatte liegt beim Menschen, nicht bei dir.
-8. **Abhängigkeiten setzen.** Harte als `dependsOn`, weiche als `#NNN`-Bezug im
+9. **Abhängigkeiten setzen.** Harte als `dependsOn`, weiche als `#NNN`-Bezug im
    Text. Die Regel steht in `betterplan-workflow`.
-9. **Abdeckung prüfen** und `COVERAGE.md` schreiben.
-10. **Nicht importieren.** Die Übertragung nach Betterplan ist ein eigener
+10. **Abdeckung prüfen** und `COVERAGE.md` schreiben.
+11. **Nicht importieren.** Die Übertragung nach Betterplan ist ein eigener
     Schritt mit eigenem Fehlerprofil.
 
 Nach jeder bestätigten Naht ist die Map auf der Platte ein gültiger

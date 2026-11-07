@@ -39,13 +39,18 @@ Ein Ziel, das ohne Blick auf das Material entsteht, ist eine Vermutung.
 
 ## Ablauf
 
-1. **Referenzen lesen.** Verschaffe dir einen Überblick über das Material,
+1. **Die Vision holen — ein Satz, vor allem anderen.** Noch vor dem Lesen des
+   Materials. Existiert sie schon (`goal:vision`), lies sie und bestätige sie;
+   sonst frage **eine** Frage: *„Worum geht es hier in einem Satz?"* Dafür
+   braucht man das Material nicht — und umgekehrt sagt die Vision dir, worauf du
+   beim Lesen achten sollst. Siehe unten „Vision und Zweck".
+2. **Referenzen lesen.** Verschaffe dir einen Überblick über das Material,
    bevor du die erste Frage stellst. Bei gesplitteten Referenzen genügen die
    `INDEX.md`-Dateien plus gezielte Abschnitte — nicht alles vollständig lesen.
-2. **`grilling` aufrufen.** Das Verfahren liefert dieser Skill nicht selbst.
+3. **`grilling` aufrufen.** Das Verfahren liefert dieser Skill nicht selbst.
    Rufe den Skill `grilling` auf und führe damit die Befragung.
-3. **`GOAL.md` schreiben** — in der Sprache, in der der Mensch schreibt.
-4. **Nicht weiterlaufen.** Das Extrahieren (`betterplan-extract`) und das Bauen
+4. **`GOAL.md` schreiben** — in der Sprache, in der der Mensch schreibt.
+5. **Nicht weiterlaufen.** Das Extrahieren (`betterplan-extract`) und das Bauen
    der Story Map (`betterplan-storymap`) sind eigene Schritte mit eigenen
    Skills.
 
@@ -56,6 +61,7 @@ Betterplan-Projektziel überhaupt braucht. Die Liste ist Territorium, kein
 Fragebogen — niemals abhaken, sondern als Landkarte benutzen, wenn du prüfst,
 was noch offen ist.
 
+- **Vision** — worum es in **einem Satz** geht; die erste grobe Richtung
 - **Zweck** — was das Vorhaben erreicht, und für wen
 - **Einsatzkontext** — wer das Ergebnis liest, in welcher Situation
 - **Rollen** — wer Pflichten trägt, wer Nutzen hat, wer nur Adressat ist
@@ -71,6 +77,41 @@ Kopf stellen: ob eine Rolle eine Persona oder ein Tag wird, ob etwas als
 Initiative oder als Epic trägt, dass ein Epic genau eine Initiative als Eltern
 hat, dass Project und Devteam Stories auf Wurzelebene hängen. Lies
 `betterplan-workflow`, bevor du zum Backbone fragst.
+
+### Vision und Zweck
+
+Beide sagen, wozu das Vorhaben da ist, und kollabieren leicht ineinander. Die
+Trennung:
+
+| | **Vision** (`goal:vision`) | **Zweck** (`goal:purpose`) |
+|---|---|---|
+| Länge | **ein Satz** | mehrere Absätze |
+| Frage | Wozu überhaupt? | Was kommt genau heraus, für wen, mit welchen Grenzen? |
+| Form | in den Worten des Menschen | ausgearbeitet |
+
+Beispiele, bewusst knapp gehalten:
+
+- *„Ein Angebot erstellen, das wir einreichen können."*
+- *„Personen einen guten Start in diesen Prozess geben."*
+- *„Nutzern ermöglichen, ihr Gerät ohne Fachwissen sicher einzurichten."*
+
+Die Vision **darf grob sein** und wird später geschärft. Sie ist nicht die
+Kurzfassung des Zwecks, sondern die Richtung, an der man merkt, wenn der Zweck
+abdriftet.
+
+**Die Vision beschreibt das Vorhaben, das `GOAL.md` beschreibt** — nicht mehr
+und nicht weniger. Beim Bau einer Vorlage ist das der Vorlagenbau selbst:
+*„Personen einen guten Start in diesen Prozess geben."*
+
+> **Offener Punkt bei Vorlagen.** Der Satz, den ein instanziierendes Team erbt,
+> kann ein anderer sein — es verfolgt sein eigenes Vorhaben, nicht den
+> Vorlagenbau. Ob die Vorlage dafür einen zweiten Satz mitgibt oder das Team ihn
+> selbst setzt, ist **nicht entschieden**; es fällt beim Übertragen nach
+> Betterplan an. Erfinde hier keine zweite Vision — halte die Frage fest.
+
+**Wofür die Vision am Ende gebraucht wird:** beim Übertragen nach Betterplan
+wird sie Beschreibung und Vision des Projekts. Deshalb ein Satz, nicht ein
+Absatz.
 
 ### Flughöhe der Backbone-Frage
 
@@ -93,12 +134,15 @@ eingefrorene Struktur, die der Map-Bau später nicht mehr frei umwerfen kann.
 
 ## Format von `GOAL.md`
 
-Acht Abschnitte. Die Überschriften stehen in der Sprache des Menschen, tragen
-aber einen **stabilen Anker**, damit sich nachfolgende Skills darauf verlassen
-können, ohne die Sprache zu kennen:
+Neun Abschnitte, **die Vision zuerst**. Die Überschriften stehen in der Sprache
+des Menschen, tragen aber einen **stabilen Anker**, damit sich nachfolgende
+Skills darauf verlassen können, ohne die Sprache zu kennen:
 
 ```markdown
 # Ziel: <Projektname>
+
+## Vision <!-- goal:vision -->
+Ein Satz.
 
 ## Zweck <!-- goal:purpose -->
 …
@@ -107,13 +151,20 @@ können, ohne die Sprache zu kennen:
 …
 ```
 
-Die acht Anker, vollständig und unverändert:
+Die neun Anker, vollständig und in dieser Reihenfolge:
 
-`goal:purpose` · `goal:usage-context` · `goal:roles` · `goal:scope` ·
-`goal:finish-line` · `goal:non-goals` · `goal:backbone` · `goal:open-facts`
+`goal:vision` · `goal:purpose` · `goal:usage-context` · `goal:roles` ·
+`goal:scope` · `goal:finish-line` · `goal:non-goals` · `goal:backbone` ·
+`goal:open-facts`
 
 Jeder Abschnitt muss Inhalt haben. Eine Überschrift ohne Text zählt als
 fehlend — nachfolgende Skills behandeln ein solches `GOAL.md` wie keines.
+
+**`goal:vision` ist der einzige Abschnitt, den ein anderer Skill nachtragen
+darf.** `betterplan-storymap` fragt ihn ab, wenn er fehlt, und schreibt den
+einen Satz hierher — ein Mensch, der die Map bauen will, soll dafür nicht erst
+in einen anderen Skill geschickt werden. Alle übrigen Abschnitte gehören
+ausschließlich diesem Skill.
 
 `GOAL.md` ist von Hand editierbar. Es ist Projektdatum und gehört in das
 Projekt, nicht in ein Skill-Repository.
@@ -123,7 +174,7 @@ Projekt, nicht in ein Skill-Repository.
 Existiert `GOAL.md` bereits, **lies es zuerst** und schärfe es. Fang nicht von
 vorn an und litigiere nichts neu, was dort schon entschieden steht.
 
-1. Zeige in einem Satz, was du gefunden hast: *"Aktueller Stand: acht Abschnitte, drei offene Tatsachen, Backbone mit fünf Initiativen."*
+1. Zeige in einem Satz, was du gefunden hast: *"Aktueller Stand: Vision steht, neun Abschnitte, drei offene Tatsachen, Backbone mit fünf Initiativen."*
 2. Frage, was das Ziel **dieser** Sitzung ist.
 3. Grille nur die Teile, die noch offen oder inzwischen überholt sind.
 

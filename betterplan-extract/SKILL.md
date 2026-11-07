@@ -42,14 +42,21 @@ Nicht weiterlaufen.
 Die Prüfung ist eine **Entscheidungsregel**, kein Eindruck. `GOAL.md` ist
 hinreichend, wenn **beides** gilt:
 
-1. Alle acht Anker sind vorhanden — `goal:purpose` · `goal:usage-context` ·
-   `goal:roles` · `goal:scope` · `goal:finish-line` · `goal:non-goals` ·
-   `goal:backbone` · `goal:open-facts`
-2. Auf **jeden** Anker folgt Text, nicht nur die nächste Überschrift.
+1. Alle acht **tragenden** Anker sind vorhanden — `goal:purpose` ·
+   `goal:usage-context` · `goal:roles` · `goal:scope` · `goal:finish-line` ·
+   `goal:non-goals` · `goal:backbone` · `goal:open-facts`
+2. Auf **jeden** dieser Anker folgt Text, nicht nur die nächste Überschrift.
 
 Andernfalls gilt die Datei als fehlend — auch wenn sechs von acht Abschnitten
 gut gefüllt sind. Zwei fehlende Abschnitte sind zwei Entscheidungen, die nicht
 getroffen wurden, und die Extraktion würde sie erfinden.
+
+**`goal:vision` ist kein Abbruchgrund.** Der Anker gehört zum Format von
+`GOAL.md`, aber die Extraktion braucht ihn nicht: wie geschnitten wird,
+entscheiden Zweck, Rollen, Zuschnitt und Ziellinie. Fehlt die Vision, **nenne
+das im Extraktionsbericht und laufe weiter**. Ein Abbruch würde jedes
+`GOAL.md` entwerten, das vor Einführung des Ankers geschrieben wurde — und
+nichts an der Qualität der Extraktion verbessern.
 
 Ein von Hand geschriebenes `GOAL.md` **ohne** Anker ist der häufigste Fall
 davon. Es ist nicht unbrauchbar, aber es ist auch nicht der Vertrag: Nenne die
