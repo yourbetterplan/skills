@@ -90,13 +90,14 @@ below were applied):
 
 - **Every general/custom tag must be namespaced `project:<value>`** — exactly one colon, right after the literal `project`, and **no further colon inside `<value>`**. A tag with a stray second colon, or one missing the prefix entirely, does not reliably render on the task card even though the raw string still shows up wherever tag lists are displayed.
 - `progress:<phase>` is a **separate, reserved system namespace**. Don't mix the two.
-- **Group by color, not by a second text prefix.** Don't build a nested namespace like `project:Aufwand:gering` — that's the extra-colon mistake. Fold the category into the value with a space (`project:Aufwand gering`, `project:Priorität Must`) and give same-category tags related colors via `tagDefinitions`.
-- **Keep values short, and add a category word only when the value alone is ambiguous.** Card space is limited: a tag wide enough to crowd the title has cost more than it carries. `gering` means nothing on its own, so `project:Aufwand gering` earns its category word. `Hersteller` is already unambiguous, so the obligation-bearer tag is `project:Hersteller` and **not** `project:Pflicht Hersteller` — the colour family says which dimension it belongs to, at no width. Tags with no grouping keep the default colour; don't invent one to look organised.
+- **Group by color, not by a second text prefix.** Don't build a nested namespace like `project:Aufwand:gering` — that's the extra-colon mistake. Fold the category into the value with a space (`project:Aufwand gering`) and give same-category tags related colors via `tagDefinitions`.
+- **Keep values short, and add a category word only when the value alone is ambiguous.** Card space is limited: a tag wide enough to crowd the title has cost more than it carries. `gering` means nothing on its own, so `project:Aufwand gering` earns its category word. `Hersteller` is already unambiguous, so the obligation-bearer tag is `project:Hersteller` and **not** `project:Pflicht Hersteller`; `Must` carries its own meaning, so a MoSCoW tag is `project:Must` and **not** `project:Priorität Must`. The colour family says which dimension a tag belongs to, at no width. Tags with no grouping keep the default colour; don't invent one to look organised.
+- **A value that is the default of the whole project earns no tag at all.** Where one value dominates — every item `Must`, every item the same team — tagging it costs width on every card and carries nothing, because a filter on it returns everything. Tag the **deviations** and document the default once. The cost is that you can no longer filter *for* the default, only exclude the exceptions; for "what do we have to do", that is the same answer.
 - **Every tag string used on any task must have a matching entry in `settings.tagDefinitions`** (exact string match) or it won't be styled correctly — and nothing rejects the import for it. Collect the full set of distinct values across all tasks and emit one definition per value; don't declare a subset and hope the rest fall back.
 
 Example from a real import (spreadsheet columns Kategorie / Aufwand / Gewichtung /
 Priorität turned into tags):
-`["progress:idea", "project:Stammdaten", "project:Priorität Must", "project:Aufwand gering", "project:Gewichtung 3"]`
+`["progress:idea", "project:Stammdaten", "project:Must", "project:Aufwand gering", "project:Gewichtung 3"]`
 
 ## Bugs
 
