@@ -51,12 +51,20 @@ Andernfalls gilt die Datei als fehlend — auch wenn sechs von acht Abschnitten
 gut gefüllt sind. Zwei fehlende Abschnitte sind zwei Entscheidungen, die nicht
 getroffen wurden, und die Extraktion würde sie erfinden.
 
-**`goal:vision` ist kein Abbruchgrund.** Der Anker gehört zum Format von
-`GOAL.md`, aber die Extraktion braucht ihn nicht: wie geschnitten wird,
-entscheiden Zweck, Rollen, Zuschnitt und Ziellinie. Fehlt die Vision, **nenne
-das im Extraktionsbericht und laufe weiter**. Ein Abbruch würde jedes
-`GOAL.md` entwerten, das vor Einführung des Ankers geschrieben wurde — und
-nichts an der Qualität der Extraktion verbessern.
+**`goal:vision` ist kein Abbruchgrund — aber kein belangloser Anker.** Die
+Extraktion braucht ihn nicht zwingend, weil die Art des Vorhabens auch aus
+`goal:purpose` und `goal:scope` ableitbar ist. Er ist aber **die klarste
+Aussage darüber**, und davon hängt der Qualitätsrahmen ab (siehe „Was
+extrahiert wird").
+
+Fehlt die Vision: **laufe weiter, aber nenne im Bericht ausdrücklich, welche Art
+Vorhaben du angenommen hast und welcher Qualitätsrahmen daraus folgt.** Eine
+unausgesprochene Annahme an dieser Stelle verzerrt eine ganze Kategorie.
+
+Ein Abbruch wäre die strengere Alternative und wäre nicht unvertretbar — er
+würde allerdings jedes `GOAL.md` entwerten, das vor Einführung des Ankers
+geschrieben wurde, für eine Information, die zweimal redundant im Dokument
+steht.
 
 Ein von Hand geschriebenes `GOAL.md` **ohne** Anker ist der häufigste Fall
 davon. Es ist nicht unbrauchbar, aber es ist auch nicht der Vertrag: Nenne die
@@ -78,7 +86,9 @@ darauf aufbaut.
 ## Ablauf
 
 1. **Vorbedingungen prüfen.** Beide. Bei Verstoß abbrechen.
-2. **`GOAL.md` lesen** — zuerst, vor dem Material. Zweck, Rollen, Zuschnitt und
+2. **`GOAL.md` lesen** — zuerst, vor dem Material. Beginne mit `goal:vision`:
+   der eine Satz sagt, **welche Art Vorhaben** das ist, und davon hängt der
+   Qualitätsrahmen ab (siehe unten). Zweck, Rollen, Zuschnitt und
    Ziellinie bestimmen, welche Kategorien es gibt und wie geschnitten wird.
 3. **Referenzen lesen** (siehe unten).
 4. **Extrahieren** und die Ausgabedateien schreiben.
@@ -110,6 +120,19 @@ Für jede Referenz, gerahmt durch das Ziel:
 - **Rahmenbedingungen** — Termine, Recht, Budget, Organisation, Quellenstatus
 - **Qualitätsanforderungen** — abhängig vom Projektkontext
   (für Software: ISO 25010; für Bau: DIN-Normen; für Events: Veranstaltungsrecht)
+
+  **Welcher Rahmen gilt, entscheidet die Art des Vorhabens — und die steht in
+  `GOAL.md`.** Lies dafür in dieser Reihenfolge: `goal:vision` (ein Satz, oft
+  die klarste Aussage darüber, *was* überhaupt gebaut wird), dann `goal:purpose`
+  und `goal:scope`. „Eine Software bauen" führt zu ISO 25010, „ein Angebot
+  einreichen" zu Vergaberecht und Ausschreibungsunterlagen, „ein Event
+  organisieren" zu Veranstaltungsrecht.
+
+  **Nenne den gewählten Rahmen und seine Grundlage im Bericht** — auch, wenn du
+  **keinen** externen Rahmen anlegst. Das ist der Normalfall, wenn das Material
+  die Qualitätsanforderungen selbst normativ festlegt: eine Verordnung, eine
+  Norm, ein Lastenheft. Einen externen Rahmen darüberzulegen erzeugt dann eine
+  zweite Taxonomie, deren Zeilen keine Belegstelle haben.
 - **Risiken & Chancen** — was könnte schiefgehen, was wäre ein Gewinn?
 - **Stakeholder** — wer trägt Pflichten, wer hat Nutzen, wer ist nur Adressat?
 
