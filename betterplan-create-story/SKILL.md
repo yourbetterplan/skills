@@ -9,7 +9,7 @@ description: >
   the right story type is unclear, classify with the betterplan-workflow skill
   first.
 metadata:
-  version: "0.1.0"
+  version: "0.2.0"
 ---
 
 # Create a Betterplan Story
@@ -275,5 +275,34 @@ decisions, links, constraints. Keep it to what helps someone pick the story up.>
 ```
 
 Depth per maturity and AC rules are defined upstream — see **Step 3b "Minimum information per maturity"** for what the description must contain at Idea, Draft, and Ready, and **Step 4.2** for how acceptance criteria are phrased. Do not pad with placeholder text; fill in only what is actually on the canvas.
+
+### Referring to another item: write `#N`
+
+When the description mentions another Story, Epic or Initiative — in Context, in
+Out of scope, in an Open question — **write its task number as `#N`**. Betterplan
+resolves it; there is nothing to create and nothing to link.
+
+```
+## Out of scope
+- Key rotation — that is #214.
+```
+
+Three things follow from that:
+
+- **Use the number, not the title and not the id.** A title goes stale the moment
+  the other Story is renamed, and only the number is what Betterplan resolves and
+  what `list_task_references` finds.
+- **Look the number up rather than guessing it.** `list_tasks(query=…)` finds the
+  task by title substring and answers with its number; `list_tasks(task_number=N)`
+  goes the other way. A wrong number is a reference to someone else's work, and
+  nothing flags it.
+- **A reference is not a dependency.** `#N` says "related, read this too". If the
+  other item genuinely has to be **done first**, that is a modelled dependency as
+  well — see *Dependencies* in `betterplan-workflow`, and mind the direction:
+  `create_dependency` takes the task that must finish as `sourceTaskId`.
+
+If the number does not exist yet because the other item has not been created,
+say so in your chat reply and leave the reference out rather than inventing one.
+A `#N` pointing at nothing is worse than a sentence naming the item in prose.
 
 After producing a Story, offer to break it into Workitems with the `betterplan-create-workitem` skill once it is Ready for an iteration.

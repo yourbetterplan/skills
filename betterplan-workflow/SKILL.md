@@ -10,7 +10,7 @@ description: >
   format). It routes the request to betterplan-create-initiative, betterplan-create-epic,
   betterplan-create-story, or betterplan-create-workitem.
 metadata:
-  version: "0.2.0"
+  version: "0.3.0"
 ---
 
 # Betterplan workflow & classification
@@ -205,7 +205,7 @@ Two kinds of relation between items, and they are carried differently.
 
 A **hard dependency** forces an order: item B cannot start, or cannot be finished, until item A is done. These are the relations that would form a critical path in project management. Model them as **real Betterplan dependencies** (`create_dependency`) — only then do they reach the Delivery Timeline and show what actually gates what. Naming the dependency in prose instead leaves it invisible to planning.
 
-A **soft reference** explains, contrasts, or points at related work without forcing an order. Carry it as a `#NNN` reference in the description. No dependency object.
+A **soft reference** explains, contrasts, or points at related work without forcing an order. Carry it as a `#N` reference in the description. No dependency object — and not by choice: `blocks` is the only `dependencyType` there is, so the data model has nothing else to offer. `#N` is the task's **number**, a server-assigned field of its own, not its `task_id`; see *References and dependencies* in `references/data-model.md` for the three identifiers, the direction `blocks` runs in, and the two traps an import walks into.
 
 | Relation | Carried as | Example |
 |---|---|---|
@@ -232,7 +232,8 @@ Hard rules — generic (every `create-*` skill):
 - **Tag content does not belong in the description.** Mirroring a tag (e.g. writing "Persistenz" into the description because there is a Persistenz tag) is not real content. Tags are labels for filtering; the description is content.
 - **Be specific, not generic.** Avoid role labels that could be anyone ("Product Manager", "Developer", "the user"). Name the actual person, team, or situation — for Stories, carry the real persona from the Canvas Why-line; for Epics and Initiatives, name the concrete audience ("Customer Service team", "Stakeholder PMs in Reviews/Retros").
 - **Titles are checkable.** A title is a short verb phrase naming one observable outcome, so that "done" is a fact and not an opinion — "Set up the intake channel", not "Vulnerability topic"; "Determine the product category", not "Product categories". If you cannot tick it off, you have written a heading, not an item. This holds at every level: an Initiative's outcome is larger than an Epic's, but both must be nameable as a result that either exists or does not.
-- **No index prefixes in titles.** A title carries meaning, not position — never prefix it with an outline or sequence number ("I1 · …", "E1.1 · …", "Story 3: …", "R2 – …"). Ordering and hierarchy already live in the map structure and `displayOrder`; a number baked into the title goes stale the instant anything is reordered or reparented, and makes reordering harder because every move means a rename. Refer to items by name. (If you need a stable outline id for cross-referencing, keep it in the source doc, not the Betterplan title.)
+- **No index prefixes in titles.** A title carries meaning, not position — never prefix it with an outline or sequence number ("I1 · …", "E1.1 · …", "Story 3: …", "R2 – …"). Ordering and hierarchy already live in the map structure and `displayOrder`; a number baked into the title goes stale the instant anything is reordered or reparented, and makes reordering harder because every move means a rename. Refer to items by name **when you are talking to the user**. (If you need a stable outline id for cross-referencing, keep it in the source doc, not the Betterplan title.)
+- **Inside a description, refer to another item as `#N`** — its task number, written as plain text. Betterplan resolves it; there is nothing to create and nothing to link. Not by title: a title goes stale the moment that item is renamed, and only the number is what Betterplan resolves and what `list_task_references` finds. Look the number up with `list_tasks(query=…)` rather than guessing — a wrong number points at someone else's work, and nothing flags it. A reference is not a dependency: `#N` says "related, read this too", and if the other item has to be *done first*, model that as well (see *Dependencies* below). If the number does not exist yet, say so and leave the reference out; a `#N` pointing at nothing is worse than naming the item in prose.
 - **Context, not ceremony.** Every section of the description should teach or frame something the implementer needs. Cut anything that only restates what is already obvious from structure or tags.
 
 Hard rules — Story-only:

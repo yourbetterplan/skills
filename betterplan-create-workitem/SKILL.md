@@ -10,7 +10,7 @@ description: >
   "log a bug", "this story is broken" — since a bug is a Workitem with
   isBug=true on the affected Story.
 metadata:
-  version: "0.1.0"
+  version: "0.2.0"
 ---
 
 # Create Betterplan Workitems
@@ -61,6 +61,15 @@ Content only — the workitem actions themselves. The parent Story is a field, s
 ```
 
 Name the parent Story in your chat reply, not in the pasteable list. Keep the list short and action-oriented. If it grows large, the parent Story is probably too big — suggest splitting the Story instead (see method-deep-dive in `betterplan-workflow`).
+
+**Referring to another item: write `#N`.** A Workitem line is short, so this is
+rare — but where one action only makes sense against another item, the number is
+the way to say it (*"Deploy after #198 is live"*). Not the title: a title goes
+stale when that item is renamed, and only the number is what Betterplan resolves
+and what `list_task_references` finds. Look it up with `list_tasks(query=…)`
+rather than guessing. And a reference is not a dependency — if the other item has
+to be **done first**, model that too (see *Dependencies* in
+`betterplan-workflow`).
 
 ## Pause if uncertain
 

@@ -11,7 +11,7 @@ description: >
   step. Runs after betterplan-extract. Re-invocable: continues an unfinished map
   rather than starting over.
 metadata:
-  version: "0.2.0"
+  version: "0.3.0"
 ---
 
 # betterplan-storymap
@@ -115,8 +115,8 @@ die der fertige Backbone wieder umwirft.
    festzuhaltende Entscheidung; das Nachziehen von Material, das noch im
    Entstehen ist. Schlage zuerst **alle** Kandidaten vor, die du siehst, und
    lasse kürzen — die Messlatte liegt beim Menschen, nicht bei dir.
-9. **Abhängigkeiten setzen.** Harte als `dependsOn`, weiche als `shapedBy` —
-   letzteres wird beim Import zum `#NNN`-Bezug im Text. Die Regel steht in
+9. **Abhängigkeiten setzen.** Harte als `dependsOn` im Frontmatter, weiche als
+   `[Titel](#id)` im Text — siehe unten. Die Regel steht in
    `betterplan-workflow`.
 10. **Maschinell prüfen**, dann **Abdeckung prüfen** und `COVERAGE.md` schreiben.
     Erst die Verweise, dann die Inhalte: ein nicht auflösender `parent` macht
@@ -155,11 +155,11 @@ Eine Datei pro Item. Die Hierarchie steht im Pfad, die Identität im Frontmatter
 | `maturity` | Stories | `idea`, solange nichts anderes entschieden ist |
 | `release` | wo Fristen oder Lernziele bestehen | Schlüssel aus `_releases.md` |
 | `dependsOn` | wo harte Abhängigkeiten bestehen | Liste von `id`s |
-| `shapedBy` | wo weiche Bezüge bestehen | Liste von `id`s — wird beim Import zu `#NNN` im Text |
 | `sources` | Epics, Stories | Belegstellen im Quellmaterial |
 
 **`id` ist eine UUID, kein sprechender Slug.** Sie wird nicht aus dem Pfad
-abgeleitet, weil `parent`, `dependsOn` und `shapedBy` darauf zeigen — hinge die
+abgeleitet, weil `parent`, `dependsOn` und die Prosa-Verweise darauf zeigen —
+hinge die
 Identität am Pfad, bräche jede Umsortierung stillschweigend die halbe Map. Und
 sie wird auch nicht aus dem **Titel** abgeleitet, weil das derselbe Fehler eine
 Schicht höher ist: ein Slug wie `E-sicher-implementieren` ist eine zweite,
@@ -172,11 +172,69 @@ Der Preis ist unleserliches Frontmatter. Dagegen zwei Regeln: **in Prosa wird
 immer der Titel referenziert, nie die `id`**, und das Map-Verzeichnis trägt eine
 abgeleitete `_index.md` mit Titel → `id`.
 
-`shapedBy` ist die Markdown-Vorstufe des `#NNN`-Bezugs. In Betterplan gibt es
-dafür keine Modellierung, nur Prosa — solange die Aufgabennummern nicht
-existieren, trägt das Frontmatter die Beziehung, und der Import löst sie in den
-Beschreibungstext auf. Ein Format, das weiche Bezüge nur in Prosa kennt, verliert
-sie beim Übertragen.
+## Verweise auf andere Items
+
+**In Betterplan ist ein Verweis einfach `#N` im Markdown der Beschreibung.** Die
+Nummer hinschreiben genügt, Betterplan löst sie auf — kein Referenzobjekt, kein
+Verknüpfen. Ein weicher Bezug steht deshalb **im Text und nicht im
+Frontmatter**: sein Zweck ist der Leser, und im Frontmatter erreicht er keinen.
+
+**Beim Map-Bau gibt es die Nummern noch nicht.** Also trägt die
+Markdown-Vorstufe einen Platzhalter, der dieselbe Stelle besetzt:
+
+```
+… gehört in [Controls umsetzen](#900c078c-36a1-5fda-a1cd-46f111a3daa5).
+```
+
+Beim Übertragen wird daraus `… gehört in #137.` — eine Textersetzung.
+
+**Warum ein Platzhalter und nicht `[Titel]` allein?** Weil Titel sich ändern,
+dieselbe Falle wie bei der `id`. Die Form trägt beides: den **Titel** als
+Anzeigetext für den Leser jetzt, die **`id`** als auflösbaren Zeiger. Veraltet
+der Titel, bleibt der Verweis gültig, und ein Skript findet die Abweichung.
+
+**Drei Identifikatoren, und sie werden verwechselt:**
+
+| | Wo | Wer vergibt |
+|---|---|---|
+| Map-`id` (UUID) | nur in der Markdown-Vorstufe | wir |
+| `task_id` (UUID) | Betterplan, Argument jedes MCP-Werkzeugs | Betterplan beim Anlegen |
+| `task_number` (Integer) | Betterplan, **eigenes Feld am Task** — die `#570`, die Menschen meinen | Betterplan beim Anlegen |
+
+**`#N` ist nicht die `task_id`, und die Nummer ist nicht setzbar.** `create_task`
+vergibt sie selbst; aufgelöst wird sie über `list_tasks(task_number=N)`. Wer beim
+Import die `task_id` einsetzt, erzeugt einen Verweis, den
+`list_task_references` **nie findet** — es durchsucht **Text**, und ein
+Referenzobjekt, das den Fehler auffangen würde, gibt es nicht.
+
+**Der Import braucht deshalb zwei Durchgänge**: anlegen, dann Verweise auflösen.
+Im zweiten darf **nur `description`** gesendet werden — `update_task` warnt, dass
+das Zurückschreiben eines gelesenen Tasks „not harmless" ist, weil
+`reworkPoints` ein **akkumulierender Delta-Wert** ist. Wer den ganzen Task
+zurückschreibt, verfälscht je Item still die Rework-Kennzahl.
+
+**Nur für Items.** Personas und Releases sind keine Tasks und haben keine `#N` —
+auf sie wird über ihren Katalogschlüssel verwiesen, nicht in dieser Form.
+
+### Harte Abhängigkeiten, und die Richtung
+
+`dependsOn` bleibt im Frontmatter, weil nur eine modellierte Dependency die
+Delivery Timeline erreicht. Beim Import ist die Richtung die Fehlerquelle:
+`create_dependency` kennt genau einen Typ, `blocks`, mit
+`sourceTaskId` = „the task that has to be done **first**" und
+`targetTaskId` = „the task that is **waiting**".
+
+`dependsOn` auf **A** mit Ziel **B** heißt „A wartet auf B", also
+**`sourceTaskId` = B, `targetTaskId` = A** — das Ziel des Eintrags wird zur
+*Quelle* der Dependency. Verdreht importiert steht der kritische Pfad rückwärts,
+und **nichts schlägt fehl**.
+
+Dass `blocks` der einzige Typ ist, ist auch der Grund für die Textform der
+weichen Bezüge: das Datenmodell bietet für sie **kein Objekt** an.
+
+**Wo die Prosa einen Bezug nicht natürlich hergibt**, trägt das Item am Ende eine
+Zeile, die die weichen Bezüge auflistet. Häuft sie sich, ist das ein Signal: dann
+sind die Bezüge nicht erzählt, sondern verwaltet.
 
 Der Body ist genau das, was später `description` wird: der Nutzer-Story-Satz,
 Kontext, Akzeptanzkriterien, Out of Scope, offene Fragen. Keine Metadaten in
@@ -270,8 +328,10 @@ niemand mehr macht — nutze sie, statt Verweise mit dem Auge zu verfolgen. Prü
 und wert, geprüft zu werden, ist alles, was **stillschweigend** bricht:
 
 - `id` ist eine UUID und projektweit eindeutig
-- `parent`, `dependsOn`, `shapedBy`, `persona` und `release` lösen auf einen
-  existierenden Eintrag auf
+- `parent`, `dependsOn`, `persona` und `release` lösen auf einen existierenden
+  Eintrag auf
+- jeder Prosa-Verweis `[Titel](#id)` löst auf ein **Item** auf, zeigt nicht auf
+  das eigene, und sein Anzeigetext stimmt mit dem Titel des Ziels überein
 - Epics und User Stories haben einen Parent, Initiativen und Project Stories
   keinen
 - keine Abhängigkeit zeigt auf sich selbst oder läuft im Kreis

@@ -8,7 +8,7 @@ description: >
   whether the request is an Epic, Initiative, or Story, use the
   betterplan-workflow skill first to classify.
 metadata:
-  version: "0.1.0"
+  version: "0.2.0"
 ---
 
 # Create a Betterplan Epic
@@ -31,6 +31,7 @@ If it has only one obvious implementation, it may just be a User Story. If it ex
 2. **Clarify the step (optional, one or two questions).** If the step is not yet obvious, ask one open question — typically *who* takes this step in *what* situation — and capture the answer plus 1–2 use cases or variants the step must cover as a short notes block in chat (3–4 lines, in the user's language). This is the Epic-scale equivalent of the Story canvas; do not run the full Why/What/How loop here. Apply the *one open question per beat* rule from `betterplan-workflow` > *Discovery is a dialogue*.
 3. **Keep it option-agnostic.** Do not bake in one solution; the Stories carry the options.
 4. **Keep the description to the step itself.** The parent Initiative and the child Stories live in the map's structure — do not name them in the description.
+5. **If you do refer to another item, write `#N`.** Not its title — a title goes stale the moment that item is renamed, and only the number is what Betterplan resolves and what `list_task_references` finds. Look it up with `list_tasks(query=…)` rather than guessing; a wrong number points at someone else's work and nothing flags it. Note that rule 4 already rules out the usual reason to refer to anything: parent and children are structure, not content. What is left is a genuinely neighbouring step — *"the handover from #87 happens here"*.
 
 ## Quality checks (classification, not description)
 

@@ -99,6 +99,54 @@ Example from a real import (spreadsheet columns Kategorie / Aufwand / Gewichtung
 Priorität turned into tags):
 `["progress:idea", "project:Stammdaten", "project:Must", "project:Aufwand gering", "project:Gewichtung 3"]`
 
+## References and dependencies
+
+Three identifiers exist per task, and conflating them is the common mistake:
+
+| | Type | Who assigns it |
+|---|---|---|
+| `task_id` | UUID | the server, on create — the argument every MCP tool takes |
+| `task_number` | integer ≥ 1 | the server, on create — **the `#570` people and commits mean** |
+| a map-local id | whatever a Markdown precursor uses | the author, before import |
+
+**`task_number` is a field of its own and cannot be set.** `create_task`
+"automatically handles task numbering"; `TaskCreate` has no slot for it. To go
+the other way, `list_tasks(task_number=N)` is the documented way to turn a
+number into a task.
+
+**A `#N` reference is plain text in a description, and that is all it is.** You
+write the number into the Markdown and Betterplan resolves it — there is no
+reference object to create and nothing to link. `list_task_references` *searches*
+descriptions, discussion comments and activity logs for the number.
+
+Two consequences, both only for a precursor format that is imported rather than
+typed by a human:
+
+- Writing the **`task_id`** instead of the number produces a reference
+  `list_task_references` will never find — present to a reader, invisible to the
+  product, and nothing rejects it.
+- An import that creates tasks and writes their descriptions in one pass
+  **cannot** resolve references, because the target's number does not exist yet
+  when the referrer is created. It needs a second pass.
+
+**That second pass must send `description` only.** `update_task` warns that
+re-sending a task you read first is "not harmless, because `reworkPoints` is a
+delta that accumulates" — a full write-back adds the task's rework points to its
+own lifetime total again, silently corrupting a quality metric. Send `task_id`
+and the fields you are changing, nothing else (ADR-029).
+
+**Dependency direction is the other silent error.** `create_dependency` knows
+exactly one `dependencyType`, `blocks`, with `sourceTaskId` = "the task that has
+to be done **first**" and `targetTaskId` = "the task that is **waiting**".
+
+So a precursor field meaning "A depends on B" maps to **`sourceTaskId` = B,
+`targetTaskId` = A** — the dependency's *source* is the thing the entry pointed
+at. Import it the other way round and the critical path runs backwards on the
+Delivery Timeline while every call succeeds.
+
+That `blocks` is the only type is also why **soft references have to be text**:
+the data model offers no object for them. It is not a stylistic choice.
+
 ## Bugs
 
 A bug is **not** a separate Story. It is a Workitem with `isBug = true` whose

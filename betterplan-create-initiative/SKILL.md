@@ -8,7 +8,7 @@ description: >
   request is an Initiative, Epic, or Story, use the betterplan-workflow skill
   first to classify.
 metadata:
-  version: "0.1.0"
+  version: "0.2.0"
 ---
 
 # Create a Betterplan Initiative
@@ -33,6 +33,7 @@ If it is actually a concrete buildable thing, it is a Story. If it is a single s
 4. **Make the value explicit.** Why does this goal matter, for whom? Use the concrete audience from the clarify step — not a generic "the user" (see *Content separation > Be specific, not generic* in `betterplan-workflow`).
 5. **Title**: short, outcome-oriented, no verbs like "implement/build".
 6. **Keep the description to the goal itself.** The Epics beneath it live in the map's structure — do not name them in the description.
+7. **If you do refer to another item, write `#N`.** Not its title — a title goes stale the moment that item is renamed, and only the number is what Betterplan resolves and what `list_task_references` finds. Look it up with `list_tasks(query=…)` rather than guessing. At Initiative scale this is rare and should stay rare: the one case that earns it is another Initiative this goal genuinely builds on — *"assumes the platform migration from #12"*. Naming the Epics beneath would violate rule 6, number or not.
 
 ## Quality checks (classification, not description)
 
