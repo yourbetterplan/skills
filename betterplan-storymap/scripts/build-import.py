@@ -64,27 +64,60 @@ def frontmatter(path: pathlib.Path) -> tuple[dict, str]:
     return fm, m.group(2).strip()
 
 
+FIELD_START = re.compile(r"^- \*\*(\w+):\*\*[ \t]?(.*)$")
+
+
 def catalogue(path: pathlib.Path) -> dict[str, dict[str, str | None]]:
-    """`## <schluessel>` plus `- **feld:** wert` je Eintrag.
+    """`## <schluessel>` plus `- **feld:**` je Eintrag.
 
     Ein `##`-Block ist ein Eintrag, **wenn er mindestens ein Feld hergibt** —
     Prosa-Abschnitte, mit denen eine Katalogdatei ihre Entscheidungen erklärt,
     tun das nicht. Am Schlüssel ist das nicht zu erkennen: Tag-Werte dürfen
     Leerzeichen enthalten (`Aufwand gering`), eine Überschrift mit Leerzeichen
     ist also kein Prosa-Indiz.
+
+    **Ein Feldwert darf mehrzeiliges Markdown enthalten** — Listen, Absätze,
+    Hervorhebungen. Die Zielfelder nehmen Markdown, und ein `features`-Feld mit
+    fünf Punkten ist als Liste lesbar und als Satzkette nicht:
+
+        - **features:**
+          - Hostingmodell entschieden
+          - TIA vorgelegt
+
+    **Fortsetzungszeilen sind um zwei Leerzeichen eingerückt** und werden beim
+    Lesen wieder ausgerückt; Leerzeilen innerhalb eines Wertes bleiben erhalten.
+    Die Einrückung ist die Grenze: Die erste nicht eingerückte Zeile, die kein
+    Feld beginnt, beendet den Feldblock — so darf hinter den Feldern ein
+    Kommentar, eine Trennlinie oder ein Blockzitat stehen, ohne im letzten Wert
+    zu landen.
     """
     if not path.exists():
         return {}
     out = {}
     for block in re.split(r"\n## ", path.read_text(encoding="utf-8"))[1:]:
-        key = block.split("\n", 1)[0].strip()
-        fields: dict[str, str | None] = {}
-        for m in re.finditer(r"^- \*\*(\w+):\*\* (.*?)(?=\n- \*\*|\n\n|\Z)",
-                             block, re.S | re.M):
-            v = " ".join(m.group(2).split())
-            fields[m.group(1)] = None if v.startswith("*(leer)*") else v
-        if fields:
-            out[key] = fields
+        lines = block.split("\n")
+        key = lines[0].strip()
+        fields: dict[str, list[str]] = {}
+        current: str | None = None
+        for line in lines[1:]:
+            m = FIELD_START.match(line)
+            if m:
+                current = m.group(1)
+                fields[current] = [m.group(2)]
+            elif current is None:
+                continue
+            elif not line.strip():
+                fields[current].append("")      # Leerzeile im Wert
+            elif line.startswith("  "):
+                fields[current].append(line[2:])
+            else:
+                current = None                  # unindentiert → Feldblock zu Ende
+        clean: dict[str, str | None] = {}
+        for name, buf in fields.items():
+            v = "\n".join(buf).strip()
+            clean[name] = None if v.startswith("*(leer)*") else (v or None)
+        if clean:
+            out[key] = clean
     return out
 
 

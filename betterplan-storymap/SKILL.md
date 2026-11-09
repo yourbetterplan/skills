@@ -261,6 +261,39 @@ die sie als Prosa beschreibt, muss beim Übertragen erst zerlegt werden — und
 dabei entscheidet der Übertragende, was in welches Feld gehört. Das ist eine
 Entscheidung, die in den Map-Bau gehört, nicht in den Import.
 
+### Die Felder nehmen Markdown — nutze es
+
+**Fast jedes Textfeld in Betterplan rendert Markdown.** Ein `features` mit neun
+Punkten ist als Liste lesbar und als Satzkette nicht; ein `goal` mit drei
+Gedanken ist als drei Absätze lesbar und als einer nicht. Schreibe deshalb im
+Katalog echtes Markdown, keine mit `·` oder `;` aneinandergereihten Satzteile.
+
+Das Format trägt das: **ein Feldwert läuft über mehrere Zeilen, wenn die
+Fortsetzungszeilen um zwei Leerzeichen eingerückt sind.** Die erste nicht
+eingerückte Zeile, die kein neues Feld beginnt, beendet den Feldblock — so darf
+hinter den Feldern ein Kommentar oder eine Trennlinie stehen.
+
+```markdown
+## r2-demopruefung
+
+- **title:** Demoprüfung für Prüflinge verfügbar
+- **position:** 2
+- **goal:**
+  Prüflinge können sich **mindestens zehn Wochen vorher** vertraut machen.
+
+  Das Datum ergibt sich rückwärts aus dem Prüfungstermin.
+- **features:**
+  - Ohne Prüfungsdruck, beliebig oft
+  - Vollständig von echten Prüfungen getrennt
+
+> *Kommentar:* steht außerhalb der Felder und landet in keinem Wert.
+```
+
+Betroffen sind alle Felder, in denen offensichtlich mehrzeiliger Text stehen
+kann — bei Releases praktisch alle außer `position`, `date`, `dateLabel` und
+`status`, bei Personas alle außer `name`. Einzeiler bleiben einzeilig; die
+Einrückung ist kein Zwang, sondern die Erlaubnis.
+
 **Schreibe beide feldweise, mit den Feldnamen im Text.** Die MCP-Werkzeuge
 beschreiben ihre Felder zur Laufzeit selbst — frage sie ab, statt den Feldsatz
 aus dem Gedächtnis zu setzen, und schreibe die Katalogdatei nach dem, was sie
