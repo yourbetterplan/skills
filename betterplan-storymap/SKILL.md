@@ -121,8 +121,10 @@ die der fertige Backbone wieder umwirft.
 10. **Maschinell prüfen**, dann **Abdeckung prüfen** und `COVERAGE.md` schreiben.
     Erst die Verweise, dann die Inhalte: ein nicht auflösender `parent` macht
     jede Abdeckungsaussage darüber wertlos.
-11. **Nicht importieren.** Die Übertragung nach Betterplan ist ein eigener
-    Schritt mit eigenem Fehlerprofil.
+11. **Nicht selbst importieren**, aber die Nutzlast erzeugen: eine Datei für
+    `POST /projects/import` plus eine Übergabenotiz mit dem, was der Import nicht
+    kann. Siehe *Die Übergabe nach Betterplan*. Den Import selbst löst der
+    Mensch aus — er legt ein neues Projekt an und ist nicht zurückzunehmen.
 
 Nach jeder bestätigten Naht ist die Map auf der Platte ein gültiger
 Zwischenstand. Der Skill ist an jeder Naht pausierbar.
@@ -135,6 +137,7 @@ Eine Datei pro Item. Die Hierarchie steht im Pfad, die Identität im Frontmatter
 .betterplan/storymap/
   _personas.md
   _releases.md
+  _tags.md
   01-<initiative-slug>/
     _initiative.md
     01-<epic-slug>/
@@ -150,7 +153,7 @@ Eine Datei pro Item. Die Hierarchie steht im Pfad, die Identität im Frontmatter
 | `title` | alle | abhakbare Verbphrase, ohne Positionsnummer |
 | `order` | alle | Position unter dem Elternteil |
 | `persona` | Stories | Schlüssel aus `_personas.md` |
-| `tags` | Stories | Zuständigkeit, nackte Rollenbezeichnung |
+| `tags` | Stories | Zuständigkeit und andere Dimensionen, **Wert ohne Kategoriewort** — der `project:`-Namensraum kommt beim Übertragen davor, siehe unten |
 | `priority` | nur wo **nicht** der Projekt-Default | MoSCoW-Abweichung, siehe unten |
 | `maturity` | Stories | `idea`, solange nichts anderes entschieden ist |
 | `release` | wo Fristen oder Lernziele bestehen | Schlüssel aus `_releases.md` |
@@ -193,25 +196,36 @@ dieselbe Falle wie bei der `id`. Die Form trägt beides: den **Titel** als
 Anzeigetext für den Leser jetzt, die **`id`** als auflösbaren Zeiger. Veraltet
 der Titel, bleibt der Verweis gültig, und ein Skript findet die Abweichung.
 
-**Drei Identifikatoren, und sie werden verwechselt:**
+**Zwei Identifikatoren, und sie werden verwechselt:**
 
-| | Wo | Wer vergibt |
-|---|---|---|
-| Map-`id` (UUID) | nur in der Markdown-Vorstufe | wir |
-| `task_id` (UUID) | Betterplan, Argument jedes MCP-Werkzeugs | Betterplan beim Anlegen |
-| `task_number` (Integer) | Betterplan, **eigenes Feld am Task** — die `#570`, die Menschen meinen | Betterplan beim Anlegen |
+| Feld am Task | Wer vergibt |
+|---|---|
+| `id` (UUID) | **wir** — der Server mintet nur, wenn wir nichts mitgeben |
+| `taskNumber` (Integer) | der Server, immer — die `#570`, die Menschen meinen |
 
-**`#N` ist nicht die `task_id`, und die Nummer ist nicht setzbar.** `create_task`
-vergibt sie selbst; aufgelöst wird sie über `list_tasks(task_number=N)`. Wer beim
-Import die `task_id` einsetzt, erzeugt einen Verweis, den
-`list_task_references` **nie findet** — es durchsucht **Text**, und ein
-Referenzobjekt, das den Fehler auffangen würde, gibt es nicht.
+**Einen dritten gibt es nicht.** Der MCP-Parameter `task_id` **ist** das
+`id`-Feld. Die Map-`id` ist deshalb keine eigene Spezies, sondern genau das `id`,
+mit dem der Task angelegt wird — sie überlebt den Weg nach Betterplan.
 
-**Der Import braucht deshalb zwei Durchgänge**: anlegen, dann Verweise auflösen.
-Im zweiten darf **nur `description`** gesendet werden — `update_task` warnt, dass
-das Zurückschreiben eines gelesenen Tasks „not harmless" ist, weil
+**Nicht setzbar ist allein `taskNumber`.** `create_task` vergibt sie selbst;
+aufgelöst wird sie über `list_tasks(task_number=N)`. Wer stattdessen die `id` in
+den Text schreibt, erzeugt einen Verweis, den `list_task_references` **nie
+findet** — es durchsucht **Text**, und ein Referenzobjekt, das den Fehler
+auffangen würde, gibt es nicht.
+
+**Deshalb braucht nur die Verweisauflösung einen zweiten Griff, nicht der
+Import.** Struktur — `parentId`, `releaseId`, Abhängigkeiten — löst in einem
+Durchgang auf, weil wir die `id`s vorgeben und `POST /projects/import` alle UUIDs
+neu vergibt **samt Remapping der Querverweise**. Übrig bleiben die Items, deren
+Beschreibung ein `#N` trägt; bei einer Map mit zehn solchen Stellen sind das zehn
+gezielte Nachträge, die **nur `description`** senden dürfen — `update_task`
+warnt, dass das Zurückschreiben eines gelesenen Tasks „not harmless" ist, weil
 `reworkPoints` ein **akkumulierender Delta-Wert** ist. Wer den ganzen Task
 zurückschreibt, verfälscht je Item still die Rework-Kennzahl.
+
+**Und es ist eine Abwägung, kein Muss.** Der Titel im Klartext ist für einen
+Leser verständlich, nur nicht klickbar. Lohnt sich der Nachtrag bei zehn
+Verweisen — ja. Bei hundert wäre die Antwort eine andere.
 
 **Nur für Items.** Personas und Releases sind keine Tasks und haben keine `#N` —
 auf sie wird über ihren Katalogschlüssel verwiesen, nicht in dieser Form.
@@ -272,6 +286,26 @@ Drei Dinge, die sich dabei regelmäßig zeigen:
   Release an einer Frist, die das Team selbst setzt, ist `date` leer und `goal`
   sagt, woraus sich das Datum ergibt. Ein geratenes Datum ist schlechter als
   keines.
+
+### `_tags.md` — die Tags brauchen einen Katalog, weil sie Farben brauchen
+
+`settings.tagDefinitions` verlangt zu jedem Tag eine **Farbe**, und die Map hätte
+sonst keinen Ort dafür. Also eine dritte Katalogdatei, im selben Format wie die
+anderen zwei: `## <wert>` plus `- **color:** <palettenname>`.
+
+Die Palette kennt zwölf Namen — `red`, `orange`, `amber`, `yellow`, `green`,
+`teal`, `blue`, `indigo`, `purple`, `pink`, `gray`, `slate` — und keine
+CSS-Farbwerte. Was im Katalog fehlt, landet auf `slate`; der Generator warnt.
+
+**Die Farbe ist das Gruppierungsmittel, nicht ein Kategoriewort im Wert.**
+Tags einer Dimension bekommen verwandte Farben, damit der Wert kurz bleiben
+kann — `Aufwand gering` und `Aufwand hoch` in zwei Grüntönen statt
+`project:Aufwand:gering`, was der Zweit-Doppelpunkt-Fehler wäre. Tags ohne
+Gruppierung behalten `slate`; erfinde keine Farbe, nur damit es sortiert aussieht.
+
+Nutze die Datei auch, um festzuhalten, was **keinen** Tag bekommt und warum —
+der Projekt-Default, über den nicht getaggt wird, ist sonst nach einer Woche
+nicht mehr auffindbar.
 
 **Dauerarbeit bekommt kein Release.** Eine Pflicht, die über Jahre läuft, hat
 kein Fertigdatum; sie einem Release zuzuordnen behauptet, sie sei dort erledigt —
@@ -419,6 +453,67 @@ Existiert ein Teil der Map, **lies sie zuerst**.
    bestätigt, Stories für zwei von fünf Initiativen, keine Abdeckungsprüfung."*
 2. Frage, was das Ziel **dieser** Sitzung ist.
 3. Setze an der unfertigen Naht an. Baue bestätigte Teile nicht neu.
+
+## Die Übergabe nach Betterplan
+
+Der Map-Bau endet mit der Markdown-Map. Die Übertragung ist ein eigener Schritt —
+aber **nicht Item für Item über die MCP-Werkzeuge.** Erzeuge eine Nutzlast für
+`POST /projects/import` und lass den Menschen importieren. Drei Gründe:
+
+- Der Import **behält `displayOrder`**; die Einzel-Create-Route berechnet sie
+  selbst und verwirft, was gesendet wird. Ein Task ohne `displayOrder`
+  verschwindet erfahrungsgemäß aus Ansichten, sobald er zum ersten Mal
+  bearbeitet wird.
+- Er vergibt alle UUIDs neu **samt Remapping der Querverweise**. Die `id`s der
+  Map sind damit reine Korrelationsschlüssel, und `parentId`, `releaseId` und
+  Abhängigkeiten lösen in einem Durchgang auf.
+- Dreistellige Item-Zahlen über einzelne Aufrufe anzulegen ist nicht nur
+  langsam, sondern bricht mitten im Baum ab, wenn ein Aufruf scheitert.
+
+**Dafür gibt es ein Skript: `scripts/build-import.py` in diesem Skill.** Es ist
+projektunabhängig — es liest `GOAL.md` und `storymap/` und braucht nur die
+`team_id`, weil es dafür keinen sinnvollen Default gibt:
+
+```bash
+python3 <skillpfad>/scripts/build-import.py --project <projektroot> --team <TEAM_ID>
+```
+
+Es schreibt `.betterplan/import/projects-import.json` und `nachtraege.json`.
+`title` kommt aus der `# Ziel:`-Zeile, `vision` aus `goal:vision` (auf 200
+Zeichen begrenzt, so viel nimmt das Feld), `description` aus dem ersten Absatz
+von `goal:purpose`, die Tag-Farben aus `_tags.md`. Lauf es **nach** dem
+Prüfskript, nicht davor.
+
+**Was es erzeugt**, falls du es von Hand nachvollziehen musst: `team_id`
+(Pflicht, sonst 400), `title`, `settings` mit `tagDefinitions`, `tasks[]`,
+`releases[]`, `dependencies[]`. Je Task `id`, `type`, `title`, `description`,
+`parentId`, `displayOrder` als `{"storyboard": n}` nullbasiert je
+Geschwistergruppe, `tags` als `project:<wert>` und `releaseId`.
+
+**Drei Dinge, die man dabei falsch macht:**
+
+- **Die `tagDefinitions` tragen den nackten Wert**, der Task den namensräumigen:
+  `project:Must` am Task, `{"name": "Must", "color": "red"}` in den Definitionen.
+  Nichts lehnt eine fehlende Definition ab — der Tag wird nur nicht gestylt.
+- **`progress:*` weglassen**, solange der Default des Typs passt. Der Server
+  setzt `progress:idea` für alles außer Workitems.
+- **Die Abhängigkeitsrichtung drehen.** `dependsOn: [B]` an A heißt „A wartet auf
+  B", und `create_dependency` erwartet `sourceTaskId` = das zuerst Fertige, also
+  `sourceTaskId: B, targetTaskId: A`.
+
+**Was der Import nicht kann**, und was deshalb in die Übergabenotiz gehört:
+
+- **Er legt immer ein neues Projekt an.** `POST /projects/{project_id}/import`
+  existiert nicht, auch wenn die Template-Route darauf verweist.
+- **Personas sind nicht enthalten** — das Projektobjekt hat keinen
+  `personas`-Schlüssel. Sie werden nach dem Import mit `create_persona` angelegt
+  und mit `assign_persona` zugewiesen.
+- **Die `#N`-Verweise** brauchen die Nummern, die erst beim Anlegen entstehen.
+  Rendere sie in der Nutzlast als Klartext und liste die Stellen auf, statt
+  totgelaufene Platzhalter zu exportieren.
+
+Lege Nutzlast und Übergabenotiz ins Projekt, nicht ins Skill-Repository — sie
+sind Generat aus der Map und werden mit ihr neu erzeugt.
 
 ## Abgrenzung
 
