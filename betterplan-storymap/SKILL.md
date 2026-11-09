@@ -173,7 +173,10 @@ behaupten; das ist ihr Vorzug.
 
 Der Preis ist unleserliches Frontmatter. Dagegen zwei Regeln: **in Prosa wird
 immer der Titel referenziert, nie die `id`**, und das Map-Verzeichnis trägt eine
-abgeleitete `_index.md` mit Titel → `id`.
+abgeleitete `_index.md` mit Titel → `id`, erzeugt von
+`scripts/build-index.py`. Reines Generat, nach jeder Umsortierung neu
+ableiten — von Hand gepflegt wäre sie nach dem ersten Nachtrag falsch und
+niemand merkte es.
 
 ## Verweise auf andere Items
 
