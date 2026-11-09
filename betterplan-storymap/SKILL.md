@@ -478,7 +478,8 @@ projektunabhängig — es liest `GOAL.md` und `storymap/` und braucht nur die
 python3 <skillpfad>/scripts/build-import.py --project <projektroot> --team <TEAM_ID>
 ```
 
-Es schreibt `.betterplan/import/projects-import.json` und `nachtraege.json`.
+Es schreibt `.betterplan/import/projects-import.json`, `personas.json` und
+`nachtraege.json`.
 `title` kommt aus der `# Ziel:`-Zeile, `vision` aus `goal:vision` (auf 200
 Zeichen begrenzt, so viel nimmt das Feld), `description` aus dem ersten Absatz
 von `goal:purpose`, die Tag-Farben aus `_tags.md`. Lauf es **nach** dem
@@ -505,9 +506,15 @@ Geschwistergruppe, `tags` als `project:<wert>` und `releaseId`.
 
 - **Er legt immer ein neues Projekt an.** `POST /projects/{project_id}/import`
   existiert nicht, auch wenn die Template-Route darauf verweist.
-- **Personas sind nicht enthalten** — das Projektobjekt hat keinen
-  `personas`-Schlüssel. Sie werden nach dem Import mit `create_persona` angelegt
-  und mit `assign_persona` zugewiesen.
+- **Personas sind nicht enthalten.** `TaskCreate` hat kein Persona-Feld und das
+  Projektobjekt keinen `personas`-Schlüssel — Personas sind eine eigene
+  Ressource, genannt über `assign_persona`, einen Aufruf je Paar. Das Skript legt
+  dafür `personas.json` daneben: die `create_persona`-Nutzlasten und die
+  Zuweisungen als `{title, persona}`. **Gebunden wird über den Titel**, weil der
+  Import die ids neu vergibt und der Titel das Einzige ist, was ihn überlebt —
+  projektweit eindeutige Titel sind dafür Voraussetzung, nicht Kosmetik.
+  Zuweisbar sind nur Initiative, Epic und User Story; `project` und `dev`
+  antworten mit 400.
 - **Die `#N`-Verweise** brauchen die Nummern, die erst beim Anlegen entstehen.
   Rendere sie in der Nutzlast als Klartext und liste die Stellen auf, statt
   totgelaufene Platzhalter zu exportieren.

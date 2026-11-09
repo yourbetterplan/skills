@@ -221,10 +221,48 @@ def main() -> int:
         "dependencies": dependencies,
     }
 
+    # --- Personas. `TaskCreate` hat kein Persona-Feld und das Projektobjekt
+    # keinen `personas`-Schlüssel: Personas sind eine eigene Ressource und
+    # kommen über `assign_persona`, einen Aufruf je Paar. Nach dem Import sind
+    # die Task-ids neu, also bindet der Plan über den **Titel** — er ist das
+    # Einzige, was den Import überlebt.
+    persona_cat = catalogue(root / "_personas.md")
+    PERSONA_FIELDS = ("role", "goals", "wishes", "challenges",
+                      "currentBehavior", "currentWorkaround", "notes")
+    personas = []
+    for key, f in persona_cat.items():
+        if not f.get("name"):
+            sys.exit(f"❌ _personas.md/{key}: name fehlt (Pflichtfeld, projektweit eindeutig)")
+        personas.append({"_key": key, "name": f["name"],
+                         **{k: f.get(k) or "" for k in PERSONA_FIELDS}})
+
+    # Nur Initiative, Epic und User Story dürfen eine Persona nennen —
+    # project und dev antworten mit 400.
+    ASSIGNABLE = {"initiative", "epic", "story"}
+    assignments, persona_errors = [], []
+    for iid, fm in items.items():
+        key = fm.get("persona")
+        if not key:
+            continue
+        if fm["type"] not in ASSIGNABLE:
+            persona_errors.append(f"{fm['title']}: type {fm['type']} nimmt keine Persona")
+            continue
+        if key not in persona_cat:
+            persona_errors.append(f"{fm['title']}: persona {key!r} nicht in _personas.md")
+            continue
+        assignments.append({"title": fm["title"], "type": fm["type"],
+                            "persona": persona_cat[key]["name"], "personaKey": key})
+    if persona_errors:
+        sys.exit("❌ " + "\n❌ ".join(persona_errors))
+    assignments.sort(key=lambda a: (a["persona"], a["title"]))
+
     (out / "projects-import.json").write_text(
         json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     (out / "nachtraege.json").write_text(
         json.dumps(nachtraege, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    (out / "personas.json").write_text(json.dumps(
+        {"personas": personas, "assignments": assignments},
+        ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
     counts = collections.Counter(t["type"] for t in tasks)
     print(f"projects-import.json  {(out / 'projects-import.json').stat().st_size:,} Bytes")
@@ -237,6 +275,13 @@ def main() -> int:
     print(f"  tagDefinitions {len(tagdefs)}" +
           (f"  ({', '.join(d['name'] for d in tagdefs)})" if tagdefs else ""))
     print(f"nachtraege.json       {len(nachtraege)} Prosa-Verweise")
+    print(f"personas.json         {len(personas)} Personas, "
+          f"{len(assignments)} Zuweisungen")
+    ohne = [fm["title"] for fm in items.values()
+            if fm["type"] == "story" and not fm.get("persona")]
+    if ohne:
+        print(f"⚠  {len(ohne)} Stor{'y' if len(ohne)==1 else 'ies'} ohne Persona: "
+              + ", ".join(ohne[:3]) + (" …" if len(ohne) > 3 else ""))
     if undefined:
         print(f"⚠  ohne Farbe in _tags.md, auf slate gesetzt: {', '.join(undefined)}")
     if not vision:
