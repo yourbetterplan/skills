@@ -225,7 +225,7 @@ Three layers, three jobs. Do not mix them.
 |---|---|---|
 | **Description** | What value, for whom, why now. The reader picks up the Story in 30 seconds. | Plain prose, user-story form by default ("Als …, will ich …, damit …"). Includes all the usual sections (Context, Acceptance criteria, Out of scope, Open questions) — see `betterplan-create-story` Step 4. |
 | **Acceptance criteria** | Observable states that must be true at the end. Live as a section inside the description. | Markdown checkboxes, behavior not pixels. 2–4 at Story level; finer detail belongs in Workitems. |
-| **Tags** | Metadata labels for filtering and reporting. | Single words or short phrases ("Persistenz", "UI", "Audit"). |
+| **Tags** | Metadata labels for filtering and reporting. | Single words or short phrases, namespaced `project:<value>` — `project:Persistenz`, `project:UI`, `project:Audit`. The value carries no category word; the colour says which dimension it belongs to. See the tag rules in `references/data-model.md`, including why the `tagDefinitions` entry is spelled *without* the prefix. |
 
 Hard rules — generic (every `create-*` skill):
 

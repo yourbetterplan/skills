@@ -93,7 +93,8 @@ below were applied):
 - **Group by color, not by a second text prefix.** Don't build a nested namespace like `project:Aufwand:gering` — that's the extra-colon mistake. Fold the category into the value with a space (`project:Aufwand gering`) and give same-category tags related colors via `tagDefinitions`.
 - **Keep values short, and add a category word only when the value alone is ambiguous.** Card space is limited: a tag wide enough to crowd the title has cost more than it carries. `gering` means nothing on its own, so `project:Aufwand gering` earns its category word. `Hersteller` is already unambiguous, so the obligation-bearer tag is `project:Hersteller` and **not** `project:Pflicht Hersteller`; `Must` carries its own meaning, so a MoSCoW tag is `project:Must` and **not** `project:Priorität Must`. The colour family says which dimension a tag belongs to, at no width. Tags with no grouping keep the default colour; don't invent one to look organised.
 - **A value that is the default of the whole project earns no tag at all.** Where one value dominates — every item `Must`, every item the same team — tagging it costs width on every card and carries nothing, because a filter on it returns everything. Tag the **deviations** and document the default once. The cost is that you can no longer filter *for* the default, only exclude the exceptions; for "what do we have to do", that is the same answer.
-- **Every tag string used on any task must have a matching entry in `settings.tagDefinitions`** (exact string match) or it won't be styled correctly — and nothing rejects the import for it. Collect the full set of distinct values across all tasks and emit one definition per value; don't declare a subset and hope the rest fall back.
+- **Every tag used on a task needs an entry in `settings.tagDefinitions` — and the two are spelled differently.** The task carries the namespaced string, the definition carries the **bare value**: a task tagged `project:Must` needs `{"name": "Must", "color": "red"}`, *not* `{"name": "project:Must"}`. Verified against a live project on 2026-11-09 (`tags:["progress:idea","project:Must"]` alongside `tagDefinitions:[{"name":"Must","color":"red"},…]`). An earlier version of this file said "exact string match" — that was wrong, and it produces definitions that never match. Collect the full set of distinct values across all tasks, strip the `project:` prefix, and emit one definition per value; don't declare a subset and hope the rest fall back. Nothing rejects the import for a missing or misspelled definition — the tag simply does not get styled.
+- **`progress:*` needs no definition.** It is the reserved system namespace and is styled by the app; only the custom `project:*` values go into `tagDefinitions`.
 
 Example from a real import (spreadsheet columns Kategorie / Aufwand / Gewichtung /
 Priorität turned into tags):
@@ -101,18 +102,28 @@ Priorität turned into tags):
 
 ## References and dependencies
 
-Three identifiers exist per task, and conflating them is the common mistake:
+A task carries **two** identifiers, and conflating them is the common mistake:
 
-| | Type | Who assigns it |
+| Field on the task | Type | Who assigns it |
 |---|---|---|
-| `task_id` | UUID | the server, on create — the argument every MCP tool takes |
-| `task_number` | integer ≥ 1 | the server, on create — **the `#570` people and commits mean** |
-| a map-local id | whatever a Markdown precursor uses | the author, before import |
+| `id` | UUID | **you may set it**; the server mints one only when you don't |
+| `taskNumber` | integer ≥ 1 | the server, always — **the `#570` people and commits mean** |
 
-**`task_number` is a field of its own and cannot be set.** `create_task`
-"automatically handles task numbering"; `TaskCreate` has no slot for it. To go
-the other way, `list_tasks(task_number=N)` is the documented way to turn a
-number into a task.
+**There is no third identifier.** The MCP argument spelled `task_id` **is** the
+task's `id` field; `get_task(task_id=…)` and `update_task(task_id=…)` take that
+UUID. An earlier version of this file listed `task_id` as server-assigned and a
+"map-local id" as a separate species — both wrong. A Markdown precursor's id is
+simply the `id` the task will be created with.
+
+**`id` is settable, and it is already being used that way.** `TaskCreate` and
+`TaskImport` both have an `id` slot with no caveat — compare `create_bucket`,
+whose `id` says "Accepted and ignored — the server always mints its own bucket
+id." Verified on 2026-11-09: the tasks in a live project carry hand-assigned ids
+of the form `33333333-0000-4000-8000-000000000001`.
+
+**`taskNumber` is the one thing you cannot set.** `create_task` "automatically
+handles task numbering", and no payload has a slot for it. To go the other way,
+`list_tasks(task_number=N)` turns a number into a task.
 
 **A `#N` reference is plain text in a description, and that is all it is.** You
 write the number into the Markdown and Betterplan resolves it — there is no
@@ -122,12 +133,20 @@ descriptions, discussion comments and activity logs for the number.
 Two consequences, both only for a precursor format that is imported rather than
 typed by a human:
 
-- Writing the **`task_id`** instead of the number produces a reference
+- Writing the **`id`** instead of the number produces a reference
   `list_task_references` will never find — present to a reader, invisible to the
   product, and nothing rejects it.
-- An import that creates tasks and writes their descriptions in one pass
-  **cannot** resolve references, because the target's number does not exist yet
-  when the referrer is created. It needs a second pass.
+- **The `#N` references are the only thing an import cannot finish in one pass**,
+  because the target's number does not exist yet when the referrer is created.
+  Everything structural — `parentId`, `releaseId`, dependencies — resolves in a
+  single pass, because you set the `id`s yourself.
+
+**Scope that second pass to the references, and don't let it grow.** It touches
+only the handful of tasks whose descriptions carry a `#N`, not the whole import.
+Weigh it against simply naming the other item in prose: a reader understands
+"…see *Set up the intake channel*" perfectly well, it just isn't clickable and
+`list_task_references` won't find it. At ten references that is a trade-off, not
+a necessity.
 
 **That second pass must send `description` only.** `update_task` warns that
 re-sending a task you read first is "not harmless, because `reworkPoints` is a
@@ -169,9 +188,27 @@ Note that `GET /templates/{template_id}`'s own description points at
 Hierarchy is built purely from `parentId`: each task carries an `id` and its
 children reference it. Two things worth knowing that the schema does not tell you:
 
-- **Set `displayOrder` on every task**, as `{"storyboard": <n>}` — a sequential index among siblings sharing a parent (root level counts as one shared parent). The single-task create routes compute this themselves and ignore what you send; the bulk write and the import keep it. A task that reaches the database without one has been seen to disappear from views the first time it is edited.
-- **Use UUIDs for `id`.** The import says it regenerates *UUIDs* and remaps references; whether a non-UUID correlation key (a slug) survives that is undocumented and untested. Slugs were previously recommended here — treat that as unverified.
+- **Set `displayOrder` on every task**, as `{"storyboard": <n>}` — a sequential index among siblings sharing a parent (root level counts as one shared parent), **zero-based**; a live project shows `0, 1, 2` across three sibling stories. The single-task create routes compute this themselves and ignore what you send; the bulk write and the import keep it. A task that reaches the database without one has been seen to disappear from views the first time it is edited.
+- **Use UUIDs for `id`.** The import regenerates them and remaps every reference, so the ids in the payload are pure correlation keys — their only job is to let `parentId`, `releaseId` and the dependencies point at each other. A non-UUID key (a slug) is undocumented and untested; slugs were previously recommended here, treat that as unverified.
+- **Leave `progress:*` out** unless a task needs a phase other than its type's default. The server sets `progress:todo` for a Workitem and `progress:idea` for everything else. Blanket-setting `progress:idea` across a payload puts Workitems in the wrong column.
+- **It always creates a new project.** There is no import into an existing one. A map that should land next to existing work has to be created task by task instead.
 
-When in doubt about any other field, compare against a real exported project's
-`tasks[]` as ground truth: the schema documents what a field *accepts*, not what
-the app relies on being present.
+### What the import does not carry
+
+The project object — what `list_projects(include_data=true)` answers with — has
+`tasks`, `releases`, `buckets`, `timelineNotes`, `iterations`, `discussions` and
+`dependencies`. **It has no `personas` key.** Personas are a separate resource:
+create them with `create_persona` after the import and attach them with
+`assign_persona`. A precursor format that assigns personas to stories therefore
+always has a post-import step, however the rest is delivered.
+
+Treat the top-level key names of `ProjectImportRequest` as **derived, not
+documented**: they match the project object's shape, which is strong evidence but
+not a schema. The same caution applies to `team_id` — this file names it in
+`snake_case`, while the project object answers with `teamId`. If an import is
+rejected, those are the first two things to vary.
+
+When in doubt about any other field, compare against a real project's `tasks[]`
+as ground truth — `list_tasks(project_id=…, limit=3)` is enough and far cheaper
+than `get_project`. The schema documents what a field *accepts*, not what the app
+relies on being present.
