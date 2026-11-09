@@ -43,10 +43,21 @@ PALETTE = {"red", "orange", "amber", "yellow", "green", "teal", "blue",
 
 
 def frontmatter(path: pathlib.Path) -> tuple[dict, str]:
+    """Flache Schlüssel-Wert-Paare aus dem YAML-Kopf, plus den Body.
+
+    Listen kommen in **beiden** YAML-Schreibweisen vor, und beide müssen hier
+    als Liste ankommen: ein kurzer `tags: [PSIRT, Recht]` wird einzeilig
+    geschrieben, ein langes `sources:` als Blockliste. Nur die Blockform zu
+    lesen liefert für die Einzeiler eine **Zeichenkette**, und das fällt nicht
+    auf, weil `[f"project:{t}" for t in "[a, b]"]` nicht scheitert, sondern je
+    Zeichen einen Tag erzeugt.
+    """
     text = path.read_text(encoding="utf-8")
     m = re.match(r"---\n(.*?)\n---\n(.*)", text, re.S)
     if not m:
-        sys.exit(f"❌ {path}: kein Frontmatter")
+        # Kein Frontmatter heißt keine Item-Datei — über die Folge entscheidet
+        # der Aufrufer, nicht der Leser.
+        return {}, text
     fm: dict = {}
     key = None
     for line in m.group(1).split("\n"):
@@ -59,7 +70,9 @@ def frontmatter(path: pathlib.Path) -> tuple[dict, str]:
             k, _, v = line.partition(":")
             key = k.strip()
             v = v.strip()
-            if v:
+            if v.startswith("[") and v.endswith("]"):
+                fm[key] = [p.strip() for p in v[1:-1].split(",") if p.strip()]
+            elif v:
                 fm[key] = v
     return fm, m.group(2).strip()
 
@@ -96,7 +109,10 @@ def catalogue(path: pathlib.Path) -> dict[str, dict[str, str | None]]:
     out = {}
     for block in re.split(r"\n## ", path.read_text(encoding="utf-8"))[1:]:
         lines = block.split("\n")
-        key = lines[0].strip()
+        # Backticks um den Schlüssel sind Auszeichnung, nicht Teil des Namens:
+        # `## \`integrator\`` liest sich im Katalog als Schlüssel und nicht als
+        # Titel, und genau dafür schreibt man sie hin.
+        key = lines[0].strip().strip("`").strip()
         fields: dict[str, list[str]] = {}
         current: str | None = None
         for line in lines[1:]:
@@ -133,9 +149,19 @@ def goal_fields(goal: pathlib.Path) -> tuple[str, str, str]:
                       text, re.M | re.S)
         return m.group(1).strip() if m else ""
 
-    vision = " ".join(section("goal:vision").split())[:VISION_MAX]
-    purpose = section("goal:purpose")
-    description = " ".join(purpose.split("\n\n")[0].split()) if purpose else ""
+    def first_paragraph(anchor: str) -> str:
+        """Der erste Absatz, auf eine Zeile zusammengezogen.
+
+        **Nicht der ganze Abschnitt.** Unter `goal:vision` steht der Satz, und
+        darunter oft ein Blockzitat mit dem, was an ihm noch offen ist. Nimmt
+        man den Abschnitt ganz, landet die offene Frage im Vision-Feld — und
+        weil das Feld bei 200 Zeichen endet, mitten im Wort.
+        """
+        text = section(anchor)
+        return " ".join(text.split("\n\n")[0].split()) if text else ""
+
+    vision = first_paragraph("goal:vision")[:VISION_MAX]
+    description = first_paragraph("goal:purpose")
     return title, vision, description
 
 
@@ -164,8 +190,14 @@ def main() -> int:
         if p.name in CATALOGUES:
             continue
         fm, body = frontmatter(p)
+        # Im Map-Verzeichnis liegt auch Dokumentation — ein README, die
+        # Arbeitsnotiz aus der Zielklärung. Was weder `id` noch `type` trägt,
+        # ist keine Item-Datei; was nur eines von beiden trägt, ist eine
+        # kaputte, und das ist ein Abbruch und kein Überspringen.
+        if "id" not in fm and "type" not in fm:
+            continue
         if "id" not in fm or "type" not in fm:
-            sys.exit(f"❌ {p}: Item-Datei ohne id oder type")
+            sys.exit(f"❌ {p}: Item-Datei mit id oder type, aber nicht beidem")
         items[fm["id"]], bodies[fm["id"]] = fm, body
     if not items:
         sys.exit(f"❌ keine Item-Dateien unter {root}")
@@ -270,31 +302,38 @@ def main() -> int:
                          **{k: f.get(k) or "" for k in PERSONA_FIELDS}})
 
     # Nur Initiative, Epic und User Story dürfen eine Persona nennen —
-    # project und dev antworten mit 400.
+    # `assign_persona` sagt es selbst: „A Devteam Story, a Project Story and a
+    # Workitem answer 400".
+    #
+    # Eine Project Story, die eine Persona nennt, ist deshalb **kein Fehler**:
+    # die Persona steht dort für die Perspektive, aus der ihr Text geschrieben
+    # ist, und die trägt der Text auch ohne Objekt am Task. Verloren geht die
+    # Filterbarkeit, nicht die Aussage — also wird sie als nicht zuweisbar
+    # ausgewiesen und nicht verschwiegen.
     ASSIGNABLE = {"initiative", "epic", "story"}
-    assignments, persona_errors = [], []
+    assignments, unassignable, persona_errors = [], [], []
     for iid, fm in items.items():
         key = fm.get("persona")
         if not key:
             continue
-        if fm["type"] not in ASSIGNABLE:
-            persona_errors.append(f"{fm['title']}: type {fm['type']} nimmt keine Persona")
-            continue
         if key not in persona_cat:
             persona_errors.append(f"{fm['title']}: persona {key!r} nicht in _personas.md")
             continue
-        assignments.append({"title": fm["title"], "type": fm["type"],
-                            "persona": persona_cat[key]["name"], "personaKey": key})
+        entry = {"title": fm["title"], "type": fm["type"],
+                 "persona": persona_cat[key]["name"], "personaKey": key}
+        (assignments if fm["type"] in ASSIGNABLE else unassignable).append(entry)
     if persona_errors:
         sys.exit("❌ " + "\n❌ ".join(persona_errors))
-    assignments.sort(key=lambda a: (a["persona"], a["title"]))
+    for group in (assignments, unassignable):
+        group.sort(key=lambda a: (a["persona"], a["title"]))
 
     (out / "projects-import.json").write_text(
         json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     (out / "nachtraege.json").write_text(
         json.dumps(nachtraege, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     (out / "personas.json").write_text(json.dumps(
-        {"personas": personas, "assignments": assignments},
+        {"personas": personas, "assignments": assignments,
+         "unassignable": unassignable},
         ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
     counts = collections.Counter(t["type"] for t in tasks)
@@ -309,7 +348,8 @@ def main() -> int:
           (f"  ({', '.join(d['name'] for d in tagdefs)})" if tagdefs else ""))
     print(f"nachtraege.json       {len(nachtraege)} Prosa-Verweise")
     print(f"personas.json         {len(personas)} Personas, "
-          f"{len(assignments)} Zuweisungen")
+          f"{len(assignments)} Zuweisungen"
+          + (f", {len(unassignable)} nicht zuweisbar" if unassignable else ""))
     ohne = [fm["title"] for fm in items.values()
             if fm["type"] == "story" and not fm.get("persona")]
     if ohne:

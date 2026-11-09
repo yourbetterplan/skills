@@ -516,10 +516,15 @@ python3 <skillpfad>/scripts/build-import.py --project <projektroot> --team <TEAM
 
 Es schreibt `.betterplan/import/projects-import.json`, `personas.json` und
 `nachtraege.json`.
-`title` kommt aus der `# Ziel:`-Zeile, `vision` aus `goal:vision` (auf 200
-Zeichen begrenzt, so viel nimmt das Feld), `description` aus dem ersten Absatz
-von `goal:purpose`, die Tag-Farben aus `_tags.md`. Lauf es **nach** dem
-Prüfskript, nicht davor.
+`title` kommt aus der `# Ziel:`-Zeile, `vision` und `description` aus dem
+**ersten Absatz** von `goal:vision` bzw. `goal:purpose` — nicht aus dem ganzen
+Abschnitt, denn unter der Vision steht oft ein Blockzitat mit dem, was an ihr
+noch offen ist, und das Feld endet bei 200 Zeichen. Die Tag-Farben kommen aus
+`_tags.md`. Lauf es **nach** dem Prüfskript, nicht davor.
+
+**Was im Map-Verzeichnis keine Item-Datei ist**, überspringt es: alles ohne `id`
+und ohne `type` — ein README, die Arbeitsnotiz aus der Zielklärung. Was nur
+eines von beiden trägt, ist eine kaputte Item-Datei und bricht ab.
 
 **Was es erzeugt**, falls du es von Hand nachvollziehen musst: `team_id`
 (Pflicht, sonst 400), `title`, `settings` mit `tagDefinitions`, `tasks[]`,
@@ -550,7 +555,11 @@ Geschwistergruppe, `tags` als `project:<wert>` und `releaseId`.
   Import die ids neu vergibt und der Titel das Einzige ist, was ihn überlebt —
   projektweit eindeutige Titel sind dafür Voraussetzung, nicht Kosmetik.
   Zuweisbar sind nur Initiative, Epic und User Story; `project` und `dev`
-  antworten mit 400.
+  antworten mit 400. Eine Project Story mit Persona ist deshalb **kein Fehler**:
+  die Persona steht dort für die Perspektive, aus der ihr Text geschrieben ist,
+  und die trägt der Text auch ohne Objekt am Task. Das Skript weist sie unter
+  `unassignable` aus, statt abzubrechen — verloren geht die Filterbarkeit, nicht
+  die Aussage.
 - **Die `#N`-Verweise** brauchen die Nummern, die erst beim Anlegen entstehen.
   Rendere sie in der Nutzlast als Klartext und liste die Stellen auf, statt
   totgelaufene Platzhalter zu exportieren.

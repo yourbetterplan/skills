@@ -30,9 +30,16 @@ def main() -> int:
     for p in sorted(root.glob("**/*.md")):
         if p.name in CATALOGUES:
             continue
-        fm = p.read_text(encoding="utf-8").split("---\n", 2)[1]
+        text = p.read_text(encoding="utf-8")
+        fm = text.split("---\n", 2)[1] if text.startswith("---\n") else ""
         get = lambda k: (m.group(1) if (m := re.search(rf"^{k}: (.+)$", fm, re.M)) else None)
         iid, typ, title = get("id"), get("type"), get("title")
+        # Im Map-Verzeichnis liegt auch Dokumentation — ein README, die
+        # Arbeitsnotiz aus der Zielklärung. Was weder `id` noch `type` trägt,
+        # ist keine Item-Datei; was nur eines von beiden trägt, ist eine
+        # kaputte, und das ist ein Abbruch und kein Überspringen.
+        if not iid and not typ:
+            continue
         if not (iid and typ and title):
             sys.exit(f"❌ {p}: id, type oder title fehlt")
         items.append((typ, title, iid, str(p.relative_to(root))))
