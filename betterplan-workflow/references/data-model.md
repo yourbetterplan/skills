@@ -136,10 +136,11 @@ typed by a human:
 - Writing the **`id`** instead of the number produces a reference
   `list_task_references` will never find — present to a reader, invisible to the
   product, and nothing rejects it.
-- **The `#N` references are the only thing an import cannot finish in one pass**,
-  because the target's number does not exist yet when the referrer is created.
-  Everything structural — `parentId`, `releaseId`, dependencies — resolves in a
-  single pass, because you set the `id`s yourself.
+- **The `#N` references cannot be finished by the import**, because the target's
+  number does not exist yet when the referrer is created. `parentId` and
+  `releaseId` do resolve in a single pass, because you set the `id`s yourself —
+  **dependencies do not**, for a different reason: the import silently drops
+  them (see *Bulk import*).
 
 **Scope that second pass to the references, and don't let it grow.** It touches
 only the handful of tasks whose descriptions carry a `#N`, not the whole import.
@@ -202,11 +203,21 @@ create them with `create_persona` after the import and attach them with
 `assign_persona`. A precursor format that assigns personas to stories therefore
 always has a post-import step, however the rest is delivered.
 
-Treat the top-level key names of `ProjectImportRequest` as **derived, not
-documented**: they match the project object's shape, which is strong evidence but
-not a schema. The same caution applies to `team_id` — this file names it in
-`snake_case`, while the project object answers with `teamId`. If an import is
-rejected, those are the first two things to vary.
+**It does not carry `dependencies` either.** A run on 2026-11-09 sent 7 of them
+in a `dependencies` array next to `tasks`; the project came back with
+`list_dependencies` → `[]`. Nothing was rejected, nothing warned — the key was
+accepted and dropped. So the dependency graph is a **second post-import step**,
+one `create_dependency` call per edge, and the direction has to be got right by
+hand there (see *Dependencies* above). Whether a differently-named key would
+work is unknown; what is known is that this one does not.
+
+The remaining top-level key names were **derived from the project object's shape,
+not from a schema** — and that same run confirmed them: `team_id` in
+`snake_case` (the project object answers with `teamId`), plus `title`,
+`settings`, `tasks` and `releases` carried 151 tasks and 4 releases with
+hierarchy, release assignment, tag definitions, `vision` and `description`
+intact, multi-line Markdown in the release fields included. Treat those as
+verified; a key this file does not list is still a guess.
 
 When in doubt about any other field, compare against a real project's `tasks[]`
 as ground truth — `list_tasks(project_id=…, limit=3)` is enough and far cheaper

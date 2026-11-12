@@ -11,7 +11,7 @@ description: >
   step. Runs after betterplan-extract. Re-invocable: continues an unfinished map
   rather than starting over.
 metadata:
-  version: "0.3.0"
+  version: "0.4.0"
 ---
 
 # betterplan-storymap
@@ -103,7 +103,10 @@ die der fertige Backbone wieder umwirft.
    entscheiden lassen.
 7. **Stories schreiben, eine Initiative pro Durchgang.** Selbst schreiben, nach
    den Inhaltsregeln von `betterplan-create-story` — Nutznießer-Perspektive,
-   Beschreibungsaufbau, Akzeptanzkriterien als Zustände. Nicht pro Story an
+   Beschreibungsaufbau, Akzeptanzkriterien als Zustände — und nach *Plain
+   language* in `betterplan-workflow`. Letzteres ist hier besonders leicht zu
+   verlieren: wer hundert Karten in einem Zug schreibt, driftet in einen immer
+   dichteren Stil, und beim Schreiben merkt man es nicht. Nicht pro Story an
    `betterplan-create-story` delegieren: ein Discovery-Dialog je Story skaliert
    bei dreistelligen Story-Zahlen nicht. Zeigen, bestätigen lassen, weiter.
 8. **Querschnittliche Arbeit als Project Story anlegen** — sparsam. Was mehr
@@ -501,8 +504,8 @@ aber **nicht Item für Item über die MCP-Werkzeuge.** Erzeuge eine Nutzlast fü
   verschwindet erfahrungsgemäß aus Ansichten, sobald er zum ersten Mal
   bearbeitet wird.
 - Er vergibt alle UUIDs neu **samt Remapping der Querverweise**. Die `id`s der
-  Map sind damit reine Korrelationsschlüssel, und `parentId`, `releaseId` und
-  Abhängigkeiten lösen in einem Durchgang auf.
+  Map sind damit reine Korrelationsschlüssel, und `parentId` und `releaseId`
+  lösen in einem Durchgang auf.
 - Dreistellige Item-Zahlen über einzelne Aufrufe anzulegen ist nicht nur
   langsam, sondern bricht mitten im Baum ab, wenn ein Aufruf scheitert.
 
@@ -563,9 +566,70 @@ Geschwistergruppe, `tags` als `project:<wert>` und `releaseId`.
 - **Die `#N`-Verweise** brauchen die Nummern, die erst beim Anlegen entstehen.
   Rendere sie in der Nutzlast als Klartext und liste die Stellen auf, statt
   totgelaufene Platzhalter zu exportieren.
+- **Die Abhängigkeiten kommen nicht an.** Ein Lauf am 2026-11-09 hat sieben in
+  einem `dependencies`-Array neben `tasks` mitgeschickt; `list_dependencies`
+  antwortete danach mit `[]`. Nichts wurde abgelehnt, nichts gewarnt — der
+  Schlüssel wurde angenommen und verworfen. Der Abhängigkeitsgraph ist also ein
+  **eigener Nachlaufschritt**, ein `create_dependency` je Kante, und die
+  Richtung ist dort von Hand richtig zu setzen. Das Skript erzeugt das Array
+  weiterhin: es ist die Liste, die dieser Nachlauf abarbeitet, und wenn der
+  Import den Schlüssel eines Tages auswertet, ist nichts zu ändern.
 
 Lege Nutzlast und Übergabenotiz ins Projekt, nicht ins Skill-Repository — sie
 sind Generat aus der Map und werden mit ihr neu erzeugt.
+
+### Der Nachlauf — Personas, Abhängigkeiten, `#N`
+
+Alle drei binden über **Titel**, und alle drei brauchen dieselbe Zuordnung
+Titel → neue `id`. Hol sie mit **einem** `list_tasks(project_id=…)`.
+
+**Die Antwort ist zu groß für einen Agentenkontext, und das ist der bequeme
+Weg.** Bei dreistelligen Story-Zahlen sind es ein paar hundert Kilobyte
+Beschreibungstext; ein Harness, der zu große Werkzeugantworten als Datei
+ablegt, macht daraus eine Datei, über die ein Skript die Zuordnung in einem
+Durchgang baut — ohne dass ein einziger Beschreibungstext durch den Kontext
+läuft. Die Alternative, je Item ein `list_tasks(query=…)`, kostet
+hundert Rundreisen für dieselbe Information. Prüfe dabei einmal, dass kein
+Titel doppelt vorkommt: die Eindeutigkeit ist die Voraussetzung der ganzen
+Bindung.
+
+Dann die Zuweisungen, ein `assign_persona` je Paar, und die Abhängigkeiten, ein
+`create_dependency` je Kante. Viele davon in eine Nachricht zu bündeln ist der
+Unterschied zwischen einer Minute und einer Viertelstunde.
+
+**Für die `#N` ist das Suchmuster die Fehlerquelle.** Das Skript rendert die
+Platzhalter mit **typografischen** Anführungszeichen — `„Titel“`, U+201E und
+U+201C. Wer mit dem geraden `"` sucht, findet null Treffer, und der Befund
+sieht aus wie „die Verweise fehlen" statt wie „mein Muster ist falsch". Das
+Muster ist `"„" + anzeigetext + "“"`.
+
+Zwei weitere Dinge an derselben Stelle:
+
+- **Verweisziele dürfen Epics sein**, nicht nur Stories. Löse die Nummern
+  über alle Typen auf, sonst bleibt ein Teil der Verweise liegen.
+- **Sende nur `description`.** `update_task` warnt, dass das Zurückschreiben
+  eines gelesenen Tasks „not harmless" ist: `reworkPoints` ist ein
+  akkumulierender Delta-Wert, und ein vollständiger Write-back addiert je
+  Item still die Rework-Punkte erneut auf den Lebenszeitwert.
+
+**Nachprüfen, nicht annehmen — und zwar jeden Teil.** Dass die Abhängigkeiten
+still verschwunden waren, ist genau so aufgefallen: nicht am Import, der ohne
+Mucks durchlief, sondern an einem `list_dependencies` hinterher. Die Fragen,
+alle mechanisch beantwortbar:
+
+- Steht irgendwo noch ein `„Titel“`, das auf ein Item zeigt?
+- Löst jedes `#N` auf eine existierende `taskNumber` auf?
+- Ist ein `](#uuid)` übrig geblieben?
+- Ist `reworkPoints` projektweit `0`?
+- Antwortet `list_dependencies` mit so vielen Kanten, wie die Nutzlast hatte?
+- Zählt `list_persona_assignments` so viele Einträge wie `assignments`?
+
+Dazu einmal `list_task_references` auf ein Ziel — es durchsucht **Text**, und
+erst sein Treffer belegt, dass Betterplan den Verweis auch als solchen liest.
+
+**Zähle gegen die Nutzlast, nicht gegen die Erwartung.** Jede dieser Zahlen
+steht in der Importdatei; eine Prüfung, die sie nicht vergleicht, bestätigt nur,
+dass etwas da ist.
 
 ## Abgrenzung
 

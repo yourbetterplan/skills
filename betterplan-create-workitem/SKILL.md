@@ -10,7 +10,7 @@ description: >
   "log a bug", "this story is broken" — since a bug is a Workitem with
   isBug=true on the affected Story.
 metadata:
-  version: "0.2.0"
+  version: "0.3.0"
 ---
 
 # Create Betterplan Workitems
@@ -24,6 +24,7 @@ Key rules (from `betterplan-workflow`):
 - A Workitem has **no `Closed` state**. It is complete when it reaches the **Done** column (`progress:done`) — never set `completionState = "closed"` on a Workitem. Unlike a Story, a Workitem carries no planning or historical value, so an obsolete Workitem is simply deleted, not closed with a rationale.
 - A Workitem is either clearly formulated and ready to be created, or it is not created yet. If the team is unsure about the break-down, pause: capture what is clear and resume later — do not log half-formed Workitems.
 - Keep delivery detail in Workitems, not in the Backlog. The Story stays readable; the steps live where the team works on them.
+- Write the Workitem text by the *Plain language* rules in `betterplan-workflow`. They hold for every item type, and a Workitem is read in a hurry — one thought per sentence, verbs instead of nominalizations, concrete things instead of category names.
 
 ## When to create them
 

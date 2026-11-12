@@ -8,14 +8,14 @@ description: >
   whether the request is an Epic, Initiative, or Story, use the
   betterplan-workflow skill first to classify.
 metadata:
-  version: "0.2.0"
+  version: "0.3.0"
 ---
 
 # Create a Betterplan Epic
 
 An Epic is a **step in the business process** that fulfils an Initiative's goal. It is structure on the Story Map between Initiatives (the goal) and Stories (the tools or options that fulfil the step). Epics are not implemented directly — the User Stories underneath them are the tools that get built. Data model: `type: epic`.
 
-For shared rules, follow the `betterplan-workflow` skill — in particular *Discovery is a dialogue* (proportional scale: Epic = one or two clarifying questions, no full Why/What/How loop), *Resuming refinement of an existing item*, *Creating an item: MCP first, Markdown fallback* (including the pre-create confirmation rule), and *Content separation* (be specific, no tag-mirroring). Epics are structure, so they have **no maturity level, no story points, and no acceptance criteria**.
+For shared rules, follow the `betterplan-workflow` skill — in particular *Discovery is a dialogue* (proportional scale: Epic = one or two clarifying questions, no full Why/What/How loop), *Resuming refinement of an existing item*, *Creating an item: MCP first, Markdown fallback* (including the pre-create confirmation rule), *Content separation* (be specific, no tag-mirroring), and *Plain language* (how the description reads — applies to every item type). Epics are structure, so they have **no maturity level, no story points, and no acceptance criteria**.
 
 ## When something is an Epic
 

@@ -10,7 +10,7 @@ description: >
   format). It routes the request to betterplan-create-initiative, betterplan-create-epic,
   betterplan-create-story, or betterplan-create-workitem.
 metadata:
-  version: "0.3.0"
+  version: "0.4.0"
 ---
 
 # Betterplan workflow & classification
@@ -235,6 +235,7 @@ Hard rules — generic (every `create-*` skill):
 - **No index prefixes in titles.** A title carries meaning, not position — never prefix it with an outline or sequence number ("I1 · …", "E1.1 · …", "Story 3: …", "R2 – …"). Ordering and hierarchy already live in the map structure and `displayOrder`; a number baked into the title goes stale the instant anything is reordered or reparented, and makes reordering harder because every move means a rename. Refer to items by name **when you are talking to the user**. (If you need a stable outline id for cross-referencing, keep it in the source doc, not the Betterplan title.)
 - **Inside a description, refer to another item as `#N`** — its task number, written as plain text. Betterplan resolves it; there is nothing to create and nothing to link. Not by title: a title goes stale the moment that item is renamed, and only the number is what Betterplan resolves and what `list_task_references` finds. Look the number up with `list_tasks(query=…)` rather than guessing — a wrong number points at someone else's work, and nothing flags it. A reference is not a dependency: `#N` says "related, read this too", and if the other item has to be *done first*, model that as well (see *Dependencies* below). If the number does not exist yet, say so and leave the reference out; a `#N` pointing at nothing is worse than naming the item in prose.
 - **Context, not ceremony.** Every section of the description should teach or frame something the implementer needs. Cut anything that only restates what is already obvious from structure or tags.
+- **Write it so it reads once.** The six plain-language rules below are not style preference; a description nobody finishes reading carries no information. See *Plain language* immediately after this section.
 
 Hard rules — Story-only:
 
@@ -242,6 +243,23 @@ Hard rules — Story-only:
 - **AC are not implementation tasks.** "Implement X" is work, not a verifiable state. Phrase as the state that exists once the work is done.
 
 A separate, longer implementation concept is **out of scope for this skill version**; the description is the only artifact produced by `betterplan-create-story`. The concept document — its shape, who writes it, and when — will be defined in a later skill iteration. For now, the description must be precise enough that the later concept can be derived from it.
+
+### Plain language
+
+Applies to **every** item type — Initiative, Epic, Story (user / project / devteam), Workitem — and to every section of a description, not only the summary line. The reader does not have the discovery dialogue in their head. Write for that person.
+
+Six rules, ordered by effect:
+
+1. **One thought per sentence.** Aim for an average under 16 words; split anything past 30. A sentence that needs two em-dashes to hold itself together is two sentences.
+2. **Verbs, not nominalizations.** `prüfen` beats `die Prüfung erfolgt`, `entscheiden` beats `die Entscheidungsfindung`. German lets you stack nouns forever, and that is the single biggest source of descriptions nobody reads twice.
+3. **Concrete things, not category names.** `ein Installer, den der Kunde herunterlädt` beats `ein in Verkehr gebrachtes Artefakt`. If the reader has to translate your term into an example before they can think, you picked the wrong word.
+4. **References at the end of the sentence or on their own line — never mid-clause.** `… gelingt praktisch nicht. (CRA-EG(9))` beats `… fasst CRA-EG(9) weit: …`. An id inside a clause interrupts the reader twice. This holds for `#N` item references too.
+5. **Direct address where the reader has to act or decide.** `Zähl auf, was dein Haus verlässt` beats `Es ist ein Inventar zu erstellen`. Use **du**, not Sie — these are working documents, not correspondence. Purely descriptive background stays impersonal.
+6. **No invented labels.** Do not compress a thought behind a marker you made up (`*Prüft:*`, `*Richtungssinn:*`). A thought that needs a label nobody knows needs a sentence instead.
+
+Two checks before saving: read it out loud — every place you have to restart a sentence is a rewrite. Then measure the average sentence length. Under 16 words it reads, over 20 it does not, and rereading your own text will not tell you which side you are on.
+
+The rules are about **how** a description reads, not what it contains. They never justify dropping a decision, a constraint or an open question — a short description that leaves the implementer guessing is worse than a dense one that does not.
 
 ### Creating an item: MCP first, Markdown fallback
 

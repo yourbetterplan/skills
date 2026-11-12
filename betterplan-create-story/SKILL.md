@@ -9,7 +9,7 @@ description: >
   the right story type is unclear, classify with the betterplan-workflow skill
   first.
 metadata:
-  version: "0.2.0"
+  version: "0.3.0"
 ---
 
 # Create a Betterplan Story
@@ -187,6 +187,10 @@ The description may grow longer than a one-liner — that is fine. Keep it reada
 - Aim for a description that fits **on one screen of scrolling** when filled in.
 - Cut anything that only restates what is already clear from the canvas; carry information, not ceremony.
 - If the description starts to feel like a small document with multiple subsections of prose explanation, the Story may need to be split, or the extra material belongs in a later concept (not here).
+
+### Plain language
+
+Apply the six plain-language rules from `betterplan-workflow` > *Plain language*. They are not Story-specific — they hold for every item type and every section of a description. The two that go wrong most often in Stories: a user-story line that stacks nominalizations instead of naming a person doing something, and `## Context` prose that buries a decision in a 40-word sentence.
 
 ### Quality bar (INVEST)
 
