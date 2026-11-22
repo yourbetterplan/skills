@@ -1,19 +1,30 @@
-# Type mapping & conventions
+# Conventions & divergences
 
 **The API spec is the authority on shapes:** <https://app.yourbetterplan.com/api/openapi.json>.
 Fetch it when you need field names, required arguments, enums or endpoints. The
 MCP likewise describes its own tools at runtime. Nothing about the API surface is
 restated here — a vendored copy of the spec used to live in this directory and
-drifted eleven major versions behind before anyone noticed.
+drifted eleven major versions behind before anyone noticed, and an earlier
+version of *this* file repeated the same mistake in prose: it explained fields
+the spec had meanwhile documented better than it did.
 
-What stays here is **meaning**, which no schema can carry: how the building
-blocks map to `type` strings, what is content and what is metadata, how the
-hierarchy works, how maturity is actually stored, the tag namespacing rules, and
-the bug rule.
+Three things stay here, because no schema carries them:
 
-## Building block ↔ `type` value
+1. **The vocabulary bridge** — how the method's building blocks map onto the API's
+   words.
+2. **The conventions** — tag namespacing above all, which is pure agreement and
+   appears nowhere in the spec.
+3. **The divergences** — the handful of places where the spec promises something
+   the product does not do. These are the dangerous ones precisely because the
+   spec is otherwise trustworthy.
 
-Every building block is one task object, distinguished by `type`:
+When a claim here contradicts the spec, the spec wins and this file is stale —
+except in section 3, where the disagreement *is* the content.
+
+## The vocabulary bridge
+
+Every building block is one task object, distinguished by `type`. The spec gives
+`TaskType` as a bare enum with no explanation; this is the mapping:
 
 | Building block | `type` |
 |---|---|
@@ -24,111 +35,105 @@ Every building block is one task object, distinguished by `type`:
 | Devteam Story | `dev` |
 | Workitem | `workitem` |
 
-The spec gives these as a bare `TaskType` enum with no explanation. Note the
-non-obvious part: the three story types are distinct `type` values — a User Story
-is `story`, a Project Story is `project`, a Devteam Story is `dev`.
+The non-obvious part: the three story types are distinct `type` values — a User
+Story is `story`, a Project Story is `project`, a Devteam Story is `dev`.
 
-Only a User Story carries an estimate that counts towards scope and velocity.
+**Content vs metadata.** Content lives in `title` + `description` (Markdown) —
+that is what the create-* skills produce. Structure is set as fields on the item
+and never written into the description: `type`, `parentId`, `releaseId`,
+`estimation`, `tags`, `assignee`, the lead-time dates, `completionState`.
 
-## Content vs metadata
+### The hierarchy, past what `parentId` says
 
-- **Content** lives in `title` + `description` (Markdown). This is what the create-* skills produce.
-- **Metadata / structure** is set as fields on the item, never written into the description: `type`, `parentId`, `releaseId`, `estimation`, `tags`, `assignee`, the lead-time dates, `completionState`.
-
-## The hierarchy
+The spec's `parentId` covers the common case ("a story's epic, a workitem's
+story"). What it leaves out:
 
 | Type | Parent |
 |---|---|
-| Initiative (`initiative`) | none — sits at the root |
-| Epic (`epic`) | an Initiative |
-| User Story (`story`) | an Epic |
-| Project Story (`project`) | none — root-level work |
-| Devteam Story (`dev`) | none — root-level work |
-| Workitem (`workitem`) | a Story, Project Story or Devteam Story |
+| Initiative | none — sits at the root |
+| Epic | an Initiative |
+| User Story | an Epic |
+| Project Story | none — root-level work |
+| Devteam Story | none — root-level work |
+| Workitem | a Story, **Project Story or Devteam Story** |
 
 **Always set `parentId` for an Epic, a User Story and a Workitem.** If the parent
-does not exist yet, create it first: an Epic before its Stories, a Story before
-its Workitems. If it is unclear which parent is meant, ask — do not guess, and do
-not create the item parentless "for now".
+does not exist yet, create it first. If it is unclear which parent is meant, ask —
+do not guess, and do not create the item parentless "for now". The schema marks
+`parentId` optional and nothing reliably rejects a parentless Epic, so there is no
+error to catch the mistake for you.
 
-> **Status of the enforcement claim.** Creating these three without a parent was
-> observed being rejected with HTTP 400, and a parentless item could then not be
-> updated at all. The current schema marks `parentId` optional on both
-> `TaskCreate` and `TaskImport` and describes it as *"leave it out for a task at
-> the top"*, so either the check lives in route logic the schema cannot express,
-> or it is laxer than it was. **Unverified against the current API.** Setting the
-> parent is correct either way; do not rely on a 400 to catch a mistake.
+### Maturity
 
-## Maturity is the `progress:*` tag
+The phase a card sits in **is** its `progress:*` tag; `MaturityPhase` in the spec
+lists the six phases and explains the mapping. Three things it does not say:
 
-The phase a card sits in **is** its `progress:*` tag. The phases are `idea`,
-`draft`, `ready`, `todo`, `doing`, `done` — and `closed` is *not* among them;
-closed is `completionState = "closed"`, a separate axis.
+- **`closed` is not a phase.** It is `completionState`, a separate axis.
+- **Workitems do not use the Closed state.** A Workitem is a lightweight
+  coordination item and is complete at `progress:done`; `completionState` stays
+  `open`, and an obsolete one is deleted rather than closed. Closing applies to
+  Stories, and to Initiatives and Epics that were deliberately stopped.
+- **Setting a lead-time date does not move a card.** The dates are history;
+  changing the phase is what moves it. Set them only to bring a task in *with*
+  history.
 
-Omit the tag on create or import and the server adds the starting phase **for the
-type**: `progress:todo` for a Workitem, `progress:idea` for everything else. Do
-not blanket-set `progress:idea` on every task — that puts Workitems in the wrong
-column.
+## Tags — the rules no schema carries
 
-**The date fields are history, not state.** `draftDate`, `readyDate`, `todoDate`,
-`startedDate`, `doneDate` and `closedDate` are lead-time stamps recording when a
-task entered each phase. Set them only to bring a task in *with* history — an
-import of past work, or an agent creating something already refined. Setting a
-date does not move a card; changing the phase does.
+None of this is in the spec. It was established against a live project, where the
+tags sat in project settings but would not render on the cards until the rules
+below were applied.
 
-**Workitems do not use the `Closed` state.** A Workitem is a lightweight
-coordination item on the Iteration Board and is complete at `progress:done`.
-`completionState` stays `open` for a Workitem; an obsolete one is deleted rather
-than closed. Closing applies to Stories (and, when deliberately stopped,
-Initiatives and Epics).
+- **Every general tag must be namespaced `project:<value>`** — exactly one colon,
+  right after the literal `project`, and **no further colon inside `<value>`**. A
+  tag with a stray second colon, or one missing the prefix entirely, does not
+  reliably render on the card even though the raw string still shows up wherever
+  tag lists are displayed. (The spec's own `TaskResponse` example shows a bare
+  tag next to a `progress:*` one. Don't copy it.)
+- **`progress:<phase>` is a separate, reserved system namespace.** Don't mix the
+  two, and don't give it a definition — the app styles it.
+- **Group by colour, not by a second text prefix.** A nested namespace like
+  `project:Aufwand:gering` is the extra-colon mistake. Fold the category into the
+  value with a space (`project:Aufwand gering`) and give same-category tags
+  related colours.
+- **Keep values short; add a category word only when the value alone is
+  ambiguous.** Card space is limited, and a tag wide enough to crowd the title
+  costs more than it carries. `gering` means nothing alone, so `project:Aufwand
+  gering` earns its category word. `Must` carries its own meaning, so the MoSCoW
+  tag is `project:Must` and **not** `project:Priorität Must`. The colour family
+  says which dimension a tag belongs to, at no width. Tags with no grouping keep
+  the default colour; don't invent one to look organised.
+- **A value that is the default of the whole project earns no tag at all.** Where
+  one value dominates, tagging it costs width on every card and carries nothing,
+  because a filter on it returns everything. Tag the **deviations** and document
+  the default once. The cost is that you can no longer filter *for* the default,
+  only exclude the exceptions; for "what do we have to do", that is the same
+  answer.
+- **A tag and its definition are spelled differently, and this is the trap.** The
+  task carries the namespaced string, `settings.tagDefinitions` carries the
+  **bare value**: a task tagged `project:Must` needs `{"name": "Must", "color":
+  "red"}`, *not* `{"name": "project:Must"}`. Verified against a live project.
+  Collect the distinct values across all tasks, strip the `project:` prefix, and
+  emit one definition per value; don't declare a subset and hope the rest fall
+  back. Nothing rejects a missing or misspelled definition — the tag simply does
+  not get styled.
 
-## Tags — namespacing rules
+## References — `#N` is plain text
 
-Not in the spec at all, and confirmed directly against a live project (tags were
-visible in project settings but would not render on the task cards until the rules
-below were applied):
+A task carries **two** identifiers, and conflating them is the common mistake.
+`id` is a UUID that **you may set**; the server mints one only when you don't.
+`taskNumber` is the integer people and commits mean by `#570`, and it is the one
+thing you cannot set — no payload has a slot for it. The MCP argument spelled
+`task_id` **is** the `id` field; there is no third identifier.
 
-- **Every general/custom tag must be namespaced `project:<value>`** — exactly one colon, right after the literal `project`, and **no further colon inside `<value>`**. A tag with a stray second colon, or one missing the prefix entirely, does not reliably render on the task card even though the raw string still shows up wherever tag lists are displayed.
-- `progress:<phase>` is a **separate, reserved system namespace**. Don't mix the two.
-- **Group by color, not by a second text prefix.** Don't build a nested namespace like `project:Aufwand:gering` — that's the extra-colon mistake. Fold the category into the value with a space (`project:Aufwand gering`) and give same-category tags related colors via `tagDefinitions`.
-- **Keep values short, and add a category word only when the value alone is ambiguous.** Card space is limited: a tag wide enough to crowd the title has cost more than it carries. `gering` means nothing on its own, so `project:Aufwand gering` earns its category word. `Hersteller` is already unambiguous, so the obligation-bearer tag is `project:Hersteller` and **not** `project:Pflicht Hersteller`; `Must` carries its own meaning, so a MoSCoW tag is `project:Must` and **not** `project:Priorität Must`. The colour family says which dimension a tag belongs to, at no width. Tags with no grouping keep the default colour; don't invent one to look organised.
-- **A value that is the default of the whole project earns no tag at all.** Where one value dominates — every item `Must`, every item the same team — tagging it costs width on every card and carries nothing, because a filter on it returns everything. Tag the **deviations** and document the default once. The cost is that you can no longer filter *for* the default, only exclude the exceptions; for "what do we have to do", that is the same answer.
-- **Every tag used on a task needs an entry in `settings.tagDefinitions` — and the two are spelled differently.** The task carries the namespaced string, the definition carries the **bare value**: a task tagged `project:Must` needs `{"name": "Must", "color": "red"}`, *not* `{"name": "project:Must"}`. Verified against a live project on 2026-11-09 (`tags:["progress:idea","project:Must"]` alongside `tagDefinitions:[{"name":"Must","color":"red"},…]`). An earlier version of this file said "exact string match" — that was wrong, and it produces definitions that never match. Collect the full set of distinct values across all tasks, strip the `project:` prefix, and emit one definition per value; don't declare a subset and hope the rest fall back. Nothing rejects the import for a missing or misspelled definition — the tag simply does not get styled.
-- **`progress:*` needs no definition.** It is the reserved system namespace and is styled by the app; only the custom `project:*` values go into `tagDefinitions`.
-
-Example from a real import (spreadsheet columns Kategorie / Aufwand / Gewichtung /
-Priorität turned into tags):
-`["progress:idea", "project:Stammdaten", "project:Must", "project:Aufwand gering", "project:Gewichtung 3"]`
-
-## References and dependencies
-
-A task carries **two** identifiers, and conflating them is the common mistake:
-
-| Field on the task | Type | Who assigns it |
-|---|---|---|
-| `id` | UUID | **you may set it**; the server mints one only when you don't |
-| `taskNumber` | integer ≥ 1 | the server, always — **the `#570` people and commits mean** |
-
-**There is no third identifier.** The MCP argument spelled `task_id` **is** the
-task's `id` field; `get_task(task_id=…)` and `update_task(task_id=…)` take that
-UUID. An earlier version of this file listed `task_id` as server-assigned and a
-"map-local id" as a separate species — both wrong. A Markdown precursor's id is
-simply the `id` the task will be created with.
-
-**`id` is settable, and it is already being used that way.** `TaskCreate` and
-`TaskImport` both have an `id` slot with no caveat — compare `create_bucket`,
-whose `id` says "Accepted and ignored — the server always mints its own bucket
-id." Verified on 2026-11-09: the tasks in a live project carry hand-assigned ids
-of the form `33333333-0000-4000-8000-000000000001`.
-
-**`taskNumber` is the one thing you cannot set.** `create_task` "automatically
-handles task numbering", and no payload has a slot for it. To go the other way,
-`list_tasks(task_number=N)` turns a number into a task.
+That `id` is settable is not documented, so here is the evidence: `TaskCreate`
+and `TaskImport` both have an `id` slot with no caveat, where `create_bucket`'s
+`id` says *"Accepted and ignored — the server always mints its own bucket id."*
+Hand-assigned task ids have been observed surviving in a live project.
 
 **A `#N` reference is plain text in a description, and that is all it is.** You
 write the number into the Markdown and Betterplan resolves it — there is no
-reference object to create and nothing to link. `list_task_references` *searches*
-descriptions, discussion comments and activity logs for the number.
+reference object to create and nothing to link. `list_task_references`
+*searches* descriptions, comments and activity logs for the number.
 
 Two consequences, both only for a precursor format that is imported rather than
 typed by a human:
@@ -138,31 +143,30 @@ typed by a human:
   product, and nothing rejects it.
 - **The `#N` references cannot be finished by the import**, because the target's
   number does not exist yet when the referrer is created. `parentId` and
-  `releaseId` do resolve in a single pass, because you set the `id`s yourself —
-  **dependencies do not**, for a different reason: the import silently drops
-  them (see *Bulk import*).
+  `releaseId` do resolve in a single pass, because you set the `id`s yourself.
 
 **Scope that second pass to the references, and don't let it grow.** It touches
-only the handful of tasks whose descriptions carry a `#N`, not the whole import.
-Weigh it against simply naming the other item in prose: a reader understands
-"…see *Set up the intake channel*" perfectly well, it just isn't clickable and
-`list_task_references` won't find it. At ten references that is a trade-off, not
-a necessity.
+only the tasks whose descriptions carry a `#N`. Weigh it against simply naming
+the other item in prose: a reader understands "…see *Set up the intake channel*"
+perfectly well, it just isn't clickable. At ten references that is a trade-off,
+not a necessity.
 
-**That second pass must send `description` only.** `update_task` warns that
-re-sending a task you read first is "not harmless, because `reworkPoints` is a
-delta that accumulates" — a full write-back adds the task's rework points to its
-own lifetime total again, silently corrupting a quality metric. Send `task_id`
-and the fields you are changing, nothing else (ADR-029).
+**That second pass must send `description` only** — not a task you read first and
+wrote back whole. `TaskPatch.reworkPoints` is a delta added to the lifetime
+total, so a full write-back adds a task's rework points to its own total again
+and silently corrupts a quality metric. The spec states both semantics; the rule
+is to send `task_id` and the fields you are changing, nothing else (ADR-029).
 
-**Dependency direction is the other silent error.** `create_dependency` knows
-exactly one `dependencyType`, `blocks`, with `sourceTaskId` = "the task that has
-to be done **first**" and `targetTaskId` = "the task that is **waiting**".
+## Dependencies
 
-So a precursor field meaning "A depends on B" maps to **`sourceTaskId` = B,
-`targetTaskId` = A** — the dependency's *source* is the thing the entry pointed
-at. Import it the other way round and the critical path runs backwards on the
-Delivery Timeline while every call succeeds.
+The spec names the direction plainly — `sourceTaskId` is *"the task that has to
+be done first"*, `targetTaskId` *"the task that is waiting"*, and `blocks` is the
+only kind there is. An edge that would close a cycle is a 400.
+
+What that leaves to say is the **conversion**: a precursor field meaning "A
+depends on B" maps to `sourceTaskId` = B, `targetTaskId` = A. The dependency's
+*source* is the thing the entry pointed at. Import it the other way round and the
+critical path runs backwards while every call succeeds.
 
 That `blocks` is the only type is also why **soft references have to be text**:
 the data model offers no object for them. It is not a stylistic choice.
@@ -170,54 +174,63 @@ the data model offers no object for them. It is not a stylistic choice.
 ## Bugs
 
 A bug is **not** a separate Story. It is a Workitem with `isBug = true` whose
-parent is the affected Story. `isBug` is valid *only* on a `workitem` — any other
-type is refused. It flags **every ancestor** in the project's `bugRollup` until
-the Workitem reaches `progress:done`. See `betterplan-create-workitem`.
+parent is the affected Story — the spec covers what the flag does; the method
+point is that a bug never gets a Story of its own. See
+`betterplan-create-workitem`.
 
 ## Bulk import
 
-`POST /projects/import` creates a new project from a `ProjectImportRequest`.
-`team_id` is required in the body (**400** without it) and the caller must be a
-member (**403** otherwise). Every UUID in the payload is regenerated and every
-cross-reference remapped, so an import cannot collide with the project it came
-from.
+`POST /projects/import` creates a new project from a `ProjectImportRequest`; the
+spec documents the required `team_id`, the membership check, and that every UUID
+is regenerated with its cross-references remapped. `POST /projects/import-zip`
+takes the same thing as an archive. Five things the spec does not tell you:
 
-Note that `GET /templates/{template_id}`'s own description points at
-`POST /projects/{project_id}/import` — **that route does not exist**. Use
-`POST /projects/import`.
+- **Neither route is reachable from the MCP.** They carry no `mcp` tag, and the
+  44 tools that do have no import among them. An agent therefore *prepares* a
+  payload and hands it to a human to import — it cannot perform the import
+  itself. Plan the handover accordingly.
+- **The import does not carry personas**, and this is a gap, not a defect — the
+  schema never offered the key, so nothing is lost silently. Personas are a
+  first-class project entity on the same footing as a release, with nine routes
+  that are *all* MCP-exposed: create, patch, archive, restore, assign to a task,
+  remove, and read the assignments. A precursor format that assigns personas to
+  stories therefore always has a post-import step, and that step an agent *can*
+  do itself — unlike the import. Note the assignment is a route of its own
+  (`PUT /projects/{id}/personas/{persona_id}/tasks/{task_id}`); neither
+  `TaskImport` nor `TaskCreate` has a persona field.
+- **It always creates a new project.** There is no import into an existing one. A
+  map that should land next to existing work has to be created task by task
+  instead.
+- **Set `displayOrder` on every task**, as `{"storyboard": <n>}` — a sequential
+  index among siblings sharing a parent (root level counts as one shared
+  parent), **zero-based**. The spec says which routes honour the field; it does
+  not say that a task reaching the database without one has been seen to
+  disappear from views the first time it is edited.
+- **Leave `progress:*` out** unless a task needs a phase other than its type's
+  default, which the spec gives per field. Blanket-setting `progress:idea` across
+  a payload puts Workitems in the wrong column.
 
-Hierarchy is built purely from `parentId`: each task carries an `id` and its
-children reference it. Two things worth knowing that the schema does not tell you:
+### Where the spec and the product disagree
 
-- **Set `displayOrder` on every task**, as `{"storyboard": <n>}` — a sequential index among siblings sharing a parent (root level counts as one shared parent), **zero-based**; a live project shows `0, 1, 2` across three sibling stories. The single-task create routes compute this themselves and ignore what you send; the bulk write and the import keep it. A task that reaches the database without one has been seen to disappear from views the first time it is edited.
-- **Use UUIDs for `id`.** The import regenerates them and remaps every reference, so the ids in the payload are pure correlation keys — their only job is to let `parentId`, `releaseId` and the dependencies point at each other. A non-UUID key (a slug) is undocumented and untested; slugs were previously recommended here, treat that as unverified.
-- **Leave `progress:*` out** unless a task needs a phase other than its type's default. The server sets `progress:todo` for a Workitem and `progress:idea` for everything else. Blanket-setting `progress:idea` across a payload puts Workitems in the wrong column.
-- **It always creates a new project.** There is no import into an existing one. A map that should land next to existing work has to be created task by task instead.
+Checked against API **14.0.1**. Each entry needs a bug number in Betterplan; an
+entry whose bug is fixed belongs **deleted**, not amended. This section is the
+one part of this file with an expiry date, and it is the part that justifies the
+file existing.
 
-### What the import does not carry
-
-The project object — what `list_projects(include_data=true)` answers with — has
-`tasks`, `releases`, `buckets`, `timelineNotes`, `iterations`, `discussions` and
-`dependencies`. **It has no `personas` key.** Personas are a separate resource:
-create them with `create_persona` after the import and attach them with
-`assign_persona`. A precursor format that assigns personas to stories therefore
-always has a post-import step, however the rest is delivered.
-
-**It does not carry `dependencies` either.** A run on 2026-11-09 sent 7 of them
-in a `dependencies` array next to `tasks`; the project came back with
-`list_dependencies` → `[]`. Nothing was rejected, nothing warned — the key was
-accepted and dropped. So the dependency graph is a **second post-import step**,
-one `create_dependency` call per edge, and the direction has to be got right by
-hand there (see *Dependencies* above). Whether a differently-named key would
-work is unknown; what is known is that this one does not.
-
-The remaining top-level key names were **derived from the project object's shape,
-not from a schema** — and that same run confirmed them: `team_id` in
-`snake_case` (the project object answers with `teamId`), plus `title`,
-`settings`, `tasks` and `releases` carried 151 tasks and 4 releases with
-hierarchy, release assignment, tag definitions, `vision` and `description`
-intact, multi-line Markdown in the release fields included. Treat those as
-verified; a key this file does not list is still a guess.
+- **`dependencies` is declared and dropped — Betterplan #797.**
+  `ProjectImportRequest` has a `dependencies` array with a full
+  `DependencyImport` schema (`sourceTaskId`, `targetTaskId`, `dependencyType` all
+  required). An import that sends it comes back with `list_dependencies` → `[]`.
+  Nothing is rejected and nothing warns. This is a defect under repair, not a
+  property of the format: keep emitting the array, because it is correct and
+  because it is what the fix will honour. **Until #797 ships, the graph needs a
+  post-import pass** — one `create_dependency` per edge, direction set by hand
+  (see *Dependencies* above).
+- **`GET /templates/{template_id}` points at a route that does not exist —
+  Betterplan #798.** Its description says the result "can be posted unchanged to
+  `POST /projects/{project_id}/import`". There is no such path, and the spec's
+  own `paths` does not list it. Use `POST /projects/import`. The rest of that
+  sentence is sound: the result really does match `ProjectImportRequest`.
 
 When in doubt about any other field, compare against a real project's `tasks[]`
 as ground truth — `list_tasks(project_id=…, limit=3)` is enough and far cheaper

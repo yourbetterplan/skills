@@ -205,7 +205,7 @@ Two kinds of relation between items, and they are carried differently.
 
 A **hard dependency** forces an order: item B cannot start, or cannot be finished, until item A is done. These are the relations that would form a critical path in project management. Model them as **real Betterplan dependencies** (`create_dependency`) — only then do they reach the Delivery Timeline and show what actually gates what. Naming the dependency in prose instead leaves it invisible to planning.
 
-A **soft reference** explains, contrasts, or points at related work without forcing an order. Carry it as a `#N` reference in the description. No dependency object — and not by choice: `blocks` is the only `dependencyType` there is, so the data model has nothing else to offer. `#N` is the task's **number**, a server-assigned field of its own, not its `task_id`; see *References and dependencies* in `references/data-model.md` for the three identifiers, the direction `blocks` runs in, and the two traps an import walks into.
+A **soft reference** explains, contrasts, or points at related work without forcing an order. Carry it as a `#N` reference in the description. No dependency object — and not by choice: `blocks` is the only `dependencyType` there is, so the data model has nothing else to offer. `#N` is the task's **number**, a server-assigned field of its own, not its `task_id`; see *References — `#N` is plain text* and *Dependencies* in `references/data-model.md` for the two identifiers, the direction `blocks` runs in, and the two traps an import walks into.
 
 | Relation | Carried as | Example |
 |---|---|---|
@@ -253,7 +253,7 @@ Six rules, ordered by effect:
 1. **One thought per sentence.** Aim for an average under 16 words; split anything past 30. A sentence that needs two em-dashes to hold itself together is two sentences.
 2. **Verbs, not nominalizations.** `prüfen` beats `die Prüfung erfolgt`, `entscheiden` beats `die Entscheidungsfindung`. German lets you stack nouns forever, and that is the single biggest source of descriptions nobody reads twice.
 3. **Concrete things, not category names.** `ein Installer, den der Kunde herunterlädt` beats `ein in Verkehr gebrachtes Artefakt`. If the reader has to translate your term into an example before they can think, you picked the wrong word.
-4. **References at the end of the sentence or on their own line — never mid-clause.** `… gelingt praktisch nicht. (CRA-EG(9))` beats `… fasst CRA-EG(9) weit: …`. An id inside a clause interrupts the reader twice. This holds for `#N` item references too.
+4. **References at the end of the sentence or on their own line — never mid-clause.** `… gelingt praktisch nicht. (Lastenheft §4.2)` beats `… fasst Lastenheft §4.2 weit: …`. An id inside a clause interrupts the reader twice. This holds for `#N` item references too.
 5. **Direct address where the reader has to act or decide.** `Zähl auf, was dein Haus verlässt` beats `Es ist ein Inventar zu erstellen`. Use **du**, not Sie — these are working documents, not correspondence. Purely descriptive background stays impersonal.
 6. **No invented labels.** Do not compress a thought behind a marker you made up (`*Prüft:*`, `*Richtungssinn:*`). A thought that needs a label nobody knows needs a sentence instead.
 
@@ -278,7 +278,7 @@ Never call the create / update tool, post a comment, or change a maturity tag in
 
 The MCP describes its own tools and field names at runtime — follow those for exact arguments. After creating, confirm with a short chat summary (what was created, its type and parent). If a required argument is missing (e.g. the target project or parent), ask the user.
 
-**Always set `parentId` on an Epic, a User Story and a Workitem.** Create the parent first if it does not exist yet, or ask which one the user means. Never fall back to creating the item parentless — a parentless item has been seen to become unupdatable. See *The hierarchy* in `references/data-model.md` for the full table and the status of the backend's enforcement (Project and Devteam Stories are root-level and take no parent).
+**Always set `parentId` on an Epic, a User Story and a Workitem.** Create the parent first if it does not exist yet, or ask which one the user means. Never fall back to creating the item parentless — nothing reliably rejects it, so there is no error to catch the mistake for you. See *The hierarchy, past what `parentId` says* in `references/data-model.md` for the full table (Project and Devteam Stories are root-level and take no parent).
 
 **If the MCP is not available**, fall back to a Markdown artifact the user can paste in. Output **content only** — title and description (plus acceptance criteria for Stories). Do **not** emit meta or structural fields (type, parent, maturity, story points, dependencies); mention those in the chat reply instead. Default shape (skills adapt it per type):
 
