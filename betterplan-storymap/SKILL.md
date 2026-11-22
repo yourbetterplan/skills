@@ -435,6 +435,24 @@ Materials. Was hier liegt, sind die Invarianten des **Formats** — und die hatt
 vorher in zwei Projekten zwei Fassungen, die um mehr als vierhundert Zeilen
 auseinandergelaufen waren, ohne dass eine davon mehr fand.
 
+### Beide Skripte haben Tests
+
+```bash
+cd <skillpfad>/scripts && python3 -m unittest discover tests
+```
+
+**Standardbibliothek, kein pytest** — bewusst: ein `pyproject.toml` mit
+Dev-Dependency erzeugt ein `.venv`, und das wandert beim Installieren als
+Ballast in jedes Projekt, das dieses Skill zieht. Die Skripte brauchen
+ohnehin keine Abhängigkeit.
+
+Die Tests schreiben eine befundfreie Minimal-Map und perturbieren je **eine**
+Sache. Festgenagelt ist vor allem, was lautlos falsch wird: die
+Abhängigkeitsrichtung, eine Liste, die als Zeichenkette ankommt, ein Feldwert,
+der im Nachbarfeld landet, und eine Kette, die länger ist als die
+Rekursionsgrenze. Änderst du eines der Skripte, lauf sie — und wenn ein Test
+dabei fällt, prüfe erst, ob *er* recht hat.
+
 ## Die Abdeckungsprüfung
 
 `COVERAGE.md` führt jede Anforderung auf die Stories zurück, die sie erfüllen.
