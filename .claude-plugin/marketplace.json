@@ -6,7 +6,7 @@
     "url": "https://yourbetterplan.com"
   },
   "description": "Official skill registry for Betterplan — planning & delivery method.",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "plugins": [
     {
       "name": "betterplan-workflow",
@@ -16,7 +16,7 @@
       ],
       "strict": false,
       "description": "Classifies work into the correct Betterplan building block and understands the Betterplan method. Routes requests to the appropriate create-* skill.",
-      "version": "0.2.0",
+      "version": "0.3.0",
       "author": {
         "name": "Betterplan"
       },
@@ -39,7 +39,7 @@
       ],
       "strict": false,
       "description": "Creates a Betterplan Initiative — a large business goal that sets direction.",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "author": {
         "name": "Betterplan"
       },
@@ -62,7 +62,7 @@
       ],
       "strict": false,
       "description": "Creates a Betterplan Epic — a step in the business process under an Initiative.",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "author": {
         "name": "Betterplan"
       },
@@ -85,7 +85,7 @@
       ],
       "strict": false,
       "description": "Creates a Betterplan Story — User Story, Project Story, or Devteam Story.",
-      "version": "0.1.0",
+      "version": "0.2.0",
       "author": {
         "name": "Betterplan"
       },
@@ -108,7 +108,7 @@
       ],
       "strict": false,
       "description": "Creates Betterplan Workitems or bug entries for a Story.",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "author": {
         "name": "Betterplan"
       },
@@ -154,7 +154,7 @@
       ],
       "strict": false,
       "description": "Transforms raw project materials (PDF, DOCX, XLSX, CSV, Markdown, HTML, RTF, ODT, TXT) into agent-friendly Markdown under .betterplan/references/.",
-      "version": "0.2.0",
+      "version": "0.2.1",
       "author": {
         "name": "Betterplan"
       },
@@ -177,7 +177,7 @@
       ],
       "strict": false,
       "description": "Defines the goal of a Betterplan project and records it in .betterplan/GOAL.md. Runs after betterplan-transform and before betterplan-extract.",
-      "version": "0.1.0",
+      "version": "0.2.0",
       "author": {
         "name": "Betterplan"
       },
@@ -200,7 +200,7 @@
       ],
       "strict": false,
       "description": "Extracts structured domain knowledge — requirements, constraints, risks, ambiguities — from transformed references into .betterplan/requirements/ and a glossary. Requires a project goal from betterplan-goal.",
-      "version": "0.2.0",
+      "version": "0.2.1",
       "author": {
         "name": "Betterplan"
       },
@@ -223,7 +223,7 @@
       ],
       "strict": false,
       "description": "Builds the User Story Map from .betterplan/GOAL.md and the extracted requirements, as Markdown under .betterplan/storymap/ plus a coverage artifact. Runs after betterplan-extract.",
-      "version": "0.1.0",
+      "version": "0.2.0",
       "author": {
         "name": "Betterplan"
       },

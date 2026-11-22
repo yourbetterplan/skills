@@ -1,6 +1,6 @@
 {
   "name": "betterplan-skills",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Official skill registry for Betterplan — planning & delivery method.",
   "keywords": [
     "betterplan",
@@ -25,10 +25,6 @@
     ]
   },
   "scripts": {},
-  "dependencies": {
-    "ajv": "^8.17.1",
-    "yaml": "^2.6.1"
-  },
   "author": "Betterplan",
   "license": "MIT",
   "private": false
