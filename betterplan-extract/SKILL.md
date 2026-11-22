@@ -73,12 +73,12 @@ schärft statt es neu zu erfinden.
 
 ## Warum ein Ziel Pflicht ist
 
-Ohne Ziel erfindet ein Agent eines. Das ist nicht hypothetisch: Beim ersten
-Lauf dieses Skills auf einen Ordner mit EU-Verordnung und BSI-Richtlinien
+Ohne Ziel erfindet ein Agent eines. Das ist nicht hypothetisch: beim ersten Lauf
+dieses Skills auf einen Ordner voll Rechtstexte und technischer Richtlinien
 entstand eine plausible, als offene Frage markierte Annahme über das
-Projektziel — und darauf 146 vollständig belegte Anforderungen, geschnitten
-entlang einer Struktur, die am tatsächlichen Vorhaben vorbeiging. Der Inhalt war
-richtig, der Schnitt falsch.
+Projektziel — und darauf über hundert vollständig belegte Anforderungen,
+geschnitten entlang einer Struktur, die am tatsächlichen Vorhaben vorbeiging.
+Der Inhalt war richtig, der Schnitt falsch.
 
 Ein Abbruch kostet eine Minute. Ein falscher Schnitt kostet die Arbeit, die
 darauf aufbaut.
