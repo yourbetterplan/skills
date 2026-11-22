@@ -6,7 +6,7 @@
 Liest `<projektroot>/.betterplan/GOAL.md` und `<projektroot>/.betterplan/storymap/`,
 schreibt `<projektroot>/.betterplan/import/projects-import.json` und
 `nachtraege.json`. Beides ist **Generat** — ändert sich die Map, neu laufen
-lassen; vorher das Prüfskript des Projekts.
+lassen; vorher `check-map.py` daneben.
 
 Projektunabhängig. Was aus dem Projekt kommt, kommt aus seinen Dateien:
 
@@ -21,7 +21,7 @@ Projektunabhängig. Was aus dem Projekt kommt, kommt aus seinen Dateien:
 | `team_id` | Argument — es gibt keinen sinnvollen Default |
 
 Die Feldzuordnung ist gegen einen echten Datenstand belegt, nicht gegen das
-Schema allein (2026-11-09):
+Schema allein:
 
   * ein Task hat `id` (UUID, **setzbar**) und `taskNumber` (nicht setzbar)
   * Task-Tags tragen `project:<wert>`, die `tagDefinitions` den nackten <wert>
@@ -107,7 +107,11 @@ def catalogue(path: pathlib.Path) -> dict[str, dict[str, str | None]]:
     if not path.exists():
         return {}
     out = {}
-    for block in re.split(r"\n## ", path.read_text(encoding="utf-8"))[1:]:
+    # `\A` muss mitgetrennt werden: eine Katalogdatei **darf** mit `## ` in der
+    # ersten Zeile beginnen, und ein Trennmuster, das nur `\n## ` kennt, hat
+    # dann keinen Treffer — `[1:]` wirft den einzigen Block weg und die Datei
+    # liest sich als leer. Bei `_personas.md` fällt das nirgends auf.
+    for block in re.split(r"(?:\A|\n)## ", path.read_text(encoding="utf-8"))[1:]:
         lines = block.split("\n")
         # Backticks um den Schlüssel sind Auszeichnung, nicht Teil des Namens:
         # `## \`integrator\`` liest sich im Katalog als Schlüssel und nicht als

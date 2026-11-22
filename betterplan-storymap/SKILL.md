@@ -33,8 +33,8 @@ Flughöhe, Release-Schnitte). Dieser Skill wiederholt beides nicht, er wendet es
 Anforderungen. Dazwischen liegt Arbeit, die keiner der beiden tut: welche Epics
 den Backbone tragen, welche Story welche Anforderung erfüllt, und ob am Ende
 keine Anforderung heimatlos ist. Ohne eigenen Schritt rutscht diese Arbeit in
-die Zielklärung — dort entstand sie beim ersten Lauf, als 22 Epics in einem
-Dokument, das Initiativen halten sollte.
+die Zielklärung — dort entstand sie beim ersten Lauf, als zwei Dutzend Epics in
+einem Dokument, das Initiativen halten sollte.
 
 ## Voraussetzungen
 
@@ -280,17 +280,17 @@ eingerückte Zeile, die kein neues Feld beginnt, beendet den Feldblock — so da
 hinter den Feldern ein Kommentar oder eine Trennlinie stehen.
 
 ```markdown
-## r2-demopruefung
+## r2-selbstauskunft
 
-- **title:** Demoprüfung für Prüflinge verfügbar
+- **title:** Kunden sehen ihren Vertragsstand selbst
 - **position:** 2
 - **goal:**
-  Prüflinge können sich **mindestens zehn Wochen vorher** vertraut machen.
+  Eine Kundin beantwortet die Frage „was habe ich gebucht" **ohne Anruf**.
 
-  Das Datum ergibt sich rückwärts aus dem Prüfungstermin.
+  Das Datum hängt an der Freigabe des Vertragsdatenmodells und steht noch nicht.
 - **features:**
-  - Ohne Prüfungsdruck, beliebig oft
-  - Vollständig von echten Prüfungen getrennt
+  - Lesender Zugriff, keine Änderungen
+  - Ohne Anmeldung nicht erreichbar
 
 > *Kommentar:* steht außerhalb der Felder und landet in keinem Wert.
 ```
@@ -379,7 +379,8 @@ weglassen kann, wenn ein Termin kippt.
 **Tag-Werte bleiben kurz.** `Must`, `Should`, `Could` tragen ihre Bedeutung
 selbst und verdienen kein Kategoriewort — `project:Should`, nicht
 `project:Priorität Should`. Die Regel und ihre Begründung stehen in
-`betterplan-workflow/references/data-model.md` unter *Tags — namespacing rules*;
+`betterplan-workflow/references/data-model.md` unter *Tags — the rules no schema
+carries*;
 sie gilt für jede Tag-Dimension, nicht nur für die Priorität.
 
 **Kein `Won't`.** Was wir nicht machen, ist kein Item: es steht als abgelehnter
@@ -397,23 +398,42 @@ Fall sie zum Pflichtweg wird.
 ## Die Map ist maschinell prüfbar
 
 Das Markdown-Zwischenformat erlaubt eine Prüfung, die in Betterplan selbst
-niemand mehr macht — nutze sie, statt Verweise mit dem Auge zu verfolgen. Prüfbar
-und wert, geprüft zu werden, ist alles, was **stillschweigend** bricht:
+niemand mehr macht — nutze sie, statt Verweise mit dem Auge zu verfolgen. Ein
+Loch, das ein Skript findet, ist billiger als eines, das der Import findet.
 
-- `id` ist eine UUID und projektweit eindeutig
-- `parent`, `dependsOn`, `persona` und `release` lösen auf einen existierenden
-  Eintrag auf
-- jeder Prosa-Verweis `[Titel](#id)` löst auf ein **Item** auf, zeigt nicht auf
-  das eigene, und sein Anzeigetext stimmt mit dem Titel des Ziels überein
-- Epics und User Stories haben einen Parent, Initiativen und Project Stories
-  keinen
-- keine Abhängigkeit zeigt auf sich selbst oder läuft im Kreis
-- `priority` trägt nur erlaubte Werte und widerspricht nicht den `sources`
-- kein Epic ohne Story
+**Dafür gibt es ein Skript: `scripts/check-map.py` in diesem Skill.** Lauf es
+**vor** `build-import.py`:
 
-Ein Loch, das ein Skript findet, ist billiger als eines, das der Import findet.
-Lege das Prüfskript ins Projekt, nicht in dieses Skill-Repository — es kennt die
-Konventionen *dieser* Map.
+```bash
+python3 <skillpfad>/scripts/check-map.py --project <projektroot>
+```
+
+Es liest die Map mit **demselben Parser wie der Generator** — `frontmatter()`
+und `catalogue()` importiert es aus `build-import.py`. Zwei Vorstellungen davon,
+was eine Item-Datei ist, wären genau der Fehlertyp, den es finden soll.
+
+Geprüft wird, was **stillschweigend** bricht: `id` ist eine UUID und
+projektweit eindeutig; `parent`, `dependsOn`, `persona`, `release` und jeder
+`tags`-Wert lösen auf; der Parent hat den **richtigen Typ** (eine Story unter
+einer Initiative legt jeder Aufruf anstandslos an); Initiativen, Project und
+Devteam Stories stehen auf Wurzelebene; keine Abhängigkeit zeigt auf sich
+selbst oder läuft im Kreis; jeder Prosa-Verweis `[Titel](#id)` löst auf ein
+Item auf, zeigt nicht auf das eigene, und sein Anzeigetext stimmt mit dem Titel
+des Ziels überein; `maturity` ist `idea`; `priority` trägt nur Abweichungen von
+Must und widerspricht nicht den `sources`; kein Epic ohne Story und keine
+Initiative ohne Epic.
+
+**Befunde sind zweigeteilt, und das ist Absicht.** Fehler (Exit 1) brechen
+etwas. Hinweise (Exit 0) sind Urteilsfragen — fehlende `sources`, Geschwister
+mit gleichem `order`, ein Epic ohne Release, dessen Stories alle dasselbe
+tragen. Eine Prüfung, die Urteilsfragen als Fehler führt, wird abgeschaltet,
+und dann findet sie auch die Fehler nicht mehr.
+
+**Projektspezifische Konventionen gehören trotzdem ins Projekt.** Die
+Abdeckungsprüfung unten ist das Beispiel: sie kennt die Anforderungen *dieses*
+Materials. Was hier liegt, sind die Invarianten des **Formats** — und die hatten
+vorher in zwei Projekten zwei Fassungen, die um mehr als vierhundert Zeilen
+auseinandergelaufen waren, ohne dass eine davon mehr fand.
 
 ## Die Abdeckungsprüfung
 
@@ -523,7 +543,7 @@ Es schreibt `.betterplan/import/projects-import.json`, `personas.json` und
 **ersten Absatz** von `goal:vision` bzw. `goal:purpose` — nicht aus dem ganzen
 Abschnitt, denn unter der Vision steht oft ein Blockzitat mit dem, was an ihr
 noch offen ist, und das Feld endet bei 200 Zeichen. Die Tag-Farben kommen aus
-`_tags.md`. Lauf es **nach** dem Prüfskript, nicht davor.
+`_tags.md`. Lauf es **nach** `check-map.py`, nicht davor.
 
 **Was im Map-Verzeichnis keine Item-Datei ist**, überspringt es: alles ohne `id`
 und ohne `type` — ein README, die Arbeitsnotiz aus der Zielklärung. Was nur
@@ -566,14 +586,14 @@ Geschwistergruppe, `tags` als `project:<wert>` und `releaseId`.
 - **Die `#N`-Verweise** brauchen die Nummern, die erst beim Anlegen entstehen.
   Rendere sie in der Nutzlast als Klartext und liste die Stellen auf, statt
   totgelaufene Platzhalter zu exportieren.
-- **Die Abhängigkeiten kommen nicht an.** Ein Lauf am 2026-11-09 hat sieben in
-  einem `dependencies`-Array neben `tasks` mitgeschickt; `list_dependencies`
-  antwortete danach mit `[]`. Nichts wurde abgelehnt, nichts gewarnt — der
-  Schlüssel wurde angenommen und verworfen. Der Abhängigkeitsgraph ist also ein
-  **eigener Nachlaufschritt**, ein `create_dependency` je Kante, und die
-  Richtung ist dort von Hand richtig zu setzen. Das Skript erzeugt das Array
-  weiterhin: es ist die Liste, die dieser Nachlauf abarbeitet, und wenn der
-  Import den Schlüssel eines Tages auswertet, ist nichts zu ändern.
+- **Die Abhängigkeiten kommen derzeit nicht an — Betterplan #797.** Der Import
+  nimmt das `dependencies`-Array neben `tasks` an und verwirft es; nichts wird
+  abgelehnt, nichts gewarnt, `list_dependencies` antwortet danach mit `[]`. Das
+  ist ein Defekt in Reparatur, keine Eigenschaft des Formats: **das Skript
+  erzeugt das Array weiterhin**, denn es ist richtig und ist das, was der Fix
+  auswerten wird. Solange #797 offen ist, braucht der Graph einen **eigenen
+  Nachlaufschritt**, ein `create_dependency` je Kante, mit der Richtung von Hand
+  richtig gesetzt. Prüfe den Stand von #797, bevor du den Nachlauf einplanst.
 
 Lege Nutzlast und Übergabenotiz ins Projekt, nicht ins Skill-Repository — sie
 sind Generat aus der Map und werden mit ihr neu erzeugt.
